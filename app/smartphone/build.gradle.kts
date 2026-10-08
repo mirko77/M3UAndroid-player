@@ -27,7 +27,7 @@ android {
     namespace = "com.m3u.smartphone"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.m3u.smartphone"
+        applicationId = "com.m3u.smartphone.fork"
         minSdk = 26
         targetSdk = 33
         versionCode = 145
