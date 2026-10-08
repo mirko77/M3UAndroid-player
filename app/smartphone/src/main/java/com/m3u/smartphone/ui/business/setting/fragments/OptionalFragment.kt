@@ -12,7 +12,6 @@ import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Collections
 import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.FlashOn
-import androidx.compose.material.icons.rounded.Loop
 import androidx.compose.material.icons.rounded.PictureInPicture
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ReplayCircleFilled
@@ -30,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import com.m3u.core.foundation.architecture.preferences.ConnectTimeout
 import com.m3u.core.foundation.architecture.preferences.PlaylistStrategy
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.ReconnectMode
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.i18n.R.string
@@ -166,25 +164,6 @@ internal fun OptionalFragment(
                 icon = Icons.Rounded.Cast,
                 checked = screencast,
                 onChanged = { screencast = !screencast }
-            )
-        }
-        item {
-            var reconnectMode by mutablePreferenceOf(PreferencesKeys.RECONNECT_MODE)
-            TextPreference(
-                title = stringResource(string.feat_setting_reconnect_mode).title(),
-                icon = Icons.Rounded.Loop,
-                trailing = when (reconnectMode) {
-                    ReconnectMode.RETRY -> stringResource(string.feat_setting_reconnect_mode_retry)
-                    ReconnectMode.RECONNECT -> stringResource(string.feat_setting_reconnect_mode_reconnect)
-                    else -> stringResource(string.feat_setting_reconnect_mode_no)
-                },
-                onClick = {
-                    reconnectMode = when (reconnectMode) {
-                        ReconnectMode.RETRY -> ReconnectMode.RECONNECT
-                        ReconnectMode.RECONNECT -> ReconnectMode.NO
-                        else -> ReconnectMode.RETRY
-                    }
-                }
             )
         }
         item {

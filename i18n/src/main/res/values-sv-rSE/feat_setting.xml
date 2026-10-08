@@ -135,10 +135,6 @@
     <string name="feat_setting_screen_rotating_description">tillgänglig när systemrotation är upplåst</string>
     <string name="feat_setting_optional_features">valfria funktioner</string>
     <string name="feat_setting_unseen_limit">rekommendera längesedan sedda favoritkanaler</string>
-    <string name="feat_setting_reconnect_mode">återanslut automatiskt</string>
-    <string name="feat_setting_reconnect_mode_no">aldrig</string>
-    <string name="feat_setting_reconnect_mode_retry">endast vid fel</string>
-    <string name="feat_setting_reconnect_mode_reconnect">alltid</string>
     <string name="feat_setting_appearance">utseende</string>
     <string name="feat_setting_appearance_hint_edit_color">långtryck för att redigera färg</string>
     <string name="feat_setting_theme_parchment">Pergament</string>

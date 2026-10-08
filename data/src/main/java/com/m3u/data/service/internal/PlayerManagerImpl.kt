@@ -50,7 +50,6 @@ import androidx.media3.transformer.TransformationRequest
 import androidx.media3.transformer.Transformer
 import com.m3u.core.foundation.architecture.Publisher
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.ReconnectMode
 import com.m3u.core.foundation.architecture.preferences.Settings
 import com.m3u.core.foundation.architecture.preferences.get
 import com.m3u.data.SSLs
@@ -996,20 +995,6 @@ class PlayerManagerImpl @Inject constructor(
     private suspend fun onPlaybackEnded(generation: Long) {
         if (!providerSessionState.isCurrent(generation)) return
         val channelUrl = chain.url
-        if (
-            settings[PreferencesKeys.RECONNECT_MODE] == ReconnectMode.RECONNECT &&
-            providerSessionState.isCurrent(generation)
-        ) {
-            val command = mediaCommand.value
-            mainCoroutineScope.launch {
-                val replayGeneration = providerSessionState.beginGenerationIfCurrent(generation)
-                    ?: return@launch
-                replay(
-                    generation = replayGeneration,
-                    command = command,
-                )
-            }
-        }
         if (
             channelUrl.isNotEmpty() &&
             providerSessionState.isCurrent(generation)

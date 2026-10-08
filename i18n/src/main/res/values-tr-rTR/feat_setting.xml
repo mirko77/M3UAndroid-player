@@ -135,10 +135,6 @@
     <string name="feat_setting_screen_rotating_description">sistem döndürme açıkken kullanılabilir</string>
     <string name="feat_setting_optional_features">isteğe bağlı özellikler</string>
     <string name="feat_setting_unseen_limit">uzun süredir izlenmeyen favori kanalları öner</string>
-    <string name="feat_setting_reconnect_mode">otomatik yeniden bağlan</string>
-    <string name="feat_setting_reconnect_mode_no">asla</string>
-    <string name="feat_setting_reconnect_mode_retry">sadece başarısız olursa</string>
-    <string name="feat_setting_reconnect_mode_reconnect">her zaman</string>
     <string name="feat_setting_appearance">görünüm</string>
     <string name="feat_setting_appearance_hint_edit_color">renk düzenlemek için uzun basın</string>
     <string name="feat_setting_theme_parchment">Parşömen</string>

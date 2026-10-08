@@ -135,10 +135,6 @@
     <string name="feat_setting_screen_rotating_description">disponibile quando la rotazione di sistema è sbloccata</string>
     <string name="feat_setting_optional_features">funzionalità opzionali</string>
     <string name="feat_setting_unseen_limit">mostra canali preferiti non visti di recente</string>
-    <string name="feat_setting_reconnect_mode">riconnessione automatica</string>
-    <string name="feat_setting_reconnect_mode_no">mai</string>
-    <string name="feat_setting_reconnect_mode_retry">solo in caso di errore</string>
-    <string name="feat_setting_reconnect_mode_reconnect">sempre</string>
     <string name="feat_setting_appearance">aspetto</string>
     <string name="feat_setting_appearance_hint_edit_color">tieni premuto per modificare il colore</string>
     <string name="feat_setting_theme_parchment">Pergamena</string>

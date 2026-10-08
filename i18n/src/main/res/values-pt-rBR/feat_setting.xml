@@ -133,10 +133,6 @@
     <string name="feat_setting_screen_rotating_description">Disponível quando a rotação do sistema está desbloqueada</string>
     <string name="feat_setting_optional_features">Recursos opcionais do player</string>
     <string name="feat_setting_unseen_limit">Recomendar streams favoritas não vistas há um tempo</string>
-    <string name="feat_setting_reconnect_mode">Reconexão automática</string>
-    <string name="feat_setting_reconnect_mode_no">Nunca</string>
-    <string name="feat_setting_reconnect_mode_retry">Apenas quando falhar</string>
-    <string name="feat_setting_reconnect_mode_reconnect">Sempre</string>
     <string name="feat_setting_appearance">Aparência</string>
     <string name="feat_setting_appearance_hint_edit_color">Pressione e segure para editar o tema</string>
     <string name="feat_setting_theme_parchment">Pergaminho</string>

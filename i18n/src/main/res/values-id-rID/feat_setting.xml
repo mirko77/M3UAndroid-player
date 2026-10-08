@@ -134,10 +134,6 @@
     <string name="feat_setting_screen_rotating_description">Tersedia saat rotasi layar sistem tidak terkunci</string>
     <string name="feat_setting_optional_features">Fitur tambahan</string>
     <string name="feat_setting_unseen_limit">Rekomendasi saluran favorit lama</string>
-    <string name="feat_setting_reconnect_mode">Sambungan ulang otomatis</string>
-    <string name="feat_setting_reconnect_mode_no">tidak pernah</string>
-    <string name="feat_setting_reconnect_mode_retry">hanya jika gagal</string>
-    <string name="feat_setting_reconnect_mode_reconnect">selalu</string>
     <string name="feat_setting_appearance">tampilan</string>
     <string name="feat_setting_appearance_hint_edit_color">tekan lama untuk mengubah warna</string>
     <string name="feat_setting_theme_parchment">Perkamen</string>
