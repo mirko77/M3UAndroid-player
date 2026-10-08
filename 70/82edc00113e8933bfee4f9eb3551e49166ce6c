@@ -1,0 +1,14 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/components/recommend/RecommendItem.kt
+  h_2231ff2aa93473 138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7082edc00113e8933bfee4f9eb3551e49166ce6c",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
