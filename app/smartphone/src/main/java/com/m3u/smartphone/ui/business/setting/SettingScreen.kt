@@ -27,7 +27,6 @@ import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +81,6 @@ import com.m3u.data.worker.beginPersistedUriPermissionLease
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.configuration.PlaylistConfigurationRoute
 import com.m3u.smartphone.ui.business.configuration.providerDisplayName
-import com.m3u.smartphone.ui.business.setting.components.CanvasBottomSheet
 import com.m3u.smartphone.ui.business.setting.fragments.AppearanceFragment
 import com.m3u.smartphone.ui.business.setting.fragments.CodecPackFragment
 import com.m3u.smartphone.ui.business.setting.fragments.ExtensionPluginAuthorizationScreen
@@ -167,9 +165,6 @@ fun SettingRoute(
         }
     }
 
-    val sheetState = rememberModalBottomSheetState()
-    var colorScheme: ColorScheme? by remember { mutableStateOf(null) }
-
     val createDocumentLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/*")) { uri ->
             uri ?: return@rememberLauncherForActivityResult
@@ -235,9 +230,7 @@ fun SettingRoute(
             backup = backup,
             restore = restore,
             colorSchemes = colorSchemes,
-            openColorScheme = { colorScheme = it },
             onSelectTheme = viewModel::selectTheme,
-            restoreSchemes = viewModel::restoreSchemes,
             onClipboard = { viewModel.onClipboard(it) },
             onBeginSubscriptionDraft = viewModel::beginSubscriptionDraft,
             subscriptionAccepted = viewModel.subscriptionAccepted,
@@ -290,17 +283,6 @@ fun SettingRoute(
             contentPadding = contentPadding,
         )
     }
-
-    CanvasBottomSheet(
-        sheetState = sheetState,
-        colorScheme = colorScheme,
-        onApplyColor = { argb, isDark ->
-            viewModel.applyColor(colorScheme, argb, isDark)
-        },
-        onDismissRequest = {
-            colorScheme = null
-        }
-    )
 }
 
 @Composable
@@ -326,9 +308,7 @@ private fun SettingScreen(
     onClipboard: (String) -> Unit,
     onBeginSubscriptionDraft: (String, DataSource) -> Unit,
     colorSchemes: List<ColorScheme>,
-    openColorScheme: (ColorScheme) -> Unit,
     onSelectTheme: (ThemePreference) -> Unit,
-    restoreSchemes: () -> Unit,
     epgs: List<Playlist>,
     onDeleteEpgPlaylist: (String) -> Unit,
     onInstallCodecPack: () -> Unit,
@@ -966,9 +946,7 @@ private fun SettingScreen(
                 SettingDestination.Appearance -> {
                     AppearanceFragment(
                         colorSchemes = colorSchemes,
-                        openColorScheme = openColorScheme,
                         onSelectTheme = onSelectTheme,
-                        restoreSchemes = restoreSchemes,
                         contentPadding = contentPadding,
                         modifier = Modifier.fillMaxSize()
                     )

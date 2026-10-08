@@ -27,7 +27,6 @@ import com.m3u.data.api.TvApiDelegate
 import com.m3u.data.codec.CodecPackInstallResult
 import com.m3u.data.codec.CodecPackRepository
 import com.m3u.data.database.dao.ColorSchemeDao
-import com.m3u.data.database.example.ColorSchemeExample
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.ColorScheme
 import com.m3u.data.database.model.DataSource
@@ -1261,39 +1260,6 @@ class SettingViewModel @Inject constructor(
     fun selectTheme(theme: ThemePreference) {
         viewModelScope.launch {
             settings.applyThemePreference(theme)
-        }
-    }
-
-    @OptIn(ExperimentalStdlibApi::class)
-    fun applyColor(
-        prev: ColorScheme?,
-        argb: Int,
-        isDark: Boolean
-    ) {
-        viewModelScope.launch {
-            colorSchemeDao.replace(
-                previous = prev,
-                replacement = ColorScheme(
-                    argb = argb,
-                    isDark = isDark,
-                    name = "#${argb.toHexString(HexFormat.UpperCase)}"
-                ),
-            )
-            settings.applyThemePreference(
-                ThemePreference(
-                    presetId = ThemePreset.MATERIAL,
-                    argb = argb,
-                    isDark = isDark,
-                    style = ThemeStyle.MATERIAL,
-                )
-            )
-        }
-    }
-
-    fun restoreSchemes() {
-        val schemes = ColorSchemeExample.schemes
-        viewModelScope.launch {
-            colorSchemeDao.insertAll(*schemes.toTypedArray())
         }
     }
 
