@@ -1,0 +1,20 @@
+.idea/artifacts/api_jvm.xml
+  h_2231ff2aa93473 4-6
+.idea/compiler.xml
+  h_2231ff2aa93473 4-7
+.idea/deploymentTargetSelector.xml
+  h_2231ff2aa93473 5-8,11-14
+.idea/gradle.xml
+  h_2231ff2aa93473 15-22,46-50,56-61,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5420bffa40e1a7b68e66a2634678457839bca3be",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
