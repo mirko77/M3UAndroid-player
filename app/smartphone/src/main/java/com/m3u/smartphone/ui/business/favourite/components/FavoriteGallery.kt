@@ -35,7 +35,7 @@ internal fun FavoriteGallery(
     Row(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = spacing.medium),
+            .padding(horizontal = spacing.medium),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         @Suppress("NAME_SHADOWING")
