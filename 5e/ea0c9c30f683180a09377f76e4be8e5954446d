@@ -1,0 +1,22 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/AppearanceFragment.kt
+  h_2231ff2aa93473 7,16-18,21-22,107-134
+app/smartphone/src/main/java/com/m3u/smartphone/ui/common/AppNavHost.kt
+  h_2231ff2aa93473 5,46-49
+app/smartphone/src/main/java/com/m3u/smartphone/ui/common/RootGraph.kt
+  h_2231ff2aa93473 3,31,56,79
+app/smartphone/src/main/java/com/m3u/smartphone/ui/common/internal/Toolkit.kt
+  h_2231ff2aa93473 42
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5eea0c9c30f683180a09377f76e4be8e5954446d",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
