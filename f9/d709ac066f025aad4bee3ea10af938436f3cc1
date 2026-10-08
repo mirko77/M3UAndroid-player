@@ -1,0 +1,14 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/AppearanceFragment.kt
+  h_2231ff2aa93473 76,103-104,106-117,176,182,194,237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f9d709ac066f025aad4bee3ea10af938436f3cc1",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
