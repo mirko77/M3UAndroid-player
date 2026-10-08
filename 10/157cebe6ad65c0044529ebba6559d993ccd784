@@ -1,0 +1,28 @@
+app/smartphone/build.gradle.kts
+  h_2231ff2aa93473 28
+app/tv/build.gradle.kts
+  h_2231ff2aa93473 14
+baselineprofile/smartphone/build.gradle.kts
+  h_2231ff2aa93473 12
+baselineprofile/tv/build.gradle.kts
+  h_2231ff2aa93473 12
+build.gradle.kts
+  h_2231ff2aa93473 201
+gradle/libs.versions.toml
+  h_2231ff2aa93473 48
+samples/hello-extension/build.gradle.kts
+  h_2231ff2aa93473 7
+testing/extension-reference/build.gradle.kts
+  h_2231ff2aa93473 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "10157cebe6ad65c0044529ebba6559d993ccd784",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
