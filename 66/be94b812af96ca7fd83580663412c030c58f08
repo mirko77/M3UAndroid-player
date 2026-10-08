@@ -1,0 +1,26 @@
+.github/workflows/android.yml
+  h_2231ff2aa93473 61
+.github/workflows/baseline-profiles.yml
+  h_2231ff2aa93473 88,117
+.idea/artifacts/api_jvm.xml
+  h_2231ff2aa93473 1-6
+.idea/codeStyles/Project.xml
+  h_2231ff2aa93473 1-157
+.idea/codeStyles/codeStyleConfig.xml
+  h_2231ff2aa93473 1-5
+.idea/markdown.xml
+  h_2231ff2aa93473 1-8
+.idea/studiobot.xml
+  h_2231ff2aa93473 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "66be94b812af96ca7fd83580663412c030c58f08",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
