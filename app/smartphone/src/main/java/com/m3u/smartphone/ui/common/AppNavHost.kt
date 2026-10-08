@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -40,13 +41,14 @@ fun AppNavHost(
 
     val zappingMode by preferenceOf(PreferencesKeys.ZAPPING_MODE)
 
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        exitTransition = { slideOutVertically { -it / 5 } + fadeOut() },
-        popEnterTransition = { slideInVertically { -it / 5 } + fadeIn() },
-        modifier = modifier
-    ) {
+    key(startDestination) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            exitTransition = { slideOutVertically { -it / 5 } + fadeOut() },
+            popEnterTransition = { slideInVertically { -it / 5 } + fadeIn() },
+            modifier = modifier
+        ) {
         rootGraph(
             contentPadding = contentPadding,
             navigateToPlaylist = { playlist ->
@@ -89,5 +91,6 @@ fun AppNavHost(
                 navController.popBackStack()
             },
         )
+        }
     }
 }

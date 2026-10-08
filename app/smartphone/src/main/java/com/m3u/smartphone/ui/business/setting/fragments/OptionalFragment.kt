@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Cast
+import androidx.compose.material.icons.rounded.Collections
 import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.Loop
@@ -55,6 +56,16 @@ internal fun OptionalFragment(
         contentPadding = contentPadding + PaddingValues(spacing.medium),
         modifier = modifier.fillMaxSize()
     ) {
+        item {
+            var startOnFavorites by mutablePreferenceOf(PreferencesKeys.START_ON_FAVORITES)
+            SwitchSharedPreference(
+                title = string.feat_setting_start_on_favorites,
+                content = string.feat_setting_start_on_favorites_description,
+                icon = Icons.Rounded.Collections,
+                checked = startOnFavorites,
+                onChanged = { startOnFavorites = !startOnFavorites }
+            )
+        }
         item {
             var tunneling by mutablePreferenceOf(PreferencesKeys.TUNNELING)
             SwitchSharedPreference(

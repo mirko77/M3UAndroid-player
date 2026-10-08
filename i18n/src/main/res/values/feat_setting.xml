@@ -308,4 +308,6 @@
     <string name="feat_setting_codec_pack_verify">verify again</string>
     <string name="feat_setting_codec_pack_refresh">refresh</string>
     <string name="feat_setting_codec_pack_delete">delete downloaded components</string>
+    <string name="feat_setting_start_on_favorites">open on favorites</string>
+    <string name="feat_setting_start_on_favorites_description">show the favorites tab at startup instead of home</string>
 </resources>

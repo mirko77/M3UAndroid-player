@@ -60,6 +60,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -125,10 +126,19 @@ fun App(
     modifier: Modifier = Modifier,
     viewModel: AppViewModel = hiltViewModel(),
 ) {
-    val navController = rememberNavController()
+    val startOnFavorites by preferenceOf(PreferencesKeys.START_ON_FAVORITES)
+    val startDestination = if (startOnFavorites) {
+        Destination.Favorite.name
+    } else {
+        Destination.Foryou.name
+    }
+    val navController = key(startDestination) {
+        rememberNavController()
+    }
 
     AppImpl(
         navController = navController,
+        startDestination = startDestination,
         channels = viewModel.channels,
         onSearchQuery = { query -> viewModel.searchQuery.value = query },
         isRemoteControlSheetVisible = viewModel.isConnectSheetVisible,
@@ -150,6 +160,7 @@ fun App(
 @Composable
 private fun AppImpl(
     navController: NavHostController,
+    startDestination: String,
     channels: Flow<PagingData<ChannelWithProgramme>>,
     onSearchQuery: (String) -> Unit,
     isRemoteControlSheetVisible: Boolean,
@@ -295,11 +306,13 @@ private fun AppImpl(
                 showContextualTopBar = arguments.showContextualTopBar,
                 onNestedDetailVisibilityChanged =
                     arguments.onNestedDetailVisibilityChanged,
+                startDestination = arguments.startDestination,
             )
         }
     }
     val appContentArguments = AppContentArguments(
         navController = navController,
+        startDestination = startDestination,
         channels = channels,
         searchBarState = searchBarState,
         textFieldState = textFieldState,
@@ -453,6 +466,7 @@ private fun AppImpl(
 
 private class AppContentArguments(
     val navController: NavHostController,
+    val startDestination: String,
     val channels: Flow<PagingData<ChannelWithProgramme>>,
     val searchBarState: SearchBarState,
     val textFieldState: TextFieldState,
@@ -468,6 +482,7 @@ private class AppContentArguments(
 @Composable
 private fun AppContent(
     navController: NavHostController,
+    startDestination: String,
     channels: Flow<PagingData<ChannelWithProgramme>>,
     searchBarState: SearchBarState,
     textFieldState: TextFieldState,
@@ -594,6 +609,7 @@ private fun AppContent(
         }
         AppNavHost(
             navController = navController,
+            startDestination = startDestination,
             navigateToDestination = navigateToDestination,
             navigateToChannel = navigateToChannel,
             contentPadding = contentPadding,
