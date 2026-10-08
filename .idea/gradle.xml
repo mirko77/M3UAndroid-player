@@ -12,6 +12,14 @@
                   <project path="$PROJECT_DIR$/native-load-gradle-plugin" />
                 </projects>
               </build>
+              <build path="$PROJECT_DIR$/parser" name="parser">
+                <projects>
+                  <project path="$PROJECT_DIR$/parser" />
+                  <project path="$PROJECT_DIR$/parser/m3u" />
+                  <project path="$PROJECT_DIR$/parser/protocol" />
+                  <project path="$PROJECT_DIR$/parser/xtream" />
+                </projects>
+              </build>
             </builds>
           </compositeBuild>
         </compositeConfiguration>
@@ -22,31 +30,38 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/app/extension" />
             <option value="$PROJECT_DIR$/app/smartphone" />
-            <option value="$PROJECT_DIR$/app/tv" />
             <option value="$PROJECT_DIR$/baselineprofile" />
             <option value="$PROJECT_DIR$/baselineprofile/smartphone" />
-            <option value="$PROJECT_DIR$/baselineprofile/tv" />
             <option value="$PROJECT_DIR$/business" />
             <option value="$PROJECT_DIR$/business/channel" />
-            <option value="$PROJECT_DIR$/business/extension" />
             <option value="$PROJECT_DIR$/business/favorite" />
             <option value="$PROJECT_DIR$/business/foryou" />
             <option value="$PROJECT_DIR$/business/playlist" />
             <option value="$PROJECT_DIR$/business/playlist-configuration" />
             <option value="$PROJECT_DIR$/business/setting" />
             <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/core/extension" />
             <option value="$PROJECT_DIR$/core/foundation" />
             <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/extension" />
+            <option value="$PROJECT_DIR$/extension/api" />
+            <option value="$PROJECT_DIR$/extension/runtime" />
+            <option value="$PROJECT_DIR$/extension/sdk-android" />
+            <option value="$PROJECT_DIR$/extension/transport-android" />
             <option value="$PROJECT_DIR$/i18n" />
             <option value="$PROJECT_DIR$/lint" />
             <option value="$PROJECT_DIR$/lint/annotation" />
             <option value="$PROJECT_DIR$/lint/processor" />
             <option value="$PROJECT_DIR$/native-load-gradle-plugin" />
+            <option value="$PROJECT_DIR$/parser" />
+            <option value="$PROJECT_DIR$/parser/m3u" />
+            <option value="$PROJECT_DIR$/parser/protocol" />
+            <option value="$PROJECT_DIR$/parser/xtream" />
+            <option value="$PROJECT_DIR$/samples" />
+            <option value="$PROJECT_DIR$/samples/hello-extension" />
             <option value="$PROJECT_DIR$/testing" />
             <option value="$PROJECT_DIR$/testing/device-benchmark" />
+            <option value="$PROJECT_DIR$/testing/extension-reference" />
             <option value="$PROJECT_DIR$/testing/mock-server" />
           </set>
         </option>
