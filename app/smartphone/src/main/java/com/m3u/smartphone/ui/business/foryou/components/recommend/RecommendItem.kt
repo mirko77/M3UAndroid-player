@@ -135,7 +135,7 @@ private fun RecommendItemContent(
                 Spacer(modifier = Modifier.weight(1f))
 
                 CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.headlineMedium.copy(
+                    LocalTextStyle provides MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Black
                     )
                 ) {
