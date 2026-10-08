@@ -1,0 +1,24 @@
+README.md
+  h_2231ff2aa93473 3,5,7-8,14,16,20,24
+app/smartphone/build.gradle.kts
+  h_2231ff2aa93473 33-34
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/ForyouScreen.kt
+  h_2231ff2aa93473 186
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/preferences/OtherPreferences.kt
+  h_2231ff2aa93473 54,57
+app/smartphone/src/main/res/values/stings.xml
+  h_2231ff2aa93473 3
+business/foryou/src/main/java/com/m3u/business/foryou/ForyouViewModel.kt
+  h_2231ff2aa93473 80-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5de1ab639937622076b1afde8ef423c5ef9f42e0",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
