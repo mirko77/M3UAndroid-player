@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.DeviceHub
 import androidx.compose.material.icons.rounded.FitScreen
 import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.HideImage
@@ -86,7 +85,6 @@ internal fun AppearanceFragment(
     var compactDimension by mutablePreferenceOf(PreferencesKeys.COMPACT_DIMENSION)
     var noPictureMode by mutablePreferenceOf(PreferencesKeys.NO_PICTURE_MODE)
     val followSystemTheme = themePreferences.followSystemTheme
-    var godMode by mutablePreferenceOf(PreferencesKeys.GOD_MODE)
 
     val colorScheme = MaterialTheme.colorScheme
 
@@ -298,15 +296,6 @@ internal fun AppearanceFragment(
                 title = stringResource(string.feat_setting_restore_schemes).title(),
                 icon = Icons.Rounded.Restore,
                 onClick = restoreSchemes
-            )
-        }
-        item {
-            SwitchSharedPreference(
-                title = string.feat_setting_god_mode,
-                content = string.feat_setting_god_mode_description,
-                icon = Icons.Rounded.DeviceHub,
-                checked = godMode,
-                onChanged = { godMode = !godMode }
             )
         }
     }

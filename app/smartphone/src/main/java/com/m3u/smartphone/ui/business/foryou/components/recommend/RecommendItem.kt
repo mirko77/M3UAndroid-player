@@ -53,9 +53,6 @@ import com.m3u.smartphone.ui.material.brush.RecommendCardContainerBrush
 import com.m3u.smartphone.ui.material.components.FontFamilies
 import com.m3u.smartphone.ui.material.components.createPremiumBrush
 import com.m3u.smartphone.ui.material.model.LocalSpacing
-import kotlin.time.Clock
-import kotlin.time.Instant
-import kotlin.time.Duration.Companion.days
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -68,7 +65,6 @@ internal fun RecommendItem(
 ) {
     RecommendItemLayout(pageOffset, onClick, modifier) {
         when (spec) {
-            is Recommend.UnseenSpec -> UnseenContent(spec)
             is Recommend.DiscoverSpec -> DiscoverContent(spec)
             is Recommend.CwSpec -> CwContent(spec)
             is Recommend.NewRelease -> NewReleaseContent(spec)
@@ -174,49 +170,6 @@ private fun RecommendItemContent(
             info()
         }
     }
-}
-
-@Composable
-private fun UnseenContent(spec: Recommend.UnseenSpec) {
-    val channel = spec.channel
-    val duration = remember(channel.seen) {
-        Clock.System.now() - Instant.fromEpochMilliseconds(channel.seen)
-    }
-    RecommendItemContent(
-        cover = spec.channel.cover.orEmpty(),
-        primaryContent = {
-            Text(
-                text = stringResource(string.feat_foryou_recommend_unseen_label),
-                maxLines = 1
-            )
-        },
-        secondaryContent = {
-            Text(
-                text = when {
-                    duration > 30.days -> stringResource(
-                        string.feat_foryou_recommend_unseen_more_than_days,
-                        30
-                    )
-
-                    duration > 1.days -> stringResource(
-                        string.feat_foryou_recommend_unseen_days,
-                        duration.inWholeDays
-                    )
-
-                    else -> stringResource(
-                        string.feat_foryou_recommend_unseen_hours,
-                        duration.inWholeHours
-                    )
-                }.title()
-            )
-        },
-        content = {
-            Text(
-                text = channel.title,
-                maxLines = 1
-            )
-        }
-    )
 }
 
 @Composable

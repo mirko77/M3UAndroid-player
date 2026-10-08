@@ -154,7 +154,6 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.PLAYLIST_STRATEGY, PlaylistStrategy.ALL)
     put(PreferencesKeys.ROW_COUNT, 1)
     put(PreferencesKeys.CONNECT_TIMEOUT, ConnectTimeout.SHORT)
-    put(PreferencesKeys.GOD_MODE, false)
     put(PreferencesKeys.CLIP_MODE, ClipMode.ADAPTIVE)
     put(PreferencesKeys.AUTO_REFRESH_CHANNELS, false)
     put(PreferencesKeys.FULL_INFO_PLAYER, false)
@@ -173,7 +172,6 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.VOLUME_GESTURE, true)
     put(PreferencesKeys.SCREENCAST, true)
     put(PreferencesKeys.SCREEN_ROTATING, false)
-    put(PreferencesKeys.UNSEENS_MILLISECONDS, UnseensMilliseconds.DAYS_3)
     put(PreferencesKeys.RECONNECT_MODE, ReconnectMode.NO)
     put(PreferencesKeys.COLOR_ARGB, ThemePreference.DEFAULT.argb)
     put(PreferencesKeys.THEME_STYLE, ThemePreference.DEFAULT.style)
@@ -217,7 +215,6 @@ object PreferencesKeys {
     val ROW_COUNT = intPreferencesKey("rowCount")
 
     val CONNECT_TIMEOUT = longPreferencesKey("connect-timeout")
-    val GOD_MODE = booleanPreferencesKey("god-mode")
 
     val CLIP_MODE = intPreferencesKey("clip-mode")
     val AUTO_REFRESH_CHANNELS = booleanPreferencesKey("auto-refresh-channels")
@@ -231,7 +228,6 @@ object PreferencesKeys {
     val VOLUME_GESTURE = booleanPreferencesKey("volume-gesture")
     val SCREENCAST = booleanPreferencesKey("screencast")
     val SCREEN_ROTATING = booleanPreferencesKey("screen-rotating")
-    val UNSEENS_MILLISECONDS = longPreferencesKey("unseens-milliseconds")
     val RECONNECT_MODE = intPreferencesKey("reconnect-mode")
     val COLOR_ARGB = intPreferencesKey("color-argb")
     val THEME_STYLE = intPreferencesKey("theme-style")

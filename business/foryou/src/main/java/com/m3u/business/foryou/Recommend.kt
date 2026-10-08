@@ -23,11 +23,6 @@ class Recommend(
     ) : Spec
 
     @Immutable
-    data class UnseenSpec(
-        val channel: Channel
-    ) : Spec
-
-    @Immutable
     data class CwSpec(
         val channel: Channel,
         val position: Long

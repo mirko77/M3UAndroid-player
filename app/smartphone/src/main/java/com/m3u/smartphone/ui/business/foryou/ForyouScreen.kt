@@ -1,7 +1,6 @@
 package com.m3u.smartphone.ui.business.foryou
 
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,9 +34,7 @@ import com.m3u.business.foryou.ForyouViewModel
 import com.m3u.business.foryou.Recommend
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.ui.composableOf
-import com.m3u.core.foundation.ui.thenIf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Resource
 import com.m3u.data.database.model.Channel
@@ -55,7 +52,6 @@ import com.m3u.smartphone.ui.common.helper.Metadata
 import com.m3u.smartphone.ui.material.components.EpisodesBottomSheet
 import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
-import com.m3u.smartphone.ui.material.ktx.interceptVolumeEvent
 import com.m3u.smartphone.ui.material.model.LocalSpacing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,7 +71,6 @@ fun ForyouRoute(
     val coroutineScope = rememberCoroutineScope()
 
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
-    val godMode by preferenceOf(PreferencesKeys.GOD_MODE)
 
     val title = stringResource(string.ui_title_foryou)
     val addContentDescription = stringResource(string.ui_action_add)
@@ -133,15 +128,6 @@ fun ForyouRoute(
             onUnsubscribePlaylist = viewModel::onUnsubscribePlaylist,
             modifier = Modifier
                 .fillMaxSize()
-                .thenIf(godMode) {
-                    Modifier.interceptVolumeEvent { event ->
-                        rowCount = when (event) {
-                            KeyEvent.KEYCODE_VOLUME_UP -> (rowCount - 1).coerceAtLeast(1)
-                            KeyEvent.KEYCODE_VOLUME_DOWN -> (rowCount + 1).coerceAtMost(2)
-                            else -> return@interceptVolumeEvent
-                        }
-                    }
-                }
         )
 
         EpisodesBottomSheet(
@@ -195,15 +181,9 @@ private fun ForyouScreen(
     }
 
     LaunchedEffect(headlineSpec) {
-        val spec = headlineSpec
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             delay(400.milliseconds)
-            Metadata.headlineUrl = when (spec) {
-                is Recommend.UnseenSpec -> spec.channel.cover.orEmpty()
-                is Recommend.DiscoverSpec -> ""
-                is Recommend.NewRelease -> ""
-                else -> ""
-            }
+            Metadata.headlineUrl = ""
         }
     }
 

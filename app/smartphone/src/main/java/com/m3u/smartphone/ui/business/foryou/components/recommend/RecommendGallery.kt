@@ -35,10 +35,6 @@ internal fun RecommendGallery(
 
     val onClick = { spec: Recommend.Spec ->
         when (spec) {
-            is Recommend.UnseenSpec -> {
-                onPlayChannel(spec.channel)
-            }
-
             is Recommend.DiscoverSpec -> {
                 Events.discoverCategory = eventOf(spec.category)
                 navigateToPlaylist(spec.playlist)

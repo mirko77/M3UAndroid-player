@@ -5,9 +5,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkQuery
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.Settings
-import com.m3u.core.foundation.architecture.preferences.flowOf
 import com.m3u.core.foundation.wrapper.Resource
 import com.m3u.core.foundation.wrapper.mapResource
 import com.m3u.core.foundation.wrapper.resource
@@ -34,9 +31,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @HiltViewModel
 class ForyouViewModel @Inject constructor(
@@ -44,7 +38,6 @@ class ForyouViewModel @Inject constructor(
     channelRepository: ChannelRepository,
     programmeRepository: ProgrammeRepository,
     private val playerManager: PlayerManager,
-    settings: Settings,
     workManager: WorkManager,
 ) : ViewModel() {
     val playlists: StateFlow<Map<Playlist, Int>> = playlistRepository
@@ -84,23 +77,14 @@ class ForyouViewModel @Inject constructor(
 
     val refreshingEpgUrls: Flow<List<String>> = programmeRepository.refreshingEpgUrls
 
-    private val unseensDuration = settings.flowOf(PreferencesKeys.UNSEENS_MILLISECONDS)
-        .map { it.toDuration(DurationUnit.MILLISECONDS) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = Duration.INFINITE
-        )
-
-    val specs = combine(
-        unseensDuration.flatMapLatest { channelRepository.observeAllUnseenFavorites(it) },
-        channelRepository.observePlayedRecently(),
-    ) { channels, playedRecently ->
-        listOfNotNull<Recommend.Spec>(
-            playedRecently?.let { Recommend.CwSpec(it, playerManager.getCwPosition(it.url)) },
-            *(channels.map { channel -> Recommend.UnseenSpec(channel) }.take(8).toTypedArray())
-        )
-    }
+    val specs = channelRepository.observePlayedRecently()
+        .map { playedRecently ->
+            listOfNotNull<Recommend.Spec>(
+                playedRecently?.let {
+                    Recommend.CwSpec(it, playerManager.getCwPosition(it.url))
+                },
+            )
+        }
         .flowOn(Dispatchers.IO)
         .stateIn(
             scope = viewModelScope,

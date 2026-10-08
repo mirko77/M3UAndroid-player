@@ -1,7 +1,6 @@
 package com.m3u.smartphone.ui.business.favourite
 
 import android.content.res.Configuration
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -28,8 +27,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.m3u.business.favorite.FavoriteViewModel
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
-import com.m3u.core.foundation.ui.thenIf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Sort
 import com.m3u.data.database.model.Channel
@@ -44,7 +41,6 @@ import com.m3u.smartphone.ui.material.components.EpisodesBottomSheet
 import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
 import com.m3u.smartphone.ui.material.components.SortBottomSheet
-import com.m3u.smartphone.ui.material.ktx.interceptVolumeEvent
 import com.m3u.smartphone.ui.material.model.LocalHazeState
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
@@ -65,7 +61,6 @@ fun FavoriteRoute(
     val coroutineScope = rememberCoroutineScope()
 
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
-    val godMode by preferenceOf(PreferencesKeys.GOD_MODE)
 
     val channels = viewModel.channels.collectAsLazyPagingItems()
     val episodes by viewModel.episodes.collectAsStateWithLifecycle()
@@ -122,19 +117,6 @@ fun FavoriteRoute(
         onLongClickChannel = { mediaSheetValue = MediaSheetValue.FavoriteScreen(it) },
         modifier = Modifier
             .fillMaxSize()
-            .thenIf(godMode) {
-                Modifier.interceptVolumeEvent { event ->
-                    rowCount = when (event) {
-                        KeyEvent.KEYCODE_VOLUME_UP ->
-                            (rowCount - 1).coerceAtLeast(1)
-
-                        KeyEvent.KEYCODE_VOLUME_DOWN ->
-                            (rowCount + 1).coerceAtMost(2)
-
-                        else -> return@interceptVolumeEvent
-                    }
-                }
-            }
             .then(modifier)
     )
 

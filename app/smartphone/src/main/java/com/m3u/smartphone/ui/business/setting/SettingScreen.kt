@@ -538,14 +538,6 @@ private fun SettingScreen(
                         }
                     }
                 },
-                navigateToExtensionPlugins = {
-                    coroutineScope.launch {
-                        navigator.navigateTo(
-                            pane = ListDetailPaneScaffoldRole.Detail,
-                            contentKey = SettingDestination.ExtensionPlugins,
-                        )
-                    }
-                },
                 navigateToThemeSelector = {
                     coroutineScope.launch {
                         navigator.navigateTo(

@@ -14,12 +14,10 @@ import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.Loop
 import androidx.compose.material.icons.rounded.PictureInPicture
-import androidx.compose.material.icons.rounded.Recommend
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ReplayCircleFilled
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.SettingsEthernet
-import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Unarchive
@@ -33,7 +31,6 @@ import com.m3u.core.foundation.architecture.preferences.ConnectTimeout
 import com.m3u.core.foundation.architecture.preferences.PlaylistStrategy
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.ReconnectMode
-import com.m3u.core.foundation.architecture.preferences.UnseensMilliseconds
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.i18n.R.string
@@ -42,8 +39,6 @@ import com.m3u.smartphone.ui.business.setting.components.SwitchSharedPreference
 import com.m3u.smartphone.ui.material.components.TextPreference
 import com.m3u.smartphone.ui.material.ktx.plus
 import com.m3u.smartphone.ui.material.model.LocalSpacing
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @Composable
 internal fun OptionalFragment(
@@ -230,32 +225,6 @@ internal fun OptionalFragment(
             )
         }
         item {
-            var unseensMilliseconds by mutablePreferenceOf(PreferencesKeys.UNSEENS_MILLISECONDS)
-            val unseensMillisecondsText = if (
-                unseensMilliseconds > UnseensMilliseconds.DAYS_30
-            ) {
-                stringResource(string.ui_never)
-            } else {
-                val days = unseensMilliseconds.toDuration(DurationUnit.MILLISECONDS)
-                    .toLong(DurationUnit.DAYS)
-                    .toInt()
-                pluralStringResource(plurals.ui_duration_days, days, days)
-            }
-            TextPreference(
-                title = stringResource(string.feat_setting_unseen_limit).title(),
-                icon = Icons.Rounded.Recommend,
-                trailing = unseensMillisecondsText,
-                onClick = {
-                    unseensMilliseconds = when (unseensMilliseconds) {
-                        UnseensMilliseconds.DAYS_3 -> UnseensMilliseconds.DAYS_7
-                        UnseensMilliseconds.DAYS_7 -> UnseensMilliseconds.DAYS_30
-                        UnseensMilliseconds.DAYS_30 -> UnseensMilliseconds.NEVER
-                        else -> UnseensMilliseconds.DAYS_3
-                    }
-                }
-            )
-        }
-        item {
             var autoRefreshChannels by mutablePreferenceOf(PreferencesKeys.AUTO_REFRESH_CHANNELS)
             SwitchSharedPreference(
                 title = string.feat_setting_auto_refresh_channels,
@@ -273,16 +242,6 @@ internal fun OptionalFragment(
                 icon = Icons.Rounded.AccessTime,
                 checked = twelveHourClock,
                 onChanged = { twelveHourClock = !twelveHourClock }
-            )
-        }
-        item {
-            var remoteControl by mutablePreferenceOf(PreferencesKeys.REMOTE_CONTROL)
-            SwitchSharedPreference(
-                title = string.feat_setting_remote_control,
-                content = string.feat_setting_remote_control_description,
-                icon = Icons.Rounded.SettingsRemote,
-                checked = remoteControl,
-                onChanged = { remoteControl = !remoteControl }
             )
         }
     }

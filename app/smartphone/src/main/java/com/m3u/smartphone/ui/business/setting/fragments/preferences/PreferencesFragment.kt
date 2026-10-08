@@ -19,7 +19,6 @@ internal fun PreferencesFragment(
     versionCode: Int,
     codecPackEnabled: Boolean,
     navigateToPlaylistManagement: () -> Unit,
-    navigateToExtensionPlugins: () -> Unit,
     navigateToThemeSelector: () -> Unit,
     navigateToOptional: () -> Unit,
     navigateToCodecPack: () -> Unit,
@@ -36,7 +35,6 @@ internal fun PreferencesFragment(
             RegularPreferences(
                 fragment = fragment,
                 navigateToPlaylistManagement = navigateToPlaylistManagement,
-                navigateToExtensionPlugins = navigateToExtensionPlugins,
                 navigateToThemeSelector = navigateToThemeSelector,
                 navigateToOptional = navigateToOptional,
                 codecPackEnabled = codecPackEnabled,

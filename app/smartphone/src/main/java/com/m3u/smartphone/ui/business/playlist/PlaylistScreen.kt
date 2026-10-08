@@ -14,7 +14,6 @@ import android.content.res.Configuration.UI_MODE_TYPE_WATCH
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -66,7 +65,6 @@ import com.m3u.business.playlist.PlaylistViewModel
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
 import com.m3u.core.foundation.architecture.preferences.preferenceOf
-import com.m3u.core.foundation.ui.thenIf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Event
 import com.m3u.core.foundation.wrapper.Sort
@@ -89,7 +87,6 @@ import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
 import com.m3u.smartphone.ui.material.components.SortBottomSheet
 import com.m3u.smartphone.ui.material.ktx.checkPermissionOrRationale
-import com.m3u.smartphone.ui.material.ktx.interceptVolumeEvent
 import com.m3u.smartphone.ui.material.ktx.isAtTop
 import com.m3u.smartphone.ui.material.ktx.minus
 import com.m3u.smartphone.ui.material.ktx.only
@@ -117,7 +114,6 @@ internal fun PlaylistRoute(
 
     val autoRefreshChannels by preferenceOf(PreferencesKeys.AUTO_REFRESH_CHANNELS)
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
-    var godMode by mutablePreferenceOf(PreferencesKeys.GOD_MODE)
 
     val zapping by viewModel.zapping.collectAsStateWithLifecycle()
     val playlistUrl by viewModel.playlistUrl.collectAsStateWithLifecycle()
@@ -235,19 +231,6 @@ internal fun PlaylistRoute(
         ),
         modifier = Modifier
             .fillMaxSize()
-            .thenIf(godMode) {
-                Modifier.interceptVolumeEvent { event ->
-                    rowCount = when (event) {
-                        KeyEvent.KEYCODE_VOLUME_UP ->
-                            (rowCount - 1).coerceAtLeast(1)
-
-                        KeyEvent.KEYCODE_VOLUME_DOWN ->
-                            (rowCount + 1).coerceAtMost(2)
-
-                        else -> return@interceptVolumeEvent
-                    }
-                }
-            }
             .then(modifier)
     )
 
