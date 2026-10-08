@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.m3u.testing.extension.reference"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.m3u.testing.extension.reference"
         minSdk = 26

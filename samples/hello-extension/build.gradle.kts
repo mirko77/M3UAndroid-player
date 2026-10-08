@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.m3u.samples.hello.extension"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.m3u.samples.hello.extension"
