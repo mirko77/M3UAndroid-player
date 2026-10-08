@@ -1,0 +1,28 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/ChannelMask.kt
+  h_2231ff2aa93473 498-500
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/PlayerActivity.kt
+  h_2231ff2aa93473 4,18-20,55-59
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/components/recommend/RecommendGallery.kt
+  h_2231ff2aa93473 71
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/components/recommend/RecommendItem.kt
+  h_2231ff2aa93473 138
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/OptionalFragment.kt
+  h_2231ff2aa93473 157-166
+core/foundation/src/main/java/com/m3u/core/foundation/architecture/preferences/Preferences.kt
+  h_2231ff2aa93473 190,250
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 313-314
+testing/bin/run-smartphone-provider-ui-matrix.sh
+  h_2231ff2aa93473 21,27-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c133332920fb1aeb7b5c57eb66aa7c3e9b267177",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
