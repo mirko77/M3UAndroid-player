@@ -13,8 +13,9 @@
 
 M3U Player plays IPTV streams from your own M3U playlists (plus XMLTV programme guides).
 
-It is a maintained fork of [M3UAndroid by oxyroid](https://github.com/oxyroid/M3UAndroid)
-(upstream is archived, so upstream is used as a starting point only).
+It started as a fork of [M3UAndroid by oxyroid](https://github.com/oxyroid/M3UAndroid),
+which is archived and no longer maintained. The goal of this project is to keep
+maintaining a simple M3U player for phones and tablets.
 The fork keeps the phone/tablet app and deliberately simplifies it:
 
 - M3U playlists (and their EPG guides) only. Xtream Codes, Emby, Jellyfin,
