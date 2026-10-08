@@ -60,7 +60,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,7 +87,9 @@ import com.m3u.business.playlist.configuration.PlaylistConfigurationNavigation
 import com.m3u.business.playlist.ChannelWithProgramme
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.ThemeStyle
+import com.m3u.core.foundation.architecture.preferences.get
 import com.m3u.core.foundation.architecture.preferences.preferenceOf
+import com.m3u.core.foundation.architecture.preferences.settings
 import com.m3u.data.service.MediaCommand
 import com.m3u.data.tv.model.RemoteDirection
 import com.m3u.i18n.R.string
@@ -126,19 +127,23 @@ fun App(
     modifier: Modifier = Modifier,
     viewModel: AppViewModel = hiltViewModel(),
 ) {
-    val startOnFavorites by preferenceOf(PreferencesKeys.START_ON_FAVORITES)
-    val startDestination = if (startOnFavorites) {
-        Destination.Favorite.name
-    } else {
-        Destination.Foryou.name
+    // Latched once per process: toggling the preference later (e.g. from
+    // Settings) must not rebuild the navigation stack mid-session.
+    var startDestination by remember { mutableStateOf<String?>(null) }
+    val dataStore = LocalContext.current.settings
+    LaunchedEffect(dataStore) {
+        startDestination = if (dataStore[PreferencesKeys.START_ON_FAVORITES]) {
+            Destination.Favorite.name
+        } else {
+            Destination.Foryou.name
+        }
     }
-    val navController = key(startDestination) {
-        rememberNavController()
-    }
+    val destination = startDestination ?: return
+    val navController = rememberNavController()
 
     AppImpl(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = destination,
         channels = viewModel.channels,
         onSearchQuery = { query -> viewModel.searchQuery.value = query },
         isRemoteControlSheetVisible = viewModel.isConnectSheetVisible,
