@@ -36,7 +36,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material3.ExpandedFullScreenSearchBar
@@ -532,9 +531,7 @@ private fun AppContent(
                     Icon(Icons.Default.Search, contentDescription = null)
                 }
             },
-            trailingIcon = {
-                Icon(Icons.Default.MoreVert, contentDescription = null)
-            },
+            trailingIcon = null,
         )
     }
 
