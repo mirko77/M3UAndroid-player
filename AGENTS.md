@@ -4,12 +4,11 @@ This file applies to the entire repository. More specific `AGENTS.md` files in s
 
 ## Project Overview
 
-M3UAndroid is a Kotlin Android IPTV player for phones, tablets, and Android TV. It supports M3U playlists, Xtream API, DLNA casting, Room persistence, WorkManager background sync, Media3/ExoPlayer playback, extensions, benchmark tooling, and multilingual resources.
+M3UAndroid is a Kotlin Android IPTV player for phones and tablets. It supports M3U playlists, Xtream API, DLNA casting, Room persistence, WorkManager background sync, Media3/ExoPlayer playback, extensions, benchmark tooling, and multilingual resources.
 
 ## Progressive Guidance Map
 
 - `app/AGENTS.md`: app modules, Compose UI, navigation, Hilt entry points, permissions, and platform presentation.
-- `app/tv/AGENTS.md`: Android TV layouts, DPad focus, couch-distance readability, and video overlays.
 - `business/AGENTS.md`: feature state, user actions, workflow logic, and KMP-friendly business rules.
 - `core/AGENTS.md`: lightweight shared helpers, foundation UI primitives, contracts, and extension integration.
 - `data/AGENTS.md`: Room, repositories, parsers, networking, playback coordination, migrations, and workers.
@@ -39,20 +38,8 @@ Rules:
 
 ### Android TV UI changes
 
-Read:
-
-- `AGENTS.md`
-- `app/AGENTS.md`
-- `app/tv/AGENTS.md`
-- `docs/ai/playbooks/android-tv-ui.md`
-
-Rules:
-
-- TV UI must be DPad-first.
-- Every interactive element must have a clear focus state.
-- Initial focus must be intentional.
-- Avoid touch-only interaction assumptions.
-- Consider long-distance readability.
+> The TV app module was removed from this fork (phone/tablet only).
+> Do not reintroduce TV code or layouts.
 
 ### Data layer changes
 
@@ -197,7 +184,6 @@ Agents must avoid the following unless explicitly requested:
 - Modifying generated files manually
 - Silently changing database schema
 - Silently changing playback behavior
-- Silently changing TV focus behavior
 - Replacing project-specific abstractions with generic ones
 - Introducing direct data-layer access into UI
 - Introducing app or business dependencies into core modules
@@ -231,18 +217,6 @@ The following areas require extra care:
 - Import/export formats
 
 Changes in these areas must mention compatibility impact in the PR.
-
-## Example Workflow: Fix a TV Focus Bug
-
-1. Read `AGENTS.md`.
-2. Read `app/AGENTS.md`.
-3. Read `app/tv/AGENTS.md`.
-4. Read `docs/ai/playbooks/android-tv-ui.md`.
-5. Locate the affected screen.
-6. Identify focusable elements and initial focus behavior.
-7. Make the smallest change.
-8. Compile the TV variant.
-9. In the PR, mention the focus path affected and validation result.
 
 ## Example Workflow: Change EPG Matching Logic
 

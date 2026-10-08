@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file applies to `app/`. Use it together with the root guidance. More specific files, such as `app/tv/AGENTS.md`, take precedence inside their subtree.
+This file applies to `app/`. Use it together with the root guidance.
 
 ## App Module Scope
 

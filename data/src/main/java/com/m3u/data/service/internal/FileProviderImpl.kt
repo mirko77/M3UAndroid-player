@@ -62,12 +62,7 @@ class FileProviderImpl @Inject constructor(
         }
 
     private val PackageInfo.code: String
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            longVersionCode.toString()
-        } else {
-            @Suppress("DEPRECATION")
-            versionCode.toString()
-        }
+        get() = longVersionCode.toString()
 
     private fun readConfiguration(): Map<String, String> = buildMap {
         Build::class.java.declaredFields.forEachNotNull { field ->

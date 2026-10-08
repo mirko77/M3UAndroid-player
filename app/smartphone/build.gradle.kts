@@ -28,7 +28,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "com.m3u.smartphone.fork"
-        minSdk = 26
+        minSdk = 29
         targetSdk = 33
         versionCode = 145
         versionName = "1.15.1"
