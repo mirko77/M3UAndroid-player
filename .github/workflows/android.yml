@@ -58,14 +58,10 @@ jobs:
           bash -n testing/bin/run-smartphone-provider-ui-matrix.sh
           ./gradlew \
             :data:assembleDebugAndroidTest \
-            :app:smartphone:assembleDebugAndroidTest \
-            :app:tv:assembleDebugAndroidTest
+            :app:smartphone:assembleDebugAndroidTest
 
       - name: Build smartphone release APK
         run: ./gradlew :app:smartphone:assembleRelease
-
-      - name: Build TV release APK
-        run: ./gradlew :app:tv:assembleRelease
 
       - name: Build reference extension release APK
         run: ./gradlew :testing:extension-reference:assembleRelease
@@ -74,7 +70,6 @@ jobs:
         run: |
           testing/bin/verify-android-16kb.sh \
             app/smartphone/build/outputs/published-apk/release/*.apk \
-            app/tv/build/outputs/published-apk/release/*.apk \
             testing/extension-reference/build/outputs/apk/release/*.apk
 
       - name: Upload
@@ -83,7 +78,6 @@ jobs:
           if-no-files-found: error
           path: |
             app/smartphone/build/outputs/published-apk/release/*.apk
-            app/tv/build/outputs/published-apk/release/*.apk
             testing/extension-reference/build/outputs/apk/release/*.apk
 
       - name: Upload To Telegram
@@ -98,5 +92,4 @@ jobs:
           method: sendFile
           path: |
             app/smartphone/build/outputs/published-apk/release/*.apk
-            app/tv/build/outputs/published-apk/release/*.apk
             testing/extension-reference/build/outputs/apk/release/*.apk

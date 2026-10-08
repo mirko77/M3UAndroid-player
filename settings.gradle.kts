@@ -20,7 +20,6 @@ dependencyResolutionManagement {
 rootProject.name = "M3U"
 include(
     ":app:smartphone",
-    ":app:tv"
 )
 include(":core", ":core:foundation")
 include(
@@ -40,7 +39,6 @@ include(
 )
 include(
     ":baselineprofile:smartphone",
-    ":baselineprofile:tv"
 )
 include(":i18n")
 include(":testing:device-benchmark")

@@ -9,7 +9,6 @@ on:
       - 'gradle/libs.versions.toml'
       - 'gradle/wrapper/**'
       - 'app/smartphone/build.gradle.kts'
-      - 'app/tv/build.gradle.kts'
       - 'baselineprofile/**'
       - '.github/workflows/baseline-profiles.yml'
 
@@ -50,7 +49,6 @@ jobs:
             gradle/libs.versions.toml \
             gradle/wrapper \
             app/smartphone/build.gradle.kts \
-            app/tv/build.gradle.kts \
             baselineprofile | grep -q .; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -87,23 +85,12 @@ jobs:
         run: |
           rm -f \
             app/smartphone/src/main/generated/baselineProfiles/baseline-prof.txt \
-            app/smartphone/src/main/generated/baselineProfiles/startup-prof.txt \
-            app/tv/src/main/generated/baselineProfiles/baseline-prof.txt \
-            app/tv/src/main/generated/baselineProfiles/startup-prof.txt
+            app/smartphone/src/main/generated/baselineProfiles/startup-prof.txt
 
       - name: Generate smartphone baseline profile
         if: steps.baseline-trigger.outputs.run == 'true'
         run: |
           ./gradlew :app:smartphone:generateBaselineProfile \
-            -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect \
-            -Pandroid.experimental.testOptions.managedDevices.emulator.showKernelLogging=true \
-            -Pandroid.experimental.androidTest.numManagedDeviceShards=1 \
-            -Pandroid.experimental.testOptions.managedDevices.maxConcurrentDevices=1
-
-      - name: Generate TV baseline profile
-        if: steps.baseline-trigger.outputs.run == 'true'
-        run: |
-          ./gradlew :app:tv:generateBaselineProfile \
             -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect \
             -Pandroid.experimental.testOptions.managedDevices.emulator.showKernelLogging=true \
             -Pandroid.experimental.androidTest.numManagedDeviceShards=1 \
@@ -115,10 +102,7 @@ jobs:
           set -euo pipefail
           test -s app/smartphone/src/main/generated/baselineProfiles/baseline-prof.txt
           test -s app/smartphone/src/main/generated/baselineProfiles/startup-prof.txt
-          test -s app/tv/src/main/generated/baselineProfiles/baseline-prof.txt
-          test -s app/tv/src/main/generated/baselineProfiles/startup-prof.txt
           test ! -d app/smartphone/src/release/generated/baselineProfiles
-          test ! -d app/tv/src/release/generated/baselineProfiles
 
       - name: Create baseline profile update pull request
         if: steps.baseline-trigger.outputs.run == 'true'
@@ -130,8 +114,7 @@ jobs:
           update_branch="baseline-profile-updates-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git checkout -B "$update_branch"
           git add \
-            app/smartphone/src/main/generated/baselineProfiles \
-            app/tv/src/main/generated/baselineProfiles
+            app/smartphone/src/main/generated/baselineProfiles
           if git diff --cached --quiet; then
             echo "Baseline profiles are already up to date."
             exit 0

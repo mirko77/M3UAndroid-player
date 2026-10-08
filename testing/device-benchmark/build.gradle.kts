@@ -25,7 +25,6 @@ tasks.register<Exec>("run") {
     group = "verification"
     description = "Runs the Mobly remote-control phone-to-TV subscription benchmark."
     dependsOn(":app:smartphone:assembleDebug")
-    dependsOn(":app:tv:assembleDebug")
     dependsOn(":testing:mock-server:startMockServer")
     dependsOn("installMoblyDependencies")
     finalizedBy(":testing:mock-server:stopMockServer")

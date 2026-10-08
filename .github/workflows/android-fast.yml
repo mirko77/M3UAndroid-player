@@ -43,14 +43,12 @@ jobs:
         run: |
           ./gradlew \
             :app:smartphone:assembleDebug \
-            :app:tv:assembleDebug \
             :testing:extension-reference:assembleDebug
 
       - name: Verify 16 KB native compatibility
         run: |
           testing/bin/verify-android-16kb.sh \
             app/smartphone/build/outputs/apk/debug/*.apk \
-            app/tv/build/outputs/apk/debug/*.apk \
             testing/extension-reference/build/outputs/apk/debug/*.apk
 
       - name: Upload
@@ -61,7 +59,6 @@ jobs:
           retention-days: 14
           path: |
             app/smartphone/build/outputs/apk/debug/*.apk
-            app/tv/build/outputs/apk/debug/*.apk
             testing/extension-reference/build/outputs/apk/debug/*.apk
 
       - name: Upload To Telegram
@@ -75,5 +72,4 @@ jobs:
           method: sendFile
           path: |
             app/smartphone/build/outputs/apk/debug/*.apk
-            app/tv/build/outputs/apk/debug/*.apk
             testing/extension-reference/build/outputs/apk/debug/*.apk

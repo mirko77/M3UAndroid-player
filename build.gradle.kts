@@ -146,7 +146,6 @@ subprojects {
         configureBuiltInAndroidKotlin()
         val publishedApkPrefix = when (path) {
             ":app:smartphone" -> ""
-            ":app:tv" -> "tv-"
             else -> null
         }
         if (publishedApkPrefix != null) {
