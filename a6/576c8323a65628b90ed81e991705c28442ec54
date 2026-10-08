@@ -1,0 +1,20 @@
+app/smartphone/build.gradle.kts
+  h_2231ff2aa93473 30
+app/smartphone/src/main/res/values/stings.xml
+  h_2231ff2aa93473 3
+baselineprofile/smartphone/build.gradle.kts
+  h_2231ff2aa93473 49
+data/src/main/java/com/m3u/data/database/dao/ChannelDao.kt
+  h_2231ff2aa93473 146-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a6576c8323a65628b90ed81e991705c28442ec54",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
