@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,9 +13,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.FitScreen
-import androidx.compose.material.icons.rounded.FormatSize
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -55,7 +60,6 @@ internal fun AppearanceFragment(
     val themePresetId = selectedTheme.presetId
     val colorArgb = selectedTheme.argb
     var clipMode by mutablePreferenceOf(PreferencesKeys.CLIP_MODE)
-    var compactDimension by mutablePreferenceOf(PreferencesKeys.COMPACT_DIMENSION)
     val followSystemTheme = themePreferences.followSystemTheme
 
     val useDynamicColorsAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -100,21 +104,34 @@ internal fun AppearanceFragment(
         modifier = modifier.fillMaxSize()
     ) {
         item {
-            Column(
-                modifier = Modifier.selectableGroup(),
-            ) {
-                themeOptions.forEach { option ->
-                    val selected =
-                        !dynamicColorsActive &&
-                            themePresetId == option.presetId &&
-                            colorArgb == option.argb &&
-                            themeStyle == option.style &&
-                            (followSystemTheme || isDarkMode == option.isDark)
-                    Preference(
-                        title = option.localizedName(),
-                        selected = selected,
-                        onClick = { onSelectTheme(option.toPreference()) },
-                    )
+            var themeMenuExpanded by remember { mutableStateOf(false) }
+            val selectedOption = themeOptions.firstOrNull { option ->
+                !dynamicColorsActive &&
+                    themePresetId == option.presetId &&
+                    colorArgb == option.argb &&
+                    themeStyle == option.style &&
+                    (followSystemTheme || isDarkMode == option.isDark)
+            }
+            Box {
+                Preference(
+                    title = stringResource(string.feat_setting_theme).title(),
+                    content = selectedOption?.localizedName(),
+                    icon = Icons.Rounded.ColorLens,
+                    onClick = { themeMenuExpanded = true },
+                )
+                DropdownMenu(
+                    expanded = themeMenuExpanded,
+                    onDismissRequest = { themeMenuExpanded = false },
+                ) {
+                    themeOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option.localizedName()) },
+                            onClick = {
+                                onSelectTheme(option.toPreference())
+                                themeMenuExpanded = false
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -136,14 +153,6 @@ internal fun AppearanceFragment(
                         else -> ClipMode.ADAPTIVE
                     }
                 }
-            )
-        }
-        item {
-            SwitchSharedPreference(
-                title = string.feat_setting_compact_dimension,
-                icon = Icons.Rounded.FormatSize,
-                checked = compactDimension,
-                onChanged = { compactDimension = !compactDimension }
             )
         }
         item {

@@ -1,7 +1,7 @@
 package com.m3u.smartphone.ui.common
 
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +28,7 @@ fun NavGraphBuilder.rootGraph(
     composable(
         route = Destination.Foryou.name,
         enterTransition = { fadeIn() },
-        exitTransition = { fadeOut() }
+        exitTransition = { ExitTransition.None }
     ) {
         ForyouRoute(
             navigateToPlaylist = navigateToPlaylist,
@@ -53,7 +53,7 @@ fun NavGraphBuilder.rootGraph(
     composable(
         route = Destination.Favorite.name,
         enterTransition = { fadeIn() },
-        exitTransition = { fadeOut() }
+        exitTransition = { ExitTransition.None }
     ) {
         FavoriteRoute(
             navigateToChannel = navigateToChannel,
@@ -76,7 +76,7 @@ fun NavGraphBuilder.rootGraph(
     composable(
         route = Destination.Setting.name,
         enterTransition = { fadeIn() },
-        exitTransition = { fadeOut() }
+        exitTransition = { ExitTransition.None }
     ) {
         SettingRoute(
             contentPadding = contentPadding,

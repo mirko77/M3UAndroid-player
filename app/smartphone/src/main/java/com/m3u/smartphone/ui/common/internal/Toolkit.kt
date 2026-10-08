@@ -7,8 +7,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.architecture.preferences.themePreferencesOf
 import com.m3u.smartphone.ui.common.helper.Helper
 import com.m3u.smartphone.ui.common.helper.LocalHelper
@@ -31,7 +29,6 @@ fun Toolkit(
     val smartphoneTypography: Material3Typography = remember(prevTypography) {
         prevTypography.withFontFamily(FontFamilies.GoogleSans)
     }
-    val compactDimension by preferenceOf(PreferencesKeys.COMPACT_DIMENSION)
     val themePreferences by themePreferencesOf()
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
@@ -42,8 +39,7 @@ fun Toolkit(
         else -> themePreferences.selection.isDark
     }
 
-    val spacing = if (compactDimension) Spacing.COMPACT
-    else Spacing.REGULAR
+    val spacing = Spacing.COMPACT
     CompositionLocalProvider(
         LocalHelper provides helper,
         LocalM3UHapticFeedback provides createM3UHapticFeedback(),

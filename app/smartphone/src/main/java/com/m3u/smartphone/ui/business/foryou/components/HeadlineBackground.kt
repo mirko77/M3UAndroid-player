@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.m3u.smartphone.ui.material.transformation.BlurTransformation
 import com.m3u.smartphone.ui.common.helper.LocalHelper
@@ -61,7 +60,6 @@ internal fun HeadlineBackground(modifier: Modifier = Modifier) {
             ImageRequest.Builder(context)
                 .data(url)
                 .crossfade(800)
-                .memoryCachePolicy(CachePolicy.DISABLED)
                 .transformations(
                     BlurTransformation(context)
                 )
