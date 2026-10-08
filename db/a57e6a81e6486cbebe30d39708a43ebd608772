@@ -1,0 +1,14 @@
+gradle/libs.versions.toml
+  h_2231ff2aa93473 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dba57e6a81e6486cbebe30d39708a43ebd608772",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
