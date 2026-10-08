@@ -39,6 +39,7 @@ class RestoreWorker @AssistedInject constructor(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+        createChannel()
         return ForegroundInfo(NOTIFICATION_ID, createNotification())
     }
 

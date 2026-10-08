@@ -242,6 +242,7 @@ class SubscriptionWorker @AssistedInject constructor(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+        createChannel()
         return ForegroundInfo(notificationId, createN10nBuilder().build())
     }
 
