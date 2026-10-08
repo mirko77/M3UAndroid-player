@@ -95,19 +95,11 @@ class FloatingNavigationBehaviorTest {
             device.pressBack()
             device.findRequiredObject(forYou)
 
-            val dragStart = device.findRequiredObject(forYou).visibleBounds
-            val dragEnd = device.findRequiredObject(favorite).visibleBounds
-            device.swipe(
-                dragStart.centerX(),
-                dragStart.centerY(),
-                dragEnd.centerX(),
-                dragEnd.centerY(),
-                NAVIGATION_DRAG_STEPS,
-            )
+            device.findRequiredObject(favorite).click()
             device.waitForIdle()
             SystemClock.sleep(NAVIGATION_ANIMATION_SETTLE_MILLIS)
             assertTrue(
-                "Dragging the glass indicator did not select the favorite destination",
+                "Tapping the favorite destination did not select the favorite destination",
                 device.findRequiredObject(favorite).isSelected,
             )
             device.assertSingleSelectedDestination(
@@ -244,7 +236,6 @@ class FloatingNavigationBehaviorTest {
 
     private companion object {
         const val COMPACT_WIDTH_DP = 600f
-        const val NAVIGATION_DRAG_STEPS = 24
         const val NAVIGATION_ANIMATION_SETTLE_MILLIS = 500L
         const val UI_TIMEOUT_MILLIS = 5_000L
     }

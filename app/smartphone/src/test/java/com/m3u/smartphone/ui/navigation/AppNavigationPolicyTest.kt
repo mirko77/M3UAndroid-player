@@ -159,6 +159,7 @@ class AppNavigationPolicyTest {
             shouldCaptureNavigationBackdrop(
                 mode = AppNavigationMode.BottomOverlay,
                 supportsBackdropEffects = false,
+                isRemoteControlVisible = true,
                 isNavigationCurrentlyVisible = true,
                 isNavigationTargetVisible = true,
             )
@@ -167,6 +168,7 @@ class AppNavigationPolicyTest {
             shouldCaptureNavigationBackdrop(
                 mode = AppNavigationMode.BottomOverlay,
                 supportsBackdropEffects = true,
+                isRemoteControlVisible = true,
                 isNavigationCurrentlyVisible = false,
                 isNavigationTargetVisible = true,
             )
@@ -175,6 +177,7 @@ class AppNavigationPolicyTest {
             shouldCaptureNavigationBackdrop(
                 mode = AppNavigationMode.BottomOverlay,
                 supportsBackdropEffects = true,
+                isRemoteControlVisible = true,
                 isNavigationCurrentlyVisible = true,
                 isNavigationTargetVisible = false,
             )
@@ -183,14 +186,25 @@ class AppNavigationPolicyTest {
             shouldCaptureNavigationBackdrop(
                 mode = AppNavigationMode.BottomOverlay,
                 supportsBackdropEffects = true,
+                isRemoteControlVisible = true,
                 isNavigationCurrentlyVisible = false,
                 isNavigationTargetVisible = false,
+            )
+        )
+        assertFalse(
+            shouldCaptureNavigationBackdrop(
+                mode = AppNavigationMode.BottomOverlay,
+                supportsBackdropEffects = true,
+                isRemoteControlVisible = false,
+                isNavigationCurrentlyVisible = true,
+                isNavigationTargetVisible = true,
             )
         )
         assertFalse(
             shouldCaptureNavigationBackdrop(
                 mode = AppNavigationMode.SideRail,
                 supportsBackdropEffects = true,
+                isRemoteControlVisible = true,
                 isNavigationCurrentlyVisible = true,
                 isNavigationTargetVisible = true,
             )

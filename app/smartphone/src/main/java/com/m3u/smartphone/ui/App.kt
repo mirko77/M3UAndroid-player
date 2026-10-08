@@ -224,12 +224,6 @@ private fun AppImpl(
         bottomNavigationVisibility.targetState = showBottomNavigation
     }
     val supportsBackdropEffects = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val captureNavigationBackdrop = shouldCaptureNavigationBackdrop(
-        mode = navigationMode,
-        supportsBackdropEffects = supportsBackdropEffects,
-        isNavigationCurrentlyVisible = bottomNavigationVisibility.currentState,
-        isNavigationTargetVisible = bottomNavigationVisibility.targetState,
-    )
     val bottomNavigationOccupiesSpace = shouldReserveBottomNavigationSpace(
         mode = navigationMode,
         isNavigationCurrentlyVisible = bottomNavigationVisibility.currentState,
@@ -241,6 +235,13 @@ private fun AppImpl(
         isImeVisible = imeVisible,
         isRootPlaylistConfiguration = isRootPlaylistConfiguration,
         isNestedDetailVisible = nestedDetailVisible,
+    )
+    val captureNavigationBackdrop = shouldCaptureNavigationBackdrop(
+        mode = navigationMode,
+        supportsBackdropEffects = supportsBackdropEffects,
+        isRemoteControlVisible = remoteControlVisible,
+        isNavigationCurrentlyVisible = bottomNavigationVisibility.currentState,
+        isNavigationTargetVisible = bottomNavigationVisibility.targetState,
     )
 
     var measuredNavigationHeight by remember { mutableStateOf(64.dp) }

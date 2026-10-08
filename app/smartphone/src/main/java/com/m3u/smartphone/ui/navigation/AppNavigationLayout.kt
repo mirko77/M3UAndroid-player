@@ -61,9 +61,11 @@ internal fun shouldReserveBottomNavigationSpace(
 internal fun shouldCaptureNavigationBackdrop(
     mode: AppNavigationMode,
     supportsBackdropEffects: Boolean,
+    isRemoteControlVisible: Boolean,
     isNavigationCurrentlyVisible: Boolean,
     isNavigationTargetVisible: Boolean,
 ): Boolean = supportsBackdropEffects &&
+    isRemoteControlVisible &&
     shouldReserveBottomNavigationSpace(
         mode = mode,
         isNavigationCurrentlyVisible = isNavigationCurrentlyVisible,
