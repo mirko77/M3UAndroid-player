@@ -1,0 +1,50 @@
+README.md
+  h_2231ff2aa93473 14-28,34-44
+app/smartphone/src/androidTest/java/com/m3u/testing/SubscriptionSourceSelectionTest.kt
+  h_2231ff2aa93473 58-59,84-85,89
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/configuration/PlaylistConfigurationScreen.kt
+  h_2231ff2aa93473 257,704
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/favourite/FavouriteScreen.kt
+  h_2231ff2aa93473 99-100
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/ForyouScreen.kt
+  h_2231ff2aa93473 110-111
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/PlaylistScreen.kt
+  h_2231ff2aa93473 184-186
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/PlaylistManagementScreen.kt
+  h_2231ff2aa93473 613
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/SubscriptionEditorScreen.kt
+  h_2231ff2aa93473 137,149-150,160-161,259,312-313,316,320,372-373
+app/smartphone/src/test/java/com/m3u/smartphone/ui/business/configuration/PlaylistRefreshabilityTest.kt
+  h_2231ff2aa93473 15
+app/smartphone/src/test/java/com/m3u/smartphone/ui/business/setting/fragments/SubscriptionSourceKeyTest.kt
+  h_2231ff2aa93473 11
+business/setting/src/main/java/com/m3u/business/setting/PlaylistSubscriptionInput.kt
+  h_2231ff2aa93473 35-36
+business/setting/src/main/java/com/m3u/business/setting/PlaylistSubscriptionState.kt
+  h_2231ff2aa93473 51
+business/setting/src/main/java/com/m3u/business/setting/SettingViewModel.kt
+  h_2231ff2aa93473 1319
+business/setting/src/testDebug/java/com/m3u/business/setting/PlaylistSubscriptionStateTest.kt
+  h_2231ff2aa93473 72,77,81-87
+data/src/androidTest/java/com/m3u/data/repository/ProviderBackupContractsTest.kt
+  h_2231ff2aa93473 131,161
+data/src/main/java/com/m3u/data/database/model/Playlist.kt
+  h_2231ff2aa93473 63-64,83,85,101-102
+data/src/main/java/com/m3u/data/extension/ExtensionModule.kt
+  h_2231ff2aa93473 146,154
+data/src/main/java/com/m3u/data/repository/ProviderBackupContracts.kt
+  h_2231ff2aa93473 176
+data/src/main/java/com/m3u/data/repository/playlist/PlaylistRepositoryImpl.kt
+  h_2231ff2aa93473 405
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0012047aa93d70d693e21e0fddd06aa4a9bc49e8",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
