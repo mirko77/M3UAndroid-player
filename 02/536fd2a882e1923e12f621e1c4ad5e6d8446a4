@@ -1,0 +1,16 @@
+i18n/src/main/res/values-zh-rCN/ui.xml
+  h_2231ff2aa93473 14
+i18n/src/main/res/values/ui.xml
+  h_2231ff2aa93473 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "02536fd2a882e1923e12f621e1c4ad5e6d8446a4",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
