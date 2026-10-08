@@ -1,6 +1,7 @@
 package com.m3u.smartphone.ui.business.channel
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,6 +15,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.m3u.business.channel.ChannelViewModel
 import com.m3u.core.foundation.Contracts
+import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
+import com.m3u.core.foundation.architecture.preferences.get
+import com.m3u.core.foundation.architecture.preferences.settings
 import com.m3u.data.database.model.isSeries
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
@@ -48,6 +52,11 @@ class PlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            if (settings[PreferencesKeys.AUTO_LANDSCAPE]) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
         handleIntent(intent)
         setContent {
             Toolkit(

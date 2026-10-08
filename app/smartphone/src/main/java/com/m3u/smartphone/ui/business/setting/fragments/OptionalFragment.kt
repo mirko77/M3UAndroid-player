@@ -155,6 +155,16 @@ internal fun OptionalFragment(
             )
         }
         item {
+            var autoLandscape by mutablePreferenceOf(PreferencesKeys.AUTO_LANDSCAPE)
+            SwitchSharedPreference(
+                title = string.feat_setting_auto_landscape,
+                content = string.feat_setting_auto_landscape_description,
+                icon = Icons.Rounded.ScreenRotation,
+                checked = autoLandscape,
+                onChanged = { autoLandscape = !autoLandscape }
+            )
+        }
+        item {
             var screencast by mutablePreferenceOf(PreferencesKeys.SCREENCAST)
             SwitchSharedPreference(
                 title = string.feat_setting_screencast,

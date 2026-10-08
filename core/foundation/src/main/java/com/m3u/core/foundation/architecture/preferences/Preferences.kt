@@ -187,6 +187,7 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.COMPACT_DIMENSION, false)
     put(PreferencesKeys.EXTERNAL_EXTENSIONS, false)
     put(PreferencesKeys.START_ON_FAVORITES, false)
+    put(PreferencesKeys.AUTO_LANDSCAPE, false)
 }
 
 suspend fun Settings.applyDefaultValues() {
@@ -246,4 +247,5 @@ object PreferencesKeys {
     val COMPACT_DIMENSION = booleanPreferencesKey("compact-dimension")
     val EXTERNAL_EXTENSIONS = booleanPreferencesKey("external-extensions")
     val START_ON_FAVORITES = booleanPreferencesKey("start-on-favorites")
+    val AUTO_LANDSCAPE = booleanPreferencesKey("auto-landscape")
 }

@@ -495,8 +495,9 @@ fun ChannelMask(
                     }
                 }
                 val autoRotating by ChannelMaskUtils.IsAutoRotatingEnabled
-                LaunchedEffect(autoRotating) {
-                    if (autoRotating) {
+                val autoLandscape by preferenceOf(PreferencesKeys.AUTO_LANDSCAPE)
+                LaunchedEffect(autoRotating, autoLandscape) {
+                    if (autoRotating && !autoLandscape) {
                         helper.screenOrientation =
                             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     }

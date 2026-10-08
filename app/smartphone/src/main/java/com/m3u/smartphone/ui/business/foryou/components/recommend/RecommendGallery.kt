@@ -68,7 +68,7 @@ internal fun RecommendGallery(
         HorizontalPager(
             state = state,
             contentPadding = PaddingValues(horizontal = spacing.medium),
-            modifier = Modifier.height(128.dp)
+            modifier = Modifier.height(112.dp)
         ) { page ->
             val spec = specs[page]
             val pageOffset = state.pageOffset(page)
