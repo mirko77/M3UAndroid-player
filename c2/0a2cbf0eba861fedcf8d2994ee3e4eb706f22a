@@ -1,0 +1,14 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/App.kt
+  h_2231ff2aa93473 90,92,130-139,141-142,146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c20a2cbf0eba861fedcf8d2994ee3e4eb706f22a",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
