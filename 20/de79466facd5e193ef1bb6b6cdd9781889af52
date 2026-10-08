@@ -1,0 +1,28 @@
+AGENTS.md
+  h_2231ff2aa93473 7,41-42
+app/AGENTS.md
+  h_2231ff2aa93473 3
+app/smartphone/build.gradle.kts
+  h_2231ff2aa93473 31
+baselineprofile/smartphone/build.gradle.kts
+  h_2231ff2aa93473 20
+build.gradle.kts
+  h_2231ff2aa93473 202
+data/src/main/java/com/m3u/data/service/internal/FileProviderImpl.kt
+  h_2231ff2aa93473 65
+samples/hello-extension/build.gradle.kts
+  h_2231ff2aa93473 11
+testing/extension-reference/build.gradle.kts
+  h_2231ff2aa93473 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "20de79466facd5e193ef1bb6b6cdd9781889af52",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
