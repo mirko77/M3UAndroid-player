@@ -120,19 +120,10 @@ internal fun SubscriptionEditorScreen(
     subscriptionSubmissionBlocked: Boolean,
     sourceKey: String,
     draftKey: String,
-    providerId: String?,
-    providerKind: String?,
     reauthenticationPlaylistUrl: String?,
     onClipboard: (String) -> Unit,
     onBeginSubscriptionDraft: (String, DataSource) -> Unit,
     onSubscribe: () -> Unit,
-    providerDiscoveryState: ProviderDiscoveryState,
-    providerSubscriptionForm: ProviderSubscriptionForm?,
-    providerOperationState: ProviderOperationState,
-    onSelectSubscriptionProviderVariant: (String, String) -> Unit,
-    onUpdateSubscriptionProviderSetting: (String, String?) -> Unit,
-    onRetryProviderDiscovery: () -> Unit,
-    onRetryProviderReauthentication: (String) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
@@ -143,9 +134,7 @@ internal fun SubscriptionEditorScreen(
     val helper = LocalHelper.current
     val remoteControl by preferenceOf(PreferencesKeys.REMOTE_CONTROL)
     val operationInProgress =
-        providerOperationState.isBusy ||
-            dataOperationInProgress ||
-            subscriptionSubmissionBlocked
+        dataOperationInProgress || subscriptionSubmissionBlocked
     val loadingStateDescription = stringResource(string.ui_state_loading)
     val fileAccessFailure = stringResource(string.feat_setting_playlist_file_access_failed)
     var submissionAttempted by rememberSaveable(draftKey) {
@@ -156,50 +145,9 @@ internal fun SubscriptionEditorScreen(
     }
     val bidiFormatter = rememberUiBidiFormatter()
     val ordinarySource = ordinarySubscriptionSourceOrNull(sourceKey)
-    val providerSources = providerDiscoveryState.subscriptionSources()
-    val providerSource = providerSources.firstOrNull { source ->
-        source.subscriptionSelectionKey() == sourceKey
-    }
-    val expectedProviderId = providerId ?: providerSource?.providerId?.value
-    val expectedProviderKind = providerKind ?: providerSource?.providerKind?.value
-    val discoveredProvider =
-        (providerDiscoveryState as? ProviderDiscoveryState.Ready)
-            ?.providers
-            .orEmpty()
-            .firstOrNull { provider ->
-                provider.descriptor.providerId.value == expectedProviderId
-            }
-    val discoveredVariant = discoveredProvider
-        ?.descriptor
-        ?.variants
-        ?.firstOrNull { variant -> variant.kind.value == expectedProviderKind }
-    val matchingProviderForm = providerSubscriptionForm?.takeIf { form ->
-        expectedProviderId != null &&
-            expectedProviderKind != null &&
-            form.providerId.value == expectedProviderId &&
-            form.providerKind.value == expectedProviderKind &&
-            form.reauthenticationPlaylistUrl == reauthenticationPlaylistUrl
-    }
     val isReauthentication = reauthenticationPlaylistUrl != null
-    val editorSource = when {
-        ordinarySource != null -> ordinarySource
-        sourceKey.startsWith(PROVIDER_SOURCE_PREFIX) -> DataSource.Provider
-        else -> properties.selectedState.value
-    }
-    val providerSubmissionInProgress = providerOperationState.submission?.let { submission ->
-        editorSource == DataSource.Provider &&
-            submission.providerId.value == expectedProviderId &&
-            submission.providerKind.value == expectedProviderKind &&
-            submission.reauthenticationPlaylistUrl == reauthenticationPlaylistUrl
-    } == true
-    val sourceLabel = if (editorSource == DataSource.Provider) {
-        discoveredVariant?.displayName
-            ?.let(bidiFormatter::natural)
-            ?.takeIf(String::isNotBlank)
-            ?: stringResource(DataSource.Provider.resId)
-    } else {
-        stringResource(editorSource.resId)
-    }
+    val editorSource = ordinarySource ?: properties.selectedState.value
+    val sourceLabel = stringResource(editorSource.resId)
     val sourceSupportingName = when (editorSource) {
         DataSource.M3U -> stringResource(
             string.feat_setting_playlist_source_m3u_description
@@ -207,45 +155,13 @@ internal fun SubscriptionEditorScreen(
         DataSource.EPG -> stringResource(
             string.feat_setting_playlist_source_epg_description
         )
-        DataSource.Xtream -> stringResource(
-            string.feat_setting_playlist_source_xtream_description
-        )
-        DataSource.Provider -> discoveredProvider?.descriptor?.displayName
-            ?.let(bidiFormatter::natural)
-            ?.takeUnless { name -> name.isBlank() || name == sourceLabel }
         else -> null
     }
-    val externalProviderIdentity = expectedProviderId
-        ?.takeIf {
-            editorSource == DataSource.Provider &&
-                (
-                    providerSource?.executionKind ==
-                        SubscriptionProviderExecutionKind.EXTERNAL ||
-                        discoveredProvider?.executionKind ==
-                        SubscriptionProviderExecutionKind.EXTERNAL
-                    )
-        }
-        ?.let(bidiFormatter::ltr)
-    val sourceSupporting = externalProviderIdentity?.let { stableProviderId ->
-        stringResource(
-            string.feat_setting_provider_choice_with_identifier,
-            sourceSupportingName ?: sourceLabel,
-            stableProviderId,
-        )
-    } ?: sourceSupportingName
-    val sourceSupportingContentDescription =
-        externalProviderIdentity?.let { stableProviderId ->
-            stringResource(
-                string.feat_setting_provider_choice_with_identifier_description,
-                sourceSupportingName ?: sourceLabel,
-                stableProviderId,
-            )
-        }
+    val sourceSupporting = sourceSupportingName
+    val sourceSupportingContentDescription = null
     val sourceIcon = when (editorSource) {
         DataSource.M3U -> Icons.Rounded.Link
         DataSource.EPG -> Icons.Rounded.DateRange
-        DataSource.Xtream -> Icons.Rounded.Cloud
-        DataSource.Provider -> Icons.Rounded.Extension
         else -> Icons.Rounded.Link
     }
     val showsLocalStorageOption = editorSource == DataSource.M3U
@@ -260,11 +176,6 @@ internal fun SubscriptionEditorScreen(
             properties.urlState.value.isNotBlank()
         }
         DataSource.EPG -> properties.epgState.value.isNotBlank()
-        DataSource.Xtream ->
-            properties.basicUrlState.value.isNotBlank() &&
-                properties.usernameState.value.isNotBlank() &&
-                properties.passwordState.value.isNotBlank()
-        DataSource.Provider -> providerDiscoveryState.supports(matchingProviderForm)
         else -> false
     }
 
@@ -272,17 +183,9 @@ internal fun SubscriptionEditorScreen(
         draftKey,
         sourceKey,
         reauthenticationPlaylistUrl,
-        providerSource?.providerId,
-        providerSource?.providerKind,
     ) {
         if (!isReauthentication) {
             onBeginSubscriptionDraft(draftKey, editorSource)
-            if (providerSource != null) {
-                onSelectSubscriptionProviderVariant(
-                    providerSource.providerId.value,
-                    providerSource.providerKind.value,
-                )
-            }
         } else if (ordinarySource != null) {
             properties.selectedState.value = ordinarySource
         }
@@ -347,32 +250,13 @@ internal fun SubscriptionEditorScreen(
                             enabled = !operationInProgress,
                             showErrors = submissionAttempted,
                         )
-                        DataSource.Xtream -> XtreamInputContent(
-                            enabled = !operationInProgress,
-                            showErrors = submissionAttempted,
-                        )
-                        DataSource.Provider -> DynamicProviderInputContent(
-                            discoveryState = providerDiscoveryState,
-                            form = matchingProviderForm,
-                            onUpdateField = onUpdateSubscriptionProviderSetting,
-                            onRetry = {
-                                reauthenticationPlaylistUrl?.let(
-                                    onRetryProviderReauthentication
-                                ) ?: onRetryProviderDiscovery()
-                            },
-                            preparing = reauthenticationPlaylistUrl?.let(
-                                providerOperationState::isReauthenticating
-                            ) == true,
-                            enabled = !operationInProgress,
-                            showErrors = submissionAttempted,
-                        )
                         else -> Unit
                     }
                 }
             }
         }
 
-        if (operationInProgress && !providerSubmissionInProgress) {
+        if (operationInProgress) {
             item(key = "maintenance") {
                 SubscriptionEditorPageContent {
                     PlaylistMaintenanceNotice()
@@ -425,30 +309,15 @@ internal fun SubscriptionEditorScreen(
                         modifier = Modifier
                             .weight(1f)
                             .heightIn(min = 48.dp)
-                            .testTag("subscription-submit-action")
-                            .semantics {
-                                if (providerSubmissionInProgress) {
-                                    liveRegion = LiveRegionMode.Polite
-                                    stateDescription = loadingStateDescription
-                                }
-                            },
-                        enabled = !operationInProgress && (
-                            editorSource != DataSource.Provider ||
-                                editorInputReady
-                            ),
+                            .testTag("subscription-submit-action"),
+                        enabled = !operationInProgress,
                         onClick = {
                             submissionAttempted = true
-                            if (
-                                editorSource != DataSource.Provider &&
-                                !editorInputReady
-                            ) {
+                            if (!editorInputReady) {
                                 return@Button
                             }
                             if (
-                                (
-                                    editorSource == DataSource.M3U ||
-                                        editorSource == DataSource.Xtream
-                                    ) &&
+                                editorSource == DataSource.M3U &&
                                 Build.VERSION.SDK_INT >=
                                     Build.VERSION_CODES.TIRAMISU &&
                                 postNotificationPermission.status
@@ -489,22 +358,10 @@ internal fun SubscriptionEditorScreen(
                             onSubscribe()
                         }
                     ) {
-                        if (providerSubmissionInProgress) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .testTag("provider-subscription-progress"),
-                                color = LocalContentColor.current,
-                                strokeWidth = 2.dp,
-                            )
-                            Spacer(Modifier.size(8.dp))
-                        }
                         Text(
                             stringResource(
                                 if (isReauthentication) {
                                     string.feat_setting_provider_reauthenticate
-                                } else if (providerSubmissionInProgress) {
-                                    string.feat_setting_label_subscribing
                                 } else {
                                     string.feat_setting_label_subscribe
                                 }
@@ -512,11 +369,8 @@ internal fun SubscriptionEditorScreen(
                         )
                     }
                     when {
-                        editorSource == DataSource.Xtream ||
-                            (
-                                editorSource == DataSource.M3U &&
-                                    !properties.localStorageState.value
-                                ) -> {
+                        editorSource == DataSource.M3U &&
+                            !properties.localStorageState.value -> {
                             FilledTonalIconButton(
                                 enabled = !operationInProgress,
                                 onClick = {
@@ -957,524 +811,11 @@ private fun EPGInputContent(
     }
 }
 
-@Composable
-context(properties: SettingProperties)
-private fun XtreamInputContent(
-    enabled: Boolean,
-    showErrors: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val spacing = LocalSpacing.current
-    val titleError = stringResource(string.feat_setting_error_empty_title)
-        .takeIf { showErrors && properties.titleState.value.isBlank() }
-    val urlError = stringResource(string.feat_setting_error_blank_url)
-        .takeIf { showErrors && properties.basicUrlState.value.isBlank() }
-    val requiredError = stringResource(string.feat_setting_provider_error_required)
-    val usernameError = requiredError.takeIf {
-        showErrors && properties.usernameState.value.isBlank()
-    }
-    val passwordError = requiredError.takeIf {
-        showErrors && properties.passwordState.value.isBlank()
-    }
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
-    ) {
-        PlaylistOutlinedTextField(
-            value = properties.titleState.value,
-            label = stringResource(string.feat_setting_placeholder_title),
-            onValueChange = { properties.titleState.value = it },
-            enabled = enabled,
-            errorMessage = titleError,
-            imeAction = ImeAction.Next,
-            modifier = Modifier.fillMaxWidth()
-        )
-        PlaylistOutlinedTextField(
-            value = properties.basicUrlState.value,
-            label = stringResource(string.feat_setting_placeholder_basic_url),
-            onValueChange = { properties.basicUrlState.value = it },
-            enabled = enabled,
-            errorMessage = urlError,
-            keyboardType = KeyboardType.Uri,
-            textDirection = TextDirection.Ltr,
-            imeAction = ImeAction.Next,
-            modifier = Modifier.fillMaxWidth()
-        )
-        PlaylistOutlinedTextField(
-            value = properties.usernameState.value,
-            label = stringResource(string.feat_setting_placeholder_username),
-            onValueChange = { properties.usernameState.value = it },
-            enabled = enabled,
-            errorMessage = usernameError,
-            imeAction = ImeAction.Next,
-            modifier = Modifier.fillMaxWidth()
-        )
-        PlaylistOutlinedTextField(
-            value = properties.passwordState.value,
-            label = stringResource(string.feat_setting_placeholder_password),
-            onValueChange = { properties.passwordState.value = it },
-            enabled = enabled,
-            errorMessage = passwordError,
-            keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Warning(stringResource(string.feat_setting_warning_xtream_takes_much_more_time))
-    }
-}
-
-@Composable
-context(properties: SettingProperties)
-private fun DynamicProviderInputContent(
-    discoveryState: ProviderDiscoveryState,
-    form: ProviderSubscriptionForm?,
-    onUpdateField: (String, String?) -> Unit,
-    onRetry: () -> Unit,
-    preparing: Boolean,
-    enabled: Boolean,
-    showErrors: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val spacing = LocalSpacing.current
-    val bidiFormatter = rememberUiBidiFormatter()
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.small),
-    ) {
-        PlaylistOutlinedTextField(
-            value = properties.titleState.value,
-            label = stringResource(string.feat_setting_placeholder_title),
-            onValueChange = { properties.titleState.value = it },
-            enabled = enabled,
-            errorMessage = stringResource(string.feat_setting_error_empty_title)
-                .takeIf { showErrors && properties.titleState.value.isBlank() },
-            imeAction = if (form?.fields?.isNotEmpty() == true) {
-                ImeAction.Next
-            } else {
-                ImeAction.Done
-            },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        when {
-            discoveryState is ProviderDiscoveryState.Loading || preparing -> {
-                ProviderDiscoveryLoadingNotice()
-            }
-
-            form != null && !discoveryState.supports(form) -> {
-                ProviderDiscoveryRetryNotice(
-                    message = stringResource(
-                        string.feat_setting_provider_selected_unavailable
-                    ),
-                    onRetry = onRetry,
-                    enabled = enabled,
-                    testTag = "provider-selected-unavailable",
-                )
-            }
-
-            discoveryState is ProviderDiscoveryState.Empty -> {
-                ProviderDiscoveryRetryNotice(
-                    message = stringResource(string.feat_setting_provider_discovery_empty),
-                    onRetry = onRetry,
-                    enabled = enabled,
-                    testTag = "provider-discovery-empty",
-                )
-            }
-
-            discoveryState is ProviderDiscoveryState.Failed -> {
-                ProviderDiscoveryRetryNotice(
-                    message = stringResource(string.feat_setting_provider_discovery_failed),
-                    onRetry = onRetry,
-                    enabled = enabled,
-                    testTag = "provider-discovery-failed",
-                )
-            }
-
-            form == null -> {
-                ProviderDiscoveryRetryNotice(
-                    message = stringResource(
-                        string.feat_setting_provider_selected_unavailable
-                    ),
-                    onRetry = onRetry,
-                    enabled = enabled,
-                    testTag = "provider-selected-unavailable",
-                )
-            }
-        }
-        form?.fields?.forEachIndexed { index, field ->
-            ProviderFormField(
-                field = field,
-                bidiFormatter = bidiFormatter,
-                enabled = enabled,
-                isLast = index == form.fields.lastIndex,
-                onUpdate = { value -> onUpdateField(field.definition.key, value) },
-            )
-        }
-    }
-}
-
-@Composable
-internal fun ProviderDiscoveryLoadingNotice(
-    modifier: Modifier = Modifier,
-) {
-    val spacing = LocalSpacing.current
-    Row(
-        modifier = modifier.testTag("provider-discovery-loading"),
-        horizontalArrangement = Arrangement.spacedBy(spacing.small),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CircularProgressIndicator(modifier = Modifier.size(24.dp))
-        Text(
-            text = stringResource(string.feat_setting_provider_discovery_loading),
-            modifier = Modifier.semantics {
-                liveRegion = LiveRegionMode.Polite
-            },
-        )
-    }
-}
-
-@Composable
-internal fun ProviderDiscoveryRetryNotice(
-    message: String,
-    onRetry: () -> Unit,
-    enabled: Boolean,
-    testTag: String,
-    modifier: Modifier = Modifier,
-) {
-    val spacing = LocalSpacing.current
-    Column(
-        modifier = modifier.testTag(testTag),
-        verticalArrangement = Arrangement.spacedBy(spacing.small),
-    ) {
-        Text(
-            text = message,
-            modifier = Modifier.semantics {
-                liveRegion = LiveRegionMode.Polite
-            },
-        )
-        FilledTonalButton(
-            onClick = onRetry,
-            enabled = enabled,
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .testTag("provider-discovery-retry"),
-        ) {
-            Text(stringResource(string.feat_setting_provider_discovery_retry))
-        }
-    }
-}
-
-@Composable
-private fun ProviderFormField(
-    field: ProviderSubscriptionFormField,
-    bidiFormatter: UiBidiFormatter,
-    enabled: Boolean,
-    isLast: Boolean,
-    onUpdate: (String?) -> Unit,
-) {
-    val definition = field.definition
-    val spacing = LocalSpacing.current
-    val focusManager = LocalFocusManager.current
-    val errorMessage = field.error?.let { stringResource(it.messageResource()) }
-    val requiredDescription =
-        stringResource(string.feat_setting_provider_error_required)
-    Column(
-        modifier = Modifier.testTag("provider-field:${definition.key}"),
-        verticalArrangement = Arrangement.spacedBy(spacing.extraSmall),
-    ) {
-        val displayLabel = bidiFormatter.natural(definition.label)
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(spacing.small),
-            verticalArrangement = Arrangement.spacedBy(spacing.extraSmall),
-        ) {
-            Text(
-                text = displayLabel,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    textDirection = TextDirection.ContentOrLtr,
-                ),
-            )
-            if (definition.required) {
-                Text(
-                    text = requiredDescription,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelSmall,
-                )
-            }
-        }
-        definition.description?.let { description ->
-            Text(
-                bidiFormatter.natural(
-                    value = description,
-                    maximumCharacters = MAX_PROVIDER_DESCRIPTION_LENGTH,
-                ),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    textDirection = TextDirection.ContentOrLtr,
-                ),
-            )
-        }
-        when (definition.type) {
-            ExtensionSettingType.TEXT,
-            ExtensionSettingType.NUMBER,
-            ExtensionSettingType.SECRET -> {
-                val textDirection = if (
-                    definition.type == ExtensionSettingType.NUMBER ||
-                        definition.type == ExtensionSettingType.SECRET ||
-                        definition.networkOrigin ||
-                        definition.key.contains("url", ignoreCase = true) ||
-                        definition.key.contains("origin", ignoreCase = true) ||
-                        definition.key.contains("address", ignoreCase = true)
-                ) {
-                    TextDirection.Ltr
-                } else {
-                    TextDirection.ContentOrLtr
-                }
-                OutlinedTextField(
-                    value = field.value.orEmpty(),
-                    onValueChange = onUpdate,
-                    enabled = enabled,
-                    isError = errorMessage != null,
-                    singleLine = true,
-                    minLines = 1,
-                    maxLines = 1,
-                    textStyle = LocalTextStyle.current.copy(
-                        textDirection = textDirection,
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = when (definition.type) {
-                            ExtensionSettingType.NUMBER -> KeyboardType.Decimal
-                            ExtensionSettingType.SECRET -> KeyboardType.Password
-                            else -> KeyboardType.Text
-                        },
-                        imeAction = when {
-                            isLast -> ImeAction.Done
-                            else -> ImeAction.Next
-                        },
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            focusManager.moveFocus(FocusDirection.Down)
-                        },
-                        onDone = {
-                            focusManager.clearFocus()
-                        },
-                    ),
-                    visualTransformation =
-                        if (definition.type == ExtensionSettingType.SECRET) {
-                            PasswordVisualTransformation()
-                        } else {
-                            VisualTransformation.None
-                        },
-                    shape = MaterialTheme.shapes.large,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics {
-                            contentDescription = displayLabel
-                            if (definition.required) {
-                                stateDescription = requiredDescription
-                            }
-                            if (errorMessage != null) {
-                                error(errorMessage)
-                            }
-                        },
-                )
-            }
-
-            ExtensionSettingType.BOOLEAN -> FlowRow(
-                modifier = Modifier
-                    .selectableGroup()
-                    .providerChoiceGroupSemantics(
-                        fieldLabel = displayLabel,
-                        requiredDescription = requiredDescription.takeIf {
-                            definition.required
-                        },
-                        errorMessage = errorMessage,
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(spacing.small),
-                verticalArrangement = Arrangement.spacedBy(spacing.small),
-            ) {
-                ProviderResetChoice(
-                    field = field,
-                    fieldLabel = displayLabel,
-                    enabled = enabled,
-                    onUpdate = onUpdate,
-                )
-                ProviderChoiceButton(
-                    fieldLabel = displayLabel,
-                    selected = field.value == "true" && !field.isUsingDefault,
-                    enabled = enabled,
-                    onClick = { onUpdate("true") },
-                    text = stringResource(string.feat_setting_provider_value_true),
-                )
-                ProviderChoiceButton(
-                    fieldLabel = displayLabel,
-                    selected = field.value == "false" && !field.isUsingDefault,
-                    enabled = enabled,
-                    onClick = { onUpdate("false") },
-                    text = stringResource(string.feat_setting_provider_value_false),
-                )
-            }
-
-            ExtensionSettingType.SINGLE_CHOICE -> FlowRow(
-                modifier = Modifier
-                    .selectableGroup()
-                    .providerChoiceGroupSemantics(
-                        fieldLabel = displayLabel,
-                        requiredDescription = requiredDescription.takeIf {
-                            definition.required
-                        },
-                        errorMessage = errorMessage,
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(spacing.small),
-                verticalArrangement = Arrangement.spacedBy(spacing.small),
-            ) {
-                ProviderResetChoice(
-                    field = field,
-                    fieldLabel = displayLabel,
-                    enabled = enabled,
-                    onUpdate = onUpdate,
-                )
-                definition.choices.forEach { choice ->
-                    ProviderChoiceButton(
-                        fieldLabel = displayLabel,
-                        selected = field.value == choice.value && !field.isUsingDefault,
-                        enabled = enabled,
-                        onClick = { onUpdate(choice.value) },
-                        text = bidiFormatter.natural(choice.label),
-                    )
-                }
-            }
-        }
-        if (field.isUsingDefault) {
-            Text(
-                text = stringResource(
-                    string.feat_setting_provider_default_value,
-                    bidiFormatter.natural(field.value.orEmpty()),
-                ),
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-        errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.clearAndSetSemantics {},
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProviderResetChoice(
-    field: ProviderSubscriptionFormField,
-    fieldLabel: String,
-    enabled: Boolean,
-    onUpdate: (String?) -> Unit,
-) {
-    if (field.definition.defaultValue != null || !field.definition.required) {
-        ProviderChoiceButton(
-            fieldLabel = fieldLabel,
-            selected = field.isUsingDefault || field.value == null,
-            enabled = enabled,
-            onClick = { onUpdate(null) },
-            text = stringResource(
-                if (field.definition.defaultValue == null) {
-                    string.feat_setting_provider_value_not_set
-                } else {
-                    string.feat_setting_provider_value_default
-                }
-            ),
-        )
-    }
-}
-
-@Composable
-private fun ProviderChoiceButton(
-    fieldLabel: String,
-    selected: Boolean,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-    text: String,
-) {
-    val containerColor = if (selected) {
-        MaterialTheme.colorScheme.secondaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceContainer
-    }
-    val contentColor = if (selected) {
-        MaterialTheme.colorScheme.onSecondaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val choiceDescription = stringResource(
-        string.feat_setting_extension_choice_field_description,
-        text,
-        fieldLabel,
-    )
-    Surface(
-        selected = selected,
-        onClick = onClick,
-        enabled = enabled,
-        shape = CircleShape,
-        color = containerColor,
-        contentColor = contentColor,
-        modifier = Modifier
-            .heightIn(min = 48.dp)
-            .alpha(if (enabled) 1f else 0.38f)
-            .semantics {
-                role = Role.RadioButton
-                contentDescription = choiceDescription
-            },
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = if (selected) {
-                    Icons.Rounded.CheckCircle
-                } else {
-                    Icons.Rounded.RadioButtonUnchecked
-                },
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-            )
-            Text(text)
-        }
-    }
-}
-
-private fun Modifier.providerChoiceGroupSemantics(
-    fieldLabel: String,
-    requiredDescription: String?,
-    errorMessage: String?,
-): Modifier = semantics {
-    contentDescription = fieldLabel
-    requiredDescription?.let { description ->
-        stateDescription = description
-    }
-    errorMessage?.let { message ->
-        error(message)
-    }
-}
-
-private fun ProviderSettingFieldError.messageResource(): Int = when (this) {
-    ProviderSettingFieldError.REQUIRED -> string.feat_setting_provider_error_required
-    ProviderSettingFieldError.TOO_LONG -> string.feat_setting_provider_error_too_long
-    ProviderSettingFieldError.UNSAFE_VALUE -> string.feat_setting_provider_error_unsafe_value
-    ProviderSettingFieldError.INVALID_NUMBER -> string.feat_setting_provider_error_number
-    ProviderSettingFieldError.INVALID_BOOLEAN -> string.feat_setting_provider_error_boolean
-    ProviderSettingFieldError.INVALID_CHOICE -> string.feat_setting_provider_error_choice
-}
 
 private val REMOTE_TV_SUBSCRIPTION_SOURCES = setOf(
     DataSource.M3U,
     DataSource.EPG,
-    DataSource.Xtream,
 )
-
-private const val MAX_PROVIDER_DESCRIPTION_LENGTH = 1_024
 
 internal const val PROVIDER_SOURCE_PREFIX = "provider:"
 

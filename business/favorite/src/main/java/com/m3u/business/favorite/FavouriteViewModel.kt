@@ -23,7 +23,6 @@ import com.m3u.core.foundation.wrapper.mapResource
 import com.m3u.core.foundation.wrapper.resource
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.media.MediaRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
@@ -125,22 +124,6 @@ class FavoriteViewModel @Inject constructor(
             ShortcutManagerCompat.pushDynamicShortcut(context, shortcutInfo)
         }
     }
-
-    val series = MutableStateFlow<Channel?>(null)
-    val seriesReplay = MutableStateFlow(0)
-    val episodes: StateFlow<Resource<List<XtreamEpisodeInfo>>> = series
-        .combine(seriesReplay) { series, _ -> series }
-        .flatMapLatest { series ->
-            if (series == null) flow { }
-            else resource { playlistRepository.readEpisodesOrThrow(series) }
-                .mapResource { it }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = Resource.Loading,
-            // don't lose
-            started = SharingStarted.Lazily
-        )
 
     suspend fun getPlaylist(playlistUrl: String): Playlist? =
         playlistRepository.get(playlistUrl)

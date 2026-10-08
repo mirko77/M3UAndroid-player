@@ -58,8 +58,6 @@ import com.m3u.data.api.OkhttpClient
 import com.m3u.data.api.ProviderOkhttpClient
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.database.model.copyXtreamEpisode
-import com.m3u.data.database.model.copyXtreamSeries
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.providerAccountIdOrNull
@@ -146,15 +144,6 @@ class PlayerManagerImpl @Inject constructor(
                 channel?.let { playlistRepository.observe(it.playlistUrl) } ?: flow { }
             }
 
-            is MediaCommand.XtreamEpisode -> {
-                val channel = channelRepository.get(command.channelId)
-                channel?.let {
-                    playlistRepository
-                        .observe(it.playlistUrl)
-                        .map { prev -> prev?.copyXtreamSeries(channel) }
-                } ?: flowOf(null)
-            }
-
             null -> flowOf(null)
         }
     }
@@ -169,9 +158,6 @@ class PlayerManagerImpl @Inject constructor(
         .flatMapLatest { command ->
             when (command) {
                 is MediaCommand.Common -> channelRepository.observe(command.channelId)
-                is MediaCommand.XtreamEpisode -> channelRepository
-                    .observe(command.channelId)
-                    .map { it?.copyXtreamEpisode(command.episode) }
 
                 else -> flowOf(null)
             }
@@ -253,9 +239,6 @@ class PlayerManagerImpl @Inject constructor(
         if (!commandAccepted) return
         val channel = when (command) {
             is MediaCommand.Common -> channelRepository.get(command.channelId)
-            is MediaCommand.XtreamEpisode -> channelRepository
-                .get(command.channelId)
-                ?.copyXtreamEpisode(command.episode)
         }
         if (!providerSessionState.isCurrent(generation)) return
         if (channel != null) {

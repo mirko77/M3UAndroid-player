@@ -1,9 +1,6 @@
 package com.m3u.data.extension
 
 import android.content.Context
-import com.m3u.data.extension.emby.EmbyCompatibleClient
-import com.m3u.data.extension.emby.EmbyCompatibleProvider
-import com.m3u.data.extension.emby.OkHttpEmbyCompatibleClient
 import com.m3u.data.extension.security.AndroidKeystoreCredentialVault
 import com.m3u.data.extension.security.CredentialVault
 import com.m3u.data.extension.security.ExtensionSecretStore
@@ -27,7 +24,6 @@ import com.m3u.data.repository.provider.SubscriptionProviderRepository
 import com.m3u.data.repository.provider.SubscriptionProviderRepositoryImpl
 import com.m3u.extension.api.ExtensionApiVersions
 import com.m3u.extension.runtime.CapabilityPolicy
-import com.m3u.extension.runtime.ExtensionRegistrationResult
 import com.m3u.extension.runtime.ExtensionBrokerScopeProvider
 import com.m3u.extension.runtime.ExtensionRuntime
 import com.m3u.extension.runtime.ExtensionSettingsProvider
@@ -113,12 +109,6 @@ internal abstract class ExtensionBindingsModule {
 
     @Binds
     @Singleton
-    abstract fun bindEmbyCompatibleClient(
-        client: OkHttpEmbyCompatibleClient,
-    ): EmbyCompatibleClient
-
-    @Binds
-    @Singleton
     abstract fun bindSubscriptionProviderRepository(
         repository: SubscriptionProviderRepositoryImpl,
     ): SubscriptionProviderRepository
@@ -146,7 +136,6 @@ internal object ExtensionRuntimeModule {
     @Provides
     @Singleton
     fun provideExtensionRuntime(
-        provider: EmbyCompatibleProvider,
         trustStore: ExtensionTrustStore,
         settingsProvider: ExtensionSettingsProvider,
         brokerScopeProvider: ExtensionBrokerScopeProvider,
@@ -154,11 +143,7 @@ internal object ExtensionRuntimeModule {
     ): ExtensionRuntime = ExtensionRuntime(
         hostApiVersion = ExtensionApiVersions.Current,
         capabilityPolicy = CapabilityPolicy { manifest, _ ->
-            val grantedIds = if (manifest.id == EmbyCompatibleProvider.ID) {
-                manifest.capabilities.mapTo(mutableSetOf()) { it.capability.id }
-            } else {
-                trustStore.grantedCapabilities(manifest.id.value)
-            }
+            val grantedIds = trustStore.grantedCapabilities(manifest.id.value)
             manifest.capabilities.mapNotNullTo(mutableSetOf()) { request ->
                 request.capability.takeIf { it.id in grantedIds }
             }
@@ -166,10 +151,5 @@ internal object ExtensionRuntimeModule {
         settingsProvider = settingsProvider,
         brokerScopeProvider = brokerScopeProvider,
         invocationPolicy = invocationPolicy,
-    ).apply {
-        val registration = register(provider)
-        check(registration is ExtensionRegistrationResult.Registered) {
-            "Failed to register built-in Emby-compatible provider"
-        }
-    }
+    )
 }

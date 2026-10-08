@@ -11,13 +11,36 @@
 
 ---
 
-M3U Player helps you watch IPTV streams from your own M3U playlist sources.
+M3U Player plays IPTV streams from your own M3U playlists (plus XMLTV programme guides).
 
-It is made for users who want a clean, practical, ad-free IPTV app that works well on Android phones and tablets.
+It is a maintained fork of [M3UAndroid by oxyroid](https://github.com/oxyroid/M3UAndroid)
+(upstream is archived, so upstream is used as a starting point only).
+The fork keeps the phone/tablet app and deliberately simplifies it:
+
+- M3U playlists (and their EPG guides) only. Xtream Codes, Emby, Jellyfin,
+  generic providers, and external extensions were removed.
+- No Android TV app, no Play Store release. Sideload the APK from
+  [GitHub Releases](https://github.com/mirko77/M3UAndroid-player/releases/latest).
+- Android 10+ only.
+- Extras removed: debug playback samples, God Mode, unseen-channel
+  recommendations, TV remote control, extension plugins UI.
+- Extras added: open-on-favorites startup tab, auto-landscape player,
+  compact headline cards.
 
 ## Download
 
 - [GitHub Release](https://github.com/mirko77/M3UAndroid-player/releases/latest)
+
+## Build
+
+```sh
+git submodule update --init --recursive
+./gradlew :app:smartphone:assembleDebug
+```
+
+Requirements: JDK 17 (the `parser` submodule pins `jvmToolchain(17)`),
+Android Studio Otter 2.x or newer (project pins AGP 9.0.0 / compileSdk 36),
+Android SDK platform 36.
 
 ## License
 

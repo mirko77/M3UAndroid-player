@@ -18,8 +18,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -27,14 +25,12 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import com.m3u.extension.api.subscription.SubscriptionProviderSettingKeys
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.MainActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
 import kotlin.math.abs
 
@@ -45,29 +41,6 @@ class SubscriptionSourceSelectionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext
     private val device = UiDevice.getInstance(instrumentation)
-
-    @Test
-    fun embyAndJellyfinCanBeSelectedAcrossTheFullSourceRow() {
-        openSourcePicker()
-
-        clickSourceAcrossFullRow(JELLYFIN_SOURCE_KEY)
-        assertProviderFieldsVisible(JELLYFIN_SOURCE_KEY)
-
-        device.pressBack()
-        waitUntilTagExists(SOURCE_PICKER_TAG)
-        clickSourceAcrossFullRow(EMBY_SOURCE_KEY)
-        assertProviderFieldsVisible(EMBY_SOURCE_KEY)
-    }
-
-    @Test
-    fun builtInProviderVariantLoadsItsDescriptorFormDirectly() {
-        openSourcePicker()
-
-        clickSourceAcrossFullRow(EMBY_SOURCE_KEY)
-
-        waitUntilTagExists(editorTag(EMBY_SOURCE_KEY))
-        assertProviderFieldsVisible(EMBY_SOURCE_KEY)
-    }
 
     @Test
     fun providerFormWorksInRequestedAccessibilityConfiguration() {
@@ -82,15 +55,8 @@ class SubscriptionSourceSelectionTest {
             sourceKey = M3U_SOURCE_KEY,
             labelResId = string.feat_setting_data_source_m3u,
         )
-        assertSourceRowAccessibility(
-            sourceKey = JELLYFIN_SOURCE_KEY,
-            labelResId = string.feat_setting_data_source_jellyfin,
-        )
-        clickSourceAcrossFullRow(JELLYFIN_SOURCE_KEY)
-        assertProviderFieldEdgesAligned(JELLYFIN_SOURCE_KEY)
-        if (matrixCase == MATRIX_CASE_WIDE_LTR) {
-            assertWideSettingPanesAreArrangedSideBySide(JELLYFIN_SOURCE_KEY)
-        }
+        clickSourceAcrossFullRow(M3U_SOURCE_KEY)
+        waitUntilTagExists(editorTag(M3U_SOURCE_KEY))
     }
 
     @Test
@@ -115,12 +81,12 @@ class SubscriptionSourceSelectionTest {
     @Test
     fun overviewSourcePickerAndEditorBackStackRestoreEachLevel() {
         openSourcePicker()
-        scrollSourcePickerTo(sourceTag(JELLYFIN_SOURCE_KEY))
-        clickSourceAcrossFullRow(JELLYFIN_SOURCE_KEY)
+        scrollSourcePickerTo(sourceTag(M3U_SOURCE_KEY))
+        clickSourceAcrossFullRow(M3U_SOURCE_KEY)
 
         device.pressBack()
         waitUntilTagExists(SOURCE_PICKER_TAG)
-        composeRule.onNodeWithTag(sourceTag(JELLYFIN_SOURCE_KEY))
+        composeRule.onNodeWithTag(sourceTag(M3U_SOURCE_KEY))
             .assertHasClickAction()
 
         device.pressBack()
@@ -176,34 +142,6 @@ class SubscriptionSourceSelectionTest {
             performScrollTo()
             assertHasClickAction()
         }
-    }
-
-    @Test
-    fun jellyfinPasswordFieldIsBroughtAboveTheIme() {
-        openSourcePicker()
-        clickSourceAcrossFullRow(JELLYFIN_SOURCE_KEY)
-        val passwordField = findProviderField(
-            editorSourceKey = JELLYFIN_SOURCE_KEY,
-            fieldKey = SubscriptionProviderSettingKeys.Password,
-            labelResId = string.feat_setting_placeholder_password,
-        ).second
-        passwordField.click()
-
-        val imeBottom = waitForStableImeBottom()
-        device.waitForIdle()
-        SystemClock.sleep(IME_RELOCATION_SETTLE_MILLIS)
-        val focusedField = device.findRequiredObject(
-            By.clazz("android.widget.EditText").focused(true)
-        )
-        val imeTop = device.displayHeight - imeBottom
-
-        assertTrue(
-            "Focused password field ${focusedField.visibleBounds} overlaps IME top $imeTop",
-            focusedField.visibleBounds.bottom <= imeTop,
-        )
-
-        device.pressBack()
-        waitForImeHidden()
     }
 
     private fun openPlaylistManagementOverview() {
@@ -315,161 +253,6 @@ class SubscriptionSourceSelectionTest {
         }
         waitUntilTagExists(tag)
         composeRule.waitForIdle()
-    }
-
-    private fun assertProviderFieldsVisible(editorSourceKey: String) {
-        PROVIDER_FIELDS.forEach { (fieldKey, labelResId) ->
-            findProviderField(editorSourceKey, fieldKey, labelResId)
-        }
-    }
-
-    private fun assertProviderFieldEdgesAligned(editorSourceKey: String) {
-        val isRtl = context.resources.configuration.layoutDirection ==
-            View.LAYOUT_DIRECTION_RTL
-        PROVIDER_FIELDS.forEach { (fieldKey, labelResId) ->
-            val (labelNode, fieldNode) = findProviderField(
-                editorSourceKey = editorSourceKey,
-                fieldKey = fieldKey,
-                labelResId = labelResId,
-            )
-            val labelEdge = if (isRtl) {
-                labelNode.visibleBounds.right
-            } else {
-                labelNode.visibleBounds.left
-            }
-            val fieldEdge = if (isRtl) {
-                fieldNode.visibleBounds.right
-            } else {
-                fieldNode.visibleBounds.left
-            }
-            assertTrue(
-                "Provider label and field are not aligned for " +
-                    "${context.getString(labelResId)}: " +
-                    "label=${labelNode.visibleBounds}, field=${fieldNode.visibleBounds}",
-                abs(labelEdge - fieldEdge) <= FIELD_EDGE_TOLERANCE_PX,
-            )
-        }
-    }
-
-    private fun findProviderField(
-        editorSourceKey: String,
-        fieldKey: String,
-        labelResId: Int,
-    ): Pair<UiObject2, UiObject2> {
-        val label = context.getString(labelResId).withoutBidiControls()
-        val fieldTag = providerFieldTag(fieldKey)
-        composeRule.waitUntil(UI_TIMEOUT_MILLIS) {
-            runCatching {
-                composeRule.onNodeWithTag(editorTag(editorSourceKey))
-                    .performScrollToNode(hasTestTag(fieldTag))
-            }.isSuccess
-        }
-        waitUntilTagExists(fieldTag)
-        composeRule.onNodeWithTag(fieldTag).performScrollTo()
-        composeRule.waitForIdle()
-        device.waitForIdle()
-        val deadline = SystemClock.uptimeMillis() + UI_TIMEOUT_MILLIS
-        while (SystemClock.uptimeMillis() < deadline) {
-            val labelNode = device.findObjects(
-                By.text(caseInsensitiveContaining(label))
-            ).firstOrNull { node ->
-                runCatching {
-                    node.className == "android.widget.TextView"
-                }.getOrDefault(false)
-            }
-            val fieldNode = runCatching {
-                device.findObject(
-                    By.desc(caseInsensitiveContaining(label))
-                )?.ancestorOfClass("android.widget.EditText")
-            }.getOrNull()
-            if (labelNode != null && fieldNode != null) {
-                val nodesAreStable = runCatching {
-                    !labelNode.visibleBounds.isEmpty &&
-                        !fieldNode.visibleBounds.isEmpty
-                }.getOrDefault(false)
-                if (nodesAreStable) {
-                    return labelNode to fieldNode
-                }
-            }
-            SystemClock.sleep(TAG_POLL_MILLIS)
-        }
-        error("Provider field was not exposed after scrolling to $fieldTag: $label")
-    }
-
-    private fun assertWideSettingPanesAreArrangedSideBySide(sourceKey: String) {
-        val editorBounds = composeRule.onNodeWithTag(editorTag(sourceKey))
-            .fetchSemanticsNode()
-            .boundsInWindow
-        val playlistLabel = context.getString(string.feat_setting_playlist_management)
-        val listPaneLabel = (
-            device.findObjects(By.text(caseInsensitive(playlistLabel))) +
-                device.findObjects(By.desc(caseInsensitive(playlistLabel)))
-            )
-            .firstOrNull { candidate ->
-                candidate.visibleBounds.right <=
-                    editorBounds.left + BOUNDS_TOLERANCE_PX
-            }
-            ?: error(
-                "Wide settings list pane was not found beside provider detail: " +
-                    "editor=$editorBounds",
-            )
-        assertTrue(
-            "Wide settings list and provider editor overlap: " +
-                "list=${listPaneLabel.visibleBounds}, editor=$editorBounds",
-            listPaneLabel.visibleBounds.right <=
-                editorBounds.left + BOUNDS_TOLERANCE_PX,
-        )
-    }
-
-    private fun waitForStableImeBottom(): Int {
-        val bottom = AtomicInteger()
-        val deadline = SystemClock.uptimeMillis() + UI_TIMEOUT_MILLIS
-        var lastBottom = 0
-        var stableSamples = 0
-        while (SystemClock.uptimeMillis() < deadline) {
-            composeRule.runOnIdle {
-                bottom.set(
-                    ViewCompat.getRootWindowInsets(
-                        composeRule.activity.window.decorView
-                    )
-                        ?.getInsets(WindowInsetsCompat.Type.ime())
-                        ?.bottom
-                        ?: 0
-                )
-            }
-            val currentBottom = bottom.get()
-            stableSamples = if (currentBottom > 0 && currentBottom == lastBottom) {
-                stableSamples + 1
-            } else {
-                0
-            }
-            if (stableSamples >= IME_STABLE_SAMPLE_COUNT) {
-                return currentBottom
-            }
-            lastBottom = currentBottom
-            SystemClock.sleep(IME_INSET_POLL_MILLIS)
-        }
-        error("IME did not become visible and stable; last bottom inset=${bottom.get()}")
-    }
-
-    private fun waitForImeHidden() {
-        val bottom = AtomicInteger(Int.MAX_VALUE)
-        val deadline = SystemClock.uptimeMillis() + UI_TIMEOUT_MILLIS
-        while (SystemClock.uptimeMillis() < deadline) {
-            composeRule.runOnIdle {
-                bottom.set(
-                    ViewCompat.getRootWindowInsets(
-                        composeRule.activity.window.decorView
-                    )
-                        ?.getInsets(WindowInsetsCompat.Type.ime())
-                        ?.bottom
-                        ?: 0
-                )
-            }
-            if (bottom.get() == 0) return
-            SystemClock.sleep(IME_INSET_POLL_MILLIS)
-        }
-        error("IME remained visible after pressing Back; last bottom inset=${bottom.get()}")
     }
 
     private fun assertRequestedAccessibilityConfiguration(
@@ -637,40 +420,16 @@ class SubscriptionSourceSelectionTest {
         return current
     }
 
-    private fun UiObject2.ancestorOfClass(className: String): UiObject2 {
-        var current: UiObject2? = this
-        while (current != null) {
-            if (current.className == className) return current
-            current = current.parent
-        }
-        error("Object has no $className ancestor: $this")
-    }
-
     private fun sourceTag(sourceKey: String): String = "playlist-source:$sourceKey"
 
     private fun editorTag(sourceKey: String): String = "playlist-editor:$sourceKey"
 
-    private fun providerFieldTag(fieldKey: String): String = "provider-field:$fieldKey"
-
     private companion object {
-        val PROVIDER_FIELDS = listOf(
-            SubscriptionProviderSettingKeys.BaseUrl to
-                string.feat_setting_placeholder_basic_url,
-            SubscriptionProviderSettingKeys.Username to
-                string.feat_setting_placeholder_username,
-            SubscriptionProviderSettingKeys.Password to
-            string.feat_setting_placeholder_password,
-        )
-
         const val UI_TIMEOUT_MILLIS = 15_000L
         const val TAG_POLL_MILLIS = 50L
         const val MINIMUM_TOUCH_TARGET_DP = 48
         const val FULL_ROW_CLICK_INSET_DP = 12
         const val BOUNDS_TOLERANCE_PX = 2
-        const val FIELD_EDGE_TOLERANCE_PX = 2
-        const val IME_INSET_POLL_MILLIS = 50L
-        const val IME_STABLE_SAMPLE_COUNT = 3
-        const val IME_RELOCATION_SETTLE_MILLIS = 300L
         const val ARG_ACCESSIBILITY_MATRIX_CASE = "accessibilityMatrixCase"
         const val MATRIX_CASE_COMPACT_LTR = "compact-ltr"
         const val MATRIX_CASE_COMPACT_NARROW_LTR = "compact-narrow-ltr"
@@ -698,8 +457,5 @@ class SubscriptionSourceSelectionTest {
         const val RESTORE_ACTION_TAG = "playlist-restore-action"
         const val M3U_SOURCE_KEY = "data-source:m3u"
         const val EPG_SOURCE_KEY = "data-source:epg"
-        const val PROVIDER_ID = "com.m3u.provider.emby-compatible"
-        const val JELLYFIN_SOURCE_KEY = "provider:$PROVIDER_ID:jellyfin"
-        const val EMBY_SOURCE_KEY = "provider:$PROVIDER_ID:emby"
     }
 }

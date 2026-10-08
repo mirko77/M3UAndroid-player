@@ -3,7 +3,6 @@ package com.m3u.business.setting
 import com.m3u.core.foundation.util.basic.PlaylistInputKind
 import com.m3u.core.foundation.util.basic.normalizePlaylistInputForSubmission
 import com.m3u.data.database.model.DataSource
-import com.m3u.data.parser.xtream.XtreamInput
 
 internal class SubscriptionDraftSession {
     private var activeKey: String? = null
@@ -19,7 +18,6 @@ internal class SubscriptionDraftSession {
 internal class ClipboardPlaylistInput private constructor(
     val title: String,
     val m3uUrl: String?,
-    val xtreamInput: XtreamInput?,
 ) {
     companion object {
         fun parse(
@@ -33,32 +31,9 @@ internal class ClipboardPlaylistInput private constructor(
                 .safePlaylistFilenameTitleOrNull()
                 .orEmpty()
 
-            if (source != DataSource.Xtream) {
-                return ClipboardPlaylistInput(
-                    title = safePathTitle,
-                    m3uUrl = normalizedUrl.takeIf { source == DataSource.M3U },
-                    xtreamInput = null,
-                )
-            }
-
-            val input = XtreamInput.decodeFromPlaylistUrlOrNull(normalizedUrl)
             return ClipboardPlaylistInput(
-                // An account URL does not contain a trustworthy user-facing playlist name.
-                // Keep the surrounding localized title field explicit instead of inventing an
-                // English timestamp label.
-                title = "",
-                m3uUrl = null,
-                xtreamInput = input?.copy(
-                    basicUrl = input.basicUrl.normalizePlaylistInputForSubmission(
-                        PlaylistInputKind.BASE_URL
-                    ),
-                    username = input.username.normalizePlaylistInputForSubmission(
-                        PlaylistInputKind.USERNAME
-                    ),
-                    password = input.password.normalizePlaylistInputForSubmission(
-                        PlaylistInputKind.PASSWORD
-                    ),
-                ),
+                title = safePathTitle,
+                m3uUrl = normalizedUrl.takeIf { source == DataSource.M3U },
             )
         }
     }

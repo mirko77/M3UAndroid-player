@@ -6,7 +6,6 @@ import com.m3u.data.database.model.DataSource
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.database.model.PlaylistWithChannels
 import com.m3u.data.database.model.Channel
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -27,15 +26,6 @@ interface PlaylistRepository {
     suspend fun m3uOrThrow(
         title: String,
         url: String,
-        callback: (count: Int) -> Unit = {}
-    )
-
-    suspend fun xtreamOrThrow(
-        title: String,
-        basicUrl: String,
-        username: String,
-        password: String,
-        type: String?,
         callback: (count: Int) -> Unit = {}
     )
 
@@ -69,8 +59,6 @@ interface PlaylistRepository {
     suspend fun onUpdatePlaylistUserAgent(url: String, userAgent: String?)
 
     fun observeAllCounts(): Flow<Map<Playlist, Int>>
-
-    suspend fun readEpisodesOrThrow(series: Channel): List<XtreamEpisodeInfo>
 
     suspend fun deleteEpgPlaylistAndProgrammes(epgUrl: String)
 

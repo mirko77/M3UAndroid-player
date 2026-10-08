@@ -610,8 +610,7 @@ private fun PlaylistSubscriptionRow(
     )
     val sourceIcon = when (playlist.source) {
         DataSource.M3U -> Icons.Rounded.Link
-        DataSource.Xtream -> Icons.Rounded.Cloud
-        DataSource.Emby, DataSource.Jellyfin, DataSource.Provider ->
+        DataSource.Provider ->
             Icons.Rounded.Extension
         else -> Icons.AutoMirrored.Rounded.List
     }

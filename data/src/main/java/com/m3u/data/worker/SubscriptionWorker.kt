@@ -22,7 +22,6 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.m3u.data.R
 import com.m3u.data.database.model.DataSource
-import com.m3u.data.parser.xtream.XtreamInput
 import com.m3u.data.repository.playlist.PlaylistDataMaintenanceCoordinator
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.programme.ProgrammeRepository
@@ -51,9 +50,6 @@ class SubscriptionWorker @AssistedInject constructor(
         ?.let { DataSource.ofOrNull(it) }
 
     private val title = inputData.getString(INPUT_STRING_TITLE)
-    private val basicUrl = inputData.getString(INPUT_STRING_BASIC_URL)
-    private val username = inputData.getString(INPUT_STRING_USERNAME)
-    private val password = inputData.getString(INPUT_STRING_PASSWORD)
     private val url = inputData.getString(INPUT_STRING_URL)
     private val epgPlaylistUrl = inputData.getString(INPUT_STRING_EPG_PLAYLIST_URL)
     private val epgIgnoreCache = inputData.getBoolean(INPUT_BOOLEAN_EPG_IGNORE_CACHE, false)
@@ -159,65 +155,6 @@ class SubscriptionWorker @AssistedInject constructor(
                 }
             }
 
-            DataSource.Xtream -> {
-                title ?: return@coroutineScope Result.failure()
-                basicUrl ?: return@coroutineScope Result.failure()
-                username ?: return@coroutineScope Result.failure()
-                password ?: return@coroutineScope Result.failure()
-                PlaylistDataMaintenanceCoordinator.withExclusive {
-                    val existing = if (requireExistingPlaylist && url != null) {
-                        playlistRepository.get(url)
-                    } else {
-                        null
-                    }
-                    if (requireExistingPlaylist && existing == null) {
-                        return@withExclusive Result.success()
-                    }
-                    val effectiveTitle = existing?.title ?: title
-                    if (
-                        effectiveTitle.isBlank() ||
-                        basicUrl.isBlank() ||
-                        username.isBlank() ||
-                        password.isBlank()
-                    ) {
-                        url ?: return@withExclusive Result.failure()
-                        val message = context.getString(string.data_error_empty_title)
-                        createN10nBuilder()
-                            .setContentText(message)
-                            .buildThenNotify()
-                        Result.failure()
-                    } else {
-                        try {
-                        val type = url?.let { XtreamInput.decodeFromPlaylistUrlOrNull(it)?.type }
-                        var total = 0
-                        playlistRepository.xtreamOrThrow(
-                            effectiveTitle, basicUrl, username, password, type
-                        ) { count ->
-                            total = count
-                            val notification = createN10nBuilder()
-                                .setContentText(findChannelProgressContentText(count))
-                                .setActions(cancelAction)
-                                .build()
-                            notificationManager.notify(notificationId, notification)
-                        }
-                        createN10nBuilder()
-                            .setContentText(findCompleteContentText(total))
-                            .buildThenNotify()
-                        Result.success()
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (e: Exception) {
-                            createN10nBuilder()
-                                .setContentText(context.getString(string.ui_error_unknown))
-                                .setActions(retryAction)
-                                .setColor(Color.RED)
-                                .buildThenNotify()
-                            Result.failure()
-                        }
-                    }
-                }
-            }
-
             else -> {
                 // do nothing
                 Result.failure()
@@ -308,9 +245,6 @@ class SubscriptionWorker @AssistedInject constructor(
         private const val INPUT_BOOLEAN_EPG_IGNORE_CACHE = "ignore_cache"
         private const val INPUT_BOOLEAN_REQUIRE_EXISTING_PLAYLIST =
             "require-existing-playlist"
-        private const val INPUT_STRING_BASIC_URL = "basic_url"
-        private const val INPUT_STRING_USERNAME = "username"
-        private const val INPUT_STRING_PASSWORD = "password"
         private const val INPUT_STRING_DATA_SOURCE_VALUE = "data-source"
         const val TAG = "subscription"
 
@@ -406,83 +340,6 @@ class SubscriptionWorker @AssistedInject constructor(
             )
             return request.id
         }
-
-        fun xtream(
-            workManager: WorkManager,
-            title: String,
-            url: String,
-            basicUrl: String,
-            username: String,
-            password: String,
-            requireExistingPlaylist: Boolean = false,
-        ): UUID {
-            val workTag = hashedWorkTag(
-                namespace = "subscription-xtream",
-                value = "$basicUrl\u0000$username",
-            )
-            val request = OneTimeWorkRequestBuilder<SubscriptionWorker>()
-                .setInputData(
-                    workDataOf(
-                        INPUT_STRING_TITLE to title,
-                        INPUT_STRING_URL to url,
-                        INPUT_STRING_BASIC_URL to basicUrl,
-                        INPUT_STRING_USERNAME to username,
-                        INPUT_STRING_PASSWORD to password,
-                        INPUT_BOOLEAN_REQUIRE_EXISTING_PLAYLIST to requireExistingPlaylist,
-                        INPUT_STRING_DATA_SOURCE_VALUE to DataSource.Xtream.value
-                    )
-                )
-                .addTag(workTag)
-                .addTag(DataSource.Xtream.value)
-                .apply {
-                    if (url.isNotBlank()) {
-                        addTag(xtreamPlaylistWorkTag(url))
-                        addTag(playlistWorkTag(url))
-                    }
-                    val xtreamInput = XtreamInput.decodeFromPlaylistUrlOrNull(url) ?: XtreamInput(
-                        basicUrl = basicUrl,
-                        username = username,
-                        password = password
-                    )
-                    val type = xtreamInput.type
-                    val playlistUrls = if (type == null) {
-                        listOf(
-                            DataSource.Xtream.TYPE_LIVE,
-                            DataSource.Xtream.TYPE_SERIES,
-                            DataSource.Xtream.TYPE_VOD,
-                        ).map { playlistType ->
-                            XtreamInput.encodeToPlaylistUrl(
-                                xtreamInput.copy(type = playlistType)
-                            )
-                        }
-                    } else {
-                        listOf(
-                            XtreamInput.encodeToPlaylistUrl(
-                                xtreamInput.copy(type = type)
-                            )
-                        )
-                    }
-                    playlistUrls.forEach { playlistUrl ->
-                        addTag(xtreamPlaylistWorkTag(playlistUrl))
-                        addTag(playlistWorkTag(playlistUrl))
-                    }
-                }
-                .addTag(TAG)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .setConstraints(
-                    Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                )
-                .build()
-            workManager.enqueueUniqueWork(
-                workTag,
-                ExistingWorkPolicy.REPLACE,
-                request,
-            )
-            return request.id
-        }
-
         private val ATOMIC_NOTIFICATION_ID = AtomicInteger()
     }
 }
@@ -497,19 +354,12 @@ internal fun m3uSubscriptionWorkName(url: String): String =
 internal fun epgSubscriptionWorkName(url: String): String =
     playlistRefreshWorkTag(DataSource.EPG, url)
 
-internal fun xtreamPlaylistWorkTag(url: String): String =
-    playlistRefreshWorkTag(DataSource.Xtream, url)
-
 fun playlistRefreshWorkTag(
     source: DataSource,
     url: String,
 ): String = when (source) {
     DataSource.M3U -> hashedWorkTag(namespace = "subscription-m3u", value = url)
     DataSource.EPG -> hashedWorkTag(namespace = "subscription-epg", value = url)
-    DataSource.Xtream ->
-        hashedWorkTag(namespace = "subscription-xtream-playlist", value = url)
-    DataSource.Emby,
-    DataSource.Jellyfin,
     DataSource.Provider ->
         hashedWorkTag(namespace = "provider-refresh", value = url)
     else -> hashedWorkTag(

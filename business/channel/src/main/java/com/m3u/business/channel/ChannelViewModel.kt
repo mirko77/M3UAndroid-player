@@ -133,7 +133,6 @@ class ChannelViewModel @Inject constructor(
         it ?: return@map false
         if (it.isSeries || it.isVod) return@map false
         when (it.source) {
-            DataSource.Xtream -> true
             DataSource.M3U -> it.epgUrls.isNotEmpty()
             else -> false
         }

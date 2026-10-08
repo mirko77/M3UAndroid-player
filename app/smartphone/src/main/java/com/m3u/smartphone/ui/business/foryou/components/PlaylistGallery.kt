@@ -107,7 +107,6 @@ internal fun PlaylistGallery(
                 type = with(playlist) {
                     when (source) {
                         DataSource.M3U -> "$source"
-                        DataSource.Xtream -> "$source $type"
                         else -> null
                     }
                 },

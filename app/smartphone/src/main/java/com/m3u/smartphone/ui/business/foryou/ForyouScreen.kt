@@ -40,7 +40,6 @@ import com.m3u.core.foundation.wrapper.Resource
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.database.model.PlaylistWithCount
-import com.m3u.data.database.model.isSeries
 import com.m3u.data.service.MediaCommand
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.foryou.components.HeadlineBackground
@@ -49,7 +48,6 @@ import com.m3u.smartphone.ui.business.foryou.components.recommend.RecommendGalle
 import com.m3u.smartphone.ui.common.helper.Action
 import com.m3u.smartphone.ui.common.helper.LocalHelper
 import com.m3u.smartphone.ui.common.helper.Metadata
-import com.m3u.smartphone.ui.material.components.EpisodesBottomSheet
 import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
 import com.m3u.smartphone.ui.material.model.LocalSpacing
@@ -77,9 +75,7 @@ fun ForyouRoute(
 
     val playlists by viewModel.playlists.collectAsStateWithLifecycle()
     val specs by viewModel.specs.collectAsStateWithLifecycle()
-    val episodes by viewModel.episodes.collectAsStateWithLifecycle()
 
-    val series: Channel? by viewModel.series.collectAsStateWithLifecycle()
     val subscribingPlaylistUrls by viewModel.subscribingPlaylistUrls.collectAsStateWithLifecycle()
     val refreshingEpgUrls by viewModel.refreshingEpgUrls.collectAsStateWithLifecycle(emptyList())
 
@@ -111,42 +107,14 @@ fun ForyouRoute(
             navigateToPlaylist = navigateToPlaylist,
             onPlayChannel = { channel ->
                 coroutineScope.launch {
-                    val playlist = viewModel.getPlaylist(channel.playlistUrl)
-                    when {
-                        playlist?.isSeries == true -> {
-                            viewModel.series.value = channel
-                        }
-
-                        else -> {
-                            helper.play(MediaCommand.Common(channel.id))
-                            navigateToChannel()
-                        }
-                    }
+                    helper.play(MediaCommand.Common(channel.id))
+                    navigateToChannel()
                 }
             },
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,
             onUnsubscribePlaylist = viewModel::onUnsubscribePlaylist,
             modifier = Modifier
                 .fillMaxSize()
-        )
-
-        EpisodesBottomSheet(
-            series = series,
-            episodes = episodes,
-            onEpisodeClick = { episode ->
-                coroutineScope.launch {
-                    series?.let { channel ->
-                        val input = MediaCommand.XtreamEpisode(
-                            channelId = channel.id,
-                            episode = episode
-                        )
-                        helper.play(input)
-                        navigateToChannel()
-                    }
-                }
-            },
-            onRefresh = { series?.let { viewModel.seriesReplay.value += 1 } },
-            onDismissRequest = { viewModel.series.value = null }
         )
     }
 }

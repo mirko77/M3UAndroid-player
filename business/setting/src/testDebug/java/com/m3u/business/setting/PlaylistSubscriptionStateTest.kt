@@ -69,14 +69,21 @@ class PlaylistSubscriptionStateTest {
         assertEquals(
             PlaylistSubscriptionTracking(
                 title = "News",
-                source = DataSource.Xtream,
+                source = DataSource.M3U,
                 workId = workId,
             ),
             restorePlaylistSubscriptionTracking(
                 title = " News ",
-                sourceValue = DataSource.Xtream.value,
+                sourceValue = DataSource.M3U.value,
                 workIdValue = workId.toString(),
             ),
+        )
+        assertNull(
+            restorePlaylistSubscriptionTracking(
+                title = "News",
+                sourceValue = "xtream",
+                workIdValue = workId.toString(),
+            )
         )
         assertNull(
             restorePlaylistSubscriptionTracking(

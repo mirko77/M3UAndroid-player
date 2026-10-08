@@ -8,8 +8,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
-import com.m3u.data.database.model.DataSource
-import com.m3u.data.parser.xtream.XtreamInput
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import org.junit.After
@@ -86,91 +84,6 @@ class SubscriptionWorkerSchedulingTest {
     }
 
     @Test
-    fun epgAndXtreamUseHashedReplacementIdentitiesWithoutLeakingCredentials() {
-        val nonce = UUID.randomUUID()
-        val epgUrl =
-            "https://guide-user:guide-secret@example.test/$nonce/guide.xml?token=epg-token"
-        val epgWorkName = epgSubscriptionWorkName(epgUrl)
-        val basicUrl = "https://xtream.example.test/$nonce"
-        val username = "subscriber-$nonce"
-        val password = "password-$nonce"
-        val playlistUrl = XtreamInput.encodeToPlaylistUrl(
-            XtreamInput(
-                basicUrl = basicUrl,
-                username = username,
-                password = password,
-                type = DataSource.Xtream.TYPE_LIVE,
-            )
-        )
-        val xtreamWorkName = hashedWorkTag(
-            namespace = "subscription-xtream",
-            value = "$basicUrl\u0000$username",
-        )
-        uniqueWorkNames += epgWorkName
-        uniqueWorkNames += xtreamWorkName
-
-        val epgWorkId = SubscriptionWorker.epg(
-            workManager = workManager,
-            playlistUrl = epgUrl,
-            ignoreCache = true,
-        )
-        val xtreamWorkId = SubscriptionWorker.xtream(
-            workManager = workManager,
-            title = "Private account",
-            url = playlistUrl,
-            basicUrl = basicUrl,
-            username = username,
-            password = password,
-            requireExistingPlaylist = true,
-        )
-
-        val epg = workSpecFor(epgWorkName)
-        val xtream = workSpecFor(xtreamWorkName)
-
-        assertEquals(epgWorkId.toString(), epg.id)
-        assertEquals(xtreamWorkId.toString(), xtream.id)
-        assertEquals(NetworkType.CONNECTED, epg.constraints.requiredNetworkType)
-        assertEquals(NetworkType.CONNECTED, xtream.constraints.requiredNetworkType)
-        assertTrue(epg.input.getBoolean(EPG_IGNORE_CACHE_INPUT, false))
-        assertTrue(xtream.input.getBoolean(REQUIRE_EXISTING_INPUT, false))
-        assertSafeIdentity(
-            epgWorkName,
-            epgUrl,
-            "guide-user",
-            "guide-secret",
-            "epg-token",
-            nonce.toString(),
-        )
-        assertSafeTags(
-            epg,
-            epgUrl,
-            "guide-user",
-            "guide-secret",
-            "epg-token",
-            nonce.toString(),
-        )
-        assertSafeIdentity(
-            xtreamWorkName,
-            playlistUrl,
-            basicUrl,
-            username,
-            password,
-            nonce.toString(),
-        )
-        assertSafeTags(
-            xtream,
-            playlistUrl,
-            basicUrl,
-            username,
-            password,
-            nonce.toString(),
-        )
-        assertEquals(emptyList<WorkInfo>(), workInfosForUniqueWork(epgUrl))
-        assertEquals(emptyList<WorkInfo>(), workInfosForUniqueWork(basicUrl))
-        assertEquals(emptyList<WorkInfo>(), workInfosForUniqueWork(playlistUrl))
-    }
-
-    @Test
     fun replacementIdentityIsStableButDifferentSourcesCannotCollide() {
         val value = "https://example.test/private/list.m3u?token=secret"
 
@@ -181,14 +94,6 @@ class SubscriptionWorkerSchedulingTest {
         assertNotEquals(
             m3uSubscriptionWorkName(value),
             epgSubscriptionWorkName(value),
-        )
-        assertNotEquals(
-            m3uSubscriptionWorkName(value),
-            xtreamPlaylistWorkTag(value),
-        )
-        assertNotEquals(
-            epgSubscriptionWorkName(value),
-            xtreamPlaylistWorkTag(value),
         )
     }
 

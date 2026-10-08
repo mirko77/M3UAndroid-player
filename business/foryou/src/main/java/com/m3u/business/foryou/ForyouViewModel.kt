@@ -5,12 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkQuery
-import com.m3u.core.foundation.wrapper.Resource
-import com.m3u.core.foundation.wrapper.mapResource
-import com.m3u.core.foundation.wrapper.resource
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.programme.ProgrammeRepository
@@ -24,7 +20,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -97,22 +92,6 @@ class ForyouViewModel @Inject constructor(
             playlistRepository.unsubscribe(url)
         }
     }
-
-    val series = MutableStateFlow<Channel?>(null)
-    val seriesReplay = MutableStateFlow(0)
-    val episodes: StateFlow<Resource<List<XtreamEpisodeInfo>>> = series
-        .combine(seriesReplay) { series, _ -> series }
-        .flatMapLatest { series ->
-            if (series == null) flow { }
-            else resource { playlistRepository.readEpisodesOrThrow(series) }
-                .mapResource { it }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = Resource.Loading,
-            // don't lose
-            started = SharingStarted.Lazily
-        )
 
     val query = MutableStateFlow<String>("")
 

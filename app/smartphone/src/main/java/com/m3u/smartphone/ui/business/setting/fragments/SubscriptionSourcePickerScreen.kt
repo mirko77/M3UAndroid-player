@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,16 +36,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.m3u.business.setting.ProviderDiscoveryState
 import com.m3u.business.setting.ProviderOperationState
-import com.m3u.business.setting.ProviderSubscriptionSource
 import com.m3u.business.setting.SettingProperties
-import com.m3u.business.setting.subscriptionSources
 import com.m3u.data.database.model.DataSource
-import com.m3u.data.repository.provider.SubscriptionProviderExecutionKind
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.material.ktx.plus
-import com.m3u.smartphone.ui.material.ktx.rememberUiBidiFormatter
 
 private val SubscriptionPickerMaxWidth = 640.dp
 
@@ -58,7 +51,6 @@ private data class SubscriptionSourceRow(
     val supportingContentDescription: String? = null,
     val icon: ImageVector,
     val ordinarySource: DataSource? = null,
-    val providerSource: ProviderSubscriptionSource? = null,
 )
 
 @Composable
@@ -66,15 +58,11 @@ context(properties: SettingProperties)
 internal fun SubscriptionSourcePickerScreen(
     dataOperationInProgress: Boolean,
     subscriptionSubmissionBlocked: Boolean,
-    providerDiscoveryState: ProviderDiscoveryState,
     providerOperationState: ProviderOperationState,
-    onSelectSubscriptionProviderVariant: (String, String) -> Unit,
-    onRetryProviderDiscovery: () -> Unit,
     onOpenEditor: (String) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
-    val bidiFormatter = rememberUiBidiFormatter()
     val ordinarySources = listOf(
         SubscriptionSourceRow(
             key = DataSource.M3U.subscriptionSelectionKey(),
@@ -85,67 +73,10 @@ internal fun SubscriptionSourcePickerScreen(
             icon = Icons.Rounded.Link,
             ordinarySource = DataSource.M3U,
         ),
-        SubscriptionSourceRow(
-            key = DataSource.Xtream.subscriptionSelectionKey(),
-            label = stringResource(DataSource.Xtream.resId),
-            supporting = stringResource(
-                string.feat_setting_playlist_source_xtream_description
-            ),
-            icon = Icons.Rounded.Cloud,
-            ordinarySource = DataSource.Xtream,
-        ),
     )
-    val providerSources = providerDiscoveryState.subscriptionSources()
-        .map { source ->
-            val stableProviderId = bidiFormatter.ltr(source.providerId.value)
-            val variantName = bidiFormatter.natural(source.displayName)
-                .ifBlank { bidiFormatter.natural(source.providerDisplayName) }
-                .ifBlank { stableProviderId }
-            val providerName = bidiFormatter.natural(source.providerDisplayName)
-                .ifBlank { stableProviderId }
-            val discloseStableIdentity =
-                source.executionKind == SubscriptionProviderExecutionKind.EXTERNAL
-            val supporting = if (discloseStableIdentity) {
-                stringResource(
-                    string.feat_setting_provider_choice_with_identifier,
-                    providerName,
-                    stableProviderId,
-                )
-            } else {
-                providerName.takeUnless { name -> name == variantName }
-            }
-            SubscriptionSourceRow(
-                key = source.subscriptionSelectionKey(),
-                label = variantName,
-                supporting = supporting,
-                supportingContentDescription = if (discloseStableIdentity) {
-                    stringResource(
-                        string.feat_setting_provider_choice_with_identifier_description,
-                        providerName,
-                        stableProviderId,
-                    )
-                } else {
-                    null
-                },
-                icon = Icons.Rounded.Extension,
-                providerSource = source,
-            )
-        }
     val enabled = !providerOperationState.isBusy &&
         !dataOperationInProgress &&
         !subscriptionSubmissionBlocked
-    val providerNotice =
-        if (
-            providerDiscoveryState is ProviderDiscoveryState.Ready &&
-            providerSources.isEmpty()
-        ) {
-            ProviderDiscoveryNotice.EMPTY
-        } else {
-            providerDiscoveryNotice(
-                state = providerDiscoveryState,
-                providerSelected = false,
-            )
-        }
 
     LazyColumn(
         modifier = modifier
@@ -185,74 +116,6 @@ internal fun SubscriptionSourcePickerScreen(
                         onOpenEditor(source.key)
                     },
                 )
-            }
-        }
-        item(key = "providers-heading") {
-            SubscriptionPickerPageContent {
-                SubscriptionPickerHeading(
-                    text = stringResource(string.feat_setting_playlist_providers)
-                )
-            }
-        }
-        if (providerSources.isNotEmpty()) {
-            item(key = "provider-sources") {
-                SubscriptionPickerPageContent {
-                    SubscriptionSourceGroup(
-                        sources = providerSources,
-                        enabled = enabled,
-                        onClick = { source ->
-                            val provider = requireNotNull(source.providerSource)
-                            properties.selectedState.value = DataSource.Provider
-                            onSelectSubscriptionProviderVariant(
-                                provider.providerId.value,
-                                provider.providerKind.value,
-                            )
-                            onOpenEditor(source.key)
-                        },
-                    )
-                }
-            }
-        }
-        when (providerNotice) {
-            ProviderDiscoveryNotice.NONE -> Unit
-            ProviderDiscoveryNotice.LOADING -> {
-                item(key = "providers-loading") {
-                    SubscriptionPickerPageContent {
-                        ProviderDiscoveryLoadingNotice(
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                }
-            }
-            ProviderDiscoveryNotice.EMPTY -> {
-                item(key = "providers-empty") {
-                    SubscriptionPickerPageContent {
-                        ProviderDiscoveryRetryNotice(
-                            message = stringResource(
-                                string.feat_setting_provider_discovery_empty
-                            ),
-                            onRetry = onRetryProviderDiscovery,
-                            enabled = enabled,
-                            testTag = "provider-discovery-empty",
-                            modifier = Modifier.padding(16.dp),
-                        )
-                    }
-                }
-            }
-            ProviderDiscoveryNotice.FAILED -> {
-                item(key = "providers-failed") {
-                    SubscriptionPickerPageContent {
-                        ProviderDiscoveryRetryNotice(
-                            message = stringResource(
-                                string.feat_setting_provider_discovery_failed
-                            ),
-                            onRetry = onRetryProviderDiscovery,
-                            enabled = enabled,
-                            testTag = "provider-discovery-failed",
-                            modifier = Modifier.padding(16.dp),
-                        )
-                    }
-                }
             }
         }
     }

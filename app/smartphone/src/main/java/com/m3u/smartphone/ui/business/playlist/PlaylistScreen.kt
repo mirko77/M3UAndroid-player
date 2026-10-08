@@ -81,7 +81,6 @@ import com.m3u.smartphone.ui.common.helper.Fob
 import com.m3u.smartphone.ui.common.helper.LocalHelper
 import com.m3u.smartphone.ui.common.helper.Metadata
 import com.m3u.smartphone.ui.material.components.Destination
-import com.m3u.smartphone.ui.material.components.EpisodesBottomSheet
 import com.m3u.smartphone.ui.material.components.EventHandler
 import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
@@ -123,10 +122,8 @@ internal fun PlaylistRoute(
         minActiveState = Lifecycle.State.RESUMED
     )
 
-    val episodes by viewModel.episodes.collectAsStateWithLifecycle()
     val pinnedCategories by viewModel.pinnedCategories.collectAsStateWithLifecycle()
     val refreshing by viewModel.subscribingOrRefreshing.collectAsStateWithLifecycle()
-    val series by viewModel.series.collectAsStateWithLifecycle()
 
     val isSeriesPlaylist by remember { derivedStateOf { playlist?.isSeries ?: false } }
     val isVodPlaylist by remember { derivedStateOf { playlist?.isVod ?: false } }
@@ -184,13 +181,9 @@ internal fun PlaylistRoute(
             onHideCategory = { viewModel.onHideCategory(it) },
             onSort = { viewModel.sort(it) },
             onPlayChannel = { channel ->
-                if (!isSeriesPlaylist) {
-                    coroutineScope.launch {
-                        helper.play(MediaCommand.Common(channel.id))
-                        navigateToChannel()
-                    }
-                } else {
-                    viewModel.series.value = channel
+                coroutineScope.launch {
+                    helper.play(MediaCommand.Common(channel.id))
+                    navigateToChannel()
                 }
             },
             onScrollUp = { viewModel.scrollUp.value = eventOf(Unit) },
@@ -233,29 +226,6 @@ internal fun PlaylistRoute(
             .fillMaxSize()
             .then(modifier)
     )
-
-    if (isSeriesPlaylist) {
-        EpisodesBottomSheet(
-            series = series,
-            episodes = episodes,
-            onEpisodeClick = { episode ->
-                coroutineScope.launch {
-                    series?.let {
-                        val input = MediaCommand.XtreamEpisode(
-                            channelId = it.id,
-                            episode = episode
-                        )
-                        helper.play(input)
-                        navigateToChannel()
-                    }
-                }
-            },
-            onRefresh = { viewModel.seriesReplay.value += 1 },
-            onDismissRequest = {
-                viewModel.series.value = null
-            }
-        )
-    }
 }
 
 private data class PlaylistScreenState(

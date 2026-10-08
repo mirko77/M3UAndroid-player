@@ -10,9 +10,6 @@ import com.m3u.core.foundation.wrapper.Resource
 import com.m3u.core.foundation.wrapper.asResource
 import com.m3u.data.database.model.DataSource
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.parser.xtream.XtreamUserInfo
-import com.m3u.data.parser.xtream.XtreamInput
-import com.m3u.data.parser.xtream.XtreamParser
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.playlist.PlaylistRefreshReason
 import com.m3u.data.repository.programme.ProgrammeRepository
@@ -51,7 +48,6 @@ typealias EpgManifest = Map<Playlist, Boolean>
 class PlaylistConfigurationViewModel @Inject constructor(
     private val playlistRepository: PlaylistRepository,
     private val programmeRepository: ProgrammeRepository,
-    private val xtreamParser: XtreamParser,
     private val workManager: WorkManager,
     private val subscriptionProviderRepository: SubscriptionProviderRepository,
     private val savedStateHandle: SavedStateHandle,
@@ -132,24 +128,6 @@ class PlaylistConfigurationViewModel @Inject constructor(
                 initialValue = null,
                 started = SharingStarted.WhileSubscribed(5_000L),
             )
-
-    val xtreamUserInfo: StateFlow<Resource<XtreamUserInfo>> = playlist
-        .flatMapLatest { currentPlaylist ->
-            if (currentPlaylist?.source != DataSource.Xtream) {
-                return@flatMapLatest flowOf(Resource.Loading)
-            }
-            val xtreamInput = XtreamInput
-                .decodeFromPlaylistUrlOrNull(currentPlaylist.url)
-                ?: return@flatMapLatest flowOf(Resource.Failure(null))
-            flow {
-                emit(xtreamParser.getInfo(xtreamInput).userInfo)
-            }.asResource()
-        }
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = Resource.Loading,
-            started = SharingStarted.Lazily
-        )
 
     val manifest: StateFlow<EpgManifest> = combine(
         playlistRepository.observeAllEpgs(),

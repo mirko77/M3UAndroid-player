@@ -48,7 +48,7 @@ internal fun createPlaylistSubscriptionTracking(
     source: DataSource,
     workId: UUID,
 ): PlaylistSubscriptionTracking? {
-    if (source != DataSource.M3U && source != DataSource.Xtream) return null
+    if (source != DataSource.M3U) return null
     val sanitizedTitle = title.normalizePlaylistInputForSubmission(
         PlaylistInputKind.TITLE
     )

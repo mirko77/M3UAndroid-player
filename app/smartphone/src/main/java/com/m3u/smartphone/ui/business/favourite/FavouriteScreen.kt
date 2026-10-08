@@ -30,14 +30,12 @@ import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Sort
 import com.m3u.data.database.model.Channel
-import com.m3u.data.database.model.isSeries
 import com.m3u.data.service.MediaCommand
 import com.m3u.i18n.R
 import com.m3u.smartphone.ui.business.favourite.components.FavoriteGallery
 import com.m3u.smartphone.ui.common.helper.Action
 import com.m3u.smartphone.ui.common.helper.LocalHelper
 import com.m3u.smartphone.ui.common.helper.Metadata
-import com.m3u.smartphone.ui.material.components.EpisodesBottomSheet
 import com.m3u.smartphone.ui.material.components.MediaSheet
 import com.m3u.smartphone.ui.material.components.MediaSheetValue
 import com.m3u.smartphone.ui.material.components.SortBottomSheet
@@ -63,7 +61,6 @@ fun FavoriteRoute(
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
 
     val channels = viewModel.channels.collectAsLazyPagingItems()
-    val episodes by viewModel.episodes.collectAsStateWithLifecycle()
     val zapping by viewModel.zapping.collectAsStateWithLifecycle()
     val sorts = viewModel.sorts
     val sort by viewModel.sort.collectAsStateWithLifecycle()
@@ -74,8 +71,6 @@ fun FavoriteRoute(
     var mediaSheetValue: MediaSheetValue.FavoriteScreen by remember {
         mutableStateOf(MediaSheetValue.FavoriteScreen())
     }
-
-    val series: Channel? by viewModel.series.collectAsStateWithLifecycle()
 
     LifecycleResumeEffect(title) {
         Metadata.title = AnnotatedString(title.title())
@@ -101,17 +96,8 @@ fun FavoriteRoute(
         recently = sort == Sort.RECENTLY,
         onClickChannel = { channel ->
             coroutineScope.launch {
-                val playlist = viewModel.getPlaylist(channel.playlistUrl)
-                when {
-                    playlist?.isSeries ?: false -> {
-                        viewModel.series.value = channel
-                    }
-
-                    else -> {
-                        helper.play(MediaCommand.Common(channel.id))
-                        navigateToChannel()
-                    }
-                }
+                helper.play(MediaCommand.Common(channel.id))
+                navigateToChannel()
             }
         },
         onLongClickChannel = { mediaSheetValue = MediaSheetValue.FavoriteScreen(it) },
@@ -120,24 +106,6 @@ fun FavoriteRoute(
             .then(modifier)
     )
 
-    EpisodesBottomSheet(
-        series = series,
-        episodes = episodes,
-        onEpisodeClick = { episode ->
-            coroutineScope.launch {
-                series?.let {
-                    val input = MediaCommand.XtreamEpisode(
-                        channelId = it.id,
-                        episode = episode
-                    )
-                    helper.play(input)
-                    navigateToChannel()
-                }
-            }
-        },
-        onRefresh = { series?.let { viewModel.seriesReplay.value += 1 } },
-        onDismissRequest = { viewModel.series.value = null }
-    )
     SortBottomSheet(
         visible = isSortSheetVisible,
         sort = sort,

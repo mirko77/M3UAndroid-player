@@ -90,14 +90,12 @@ import com.m3u.data.database.model.DataSource
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.database.model.epgUrlsOrXtreamXmlUrl
 import com.m3u.data.database.model.refreshable
-import com.m3u.data.parser.xtream.XtreamUserInfo
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.configuration.components.AutoSyncProgrammesButton
 import com.m3u.smartphone.ui.business.configuration.components.EpgManifestGallery
 import com.m3u.smartphone.ui.business.configuration.components.RefreshPlaylistButton
 import com.m3u.smartphone.ui.business.configuration.components.SyncProgrammesButton
-import com.m3u.smartphone.ui.business.configuration.components.XtreamPanel
 import com.m3u.smartphone.ui.common.helper.Fob
 import com.m3u.smartphone.ui.common.helper.Metadata
 import com.m3u.smartphone.ui.material.components.Background
@@ -140,7 +138,6 @@ internal fun PlaylistConfigurationRoute(
     val playlistRemovalState by
         viewModel.playlistRemovalState.collectAsStateWithLifecycle()
     val expired by viewModel.expired.collectAsStateWithLifecycle()
-    val xtreamUserInfo by viewModel.xtreamUserInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel, playlistReference) {
         playlistReference?.let(viewModel::openPlaylistReference)
@@ -250,18 +247,14 @@ internal fun PlaylistConfigurationRoute(
                 playlistRemovalFailed =
                     playlistRemovalState == PlaylistRemovalState.FAILED,
                 expired = expired,
-                xtreamUserInfo = xtreamUserInfo,
                 onUpdatePlaylistTitle = viewModel::onUpdatePlaylistTitle,
                 onUpdatePlaylistUserAgent = viewModel::onUpdatePlaylistUserAgent,
                 onUpdateEpgPlaylist = viewModel::onUpdateEpgPlaylist,
                 onUpdatePlaylistAutoRefreshProgrammes =
                     viewModel::onUpdatePlaylistAutoRefreshProgrammes,
                 onRefreshPlaylist = {
-                    val refreshUsesForegroundNotification =
-                        currentState.playlist.source == DataSource.M3U ||
-                            currentState.playlist.source == DataSource.Xtream
                     if (
-                        refreshUsesForegroundNotification &&
+                        currentState.playlist.source == DataSource.M3U &&
                         permissionState?.status is PermissionStatus.Denied
                     ) {
                         permissionState.launchPermissionRequest()
@@ -399,7 +392,6 @@ private fun PlaylistConfigurationScreen(
     removingPlaylist: Boolean,
     playlistRemovalFailed: Boolean,
     expired: LocalDateTime?,
-    xtreamUserInfo: Resource<XtreamUserInfo>,
     onUpdatePlaylistTitle: (String) -> Unit,
     onUpdatePlaylistUserAgent: (String?) -> Unit,
     onUpdateEpgPlaylist: (PlaylistRepository.EpgPlaylistUseCase) -> Unit,
@@ -532,22 +524,6 @@ private fun PlaylistConfigurationScreen(
                         onUpdateEpgPlaylist = onUpdateEpgPlaylist,
                         modifier = Modifier.configurationPageWidth(),
                     )
-                }
-            }
-
-            if (playlist.source == DataSource.Xtream) {
-                item(key = "xtream-account") {
-                    Column(
-                        modifier = Modifier.configurationPageWidth(),
-                    ) {
-                        ConfigurationSectionHeading(
-                            text = stringResource(DataSource.Xtream.resId),
-                        )
-                        XtreamPanel(
-                            info = xtreamUserInfo,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
                 }
             }
 
@@ -725,15 +701,7 @@ private fun PlaylistDetailsSection(
         ?: stringResource(playlist.source.resId)
     val sourceIcon = playlist.source.configurationIcon()
     val displayReference = remember(playlist.url, playlist.source) {
-        if (
-            playlist.source == DataSource.Provider ||
-            playlist.source == DataSource.Emby ||
-            playlist.source == DataSource.Jellyfin
-        ) {
-            null
-        } else {
-            playlist.url.safeSourceReference()
-        }
+        playlist.url.safeSourceReference()
     }
     val titleLabel = stringResource(
         string.feat_playlist_configuration_title
@@ -906,8 +874,5 @@ private fun Modifier.configurationPageWidth(): Modifier = widthIn(
 private fun DataSource.configurationIcon(): ImageVector = when (this) {
     DataSource.M3U -> Icons.Rounded.Link
     DataSource.EPG -> Icons.Rounded.DateRange
-    DataSource.Xtream -> Icons.Rounded.Cloud
-    DataSource.Emby, DataSource.Jellyfin, DataSource.Provider ->
-        Icons.Rounded.Extension
     else -> Icons.AutoMirrored.Rounded.List
 }

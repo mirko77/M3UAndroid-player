@@ -4,7 +4,6 @@ import com.m3u.core.foundation.util.basic.PlaylistInputKind
 import com.m3u.core.foundation.util.basic.normalizePlaylistInputForSubmission
 import com.m3u.core.foundation.util.basic.sanitizePlaylistInput
 import com.m3u.data.database.model.DataSource
-import com.m3u.data.parser.xtream.XtreamInput
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -94,7 +93,6 @@ class PlaylistInputNormalizationTest {
 
         assertEquals("list", input.title)
         assertTrue("top-secret" in assertNotNull(input.m3uUrl))
-        assertEquals(null, input.xtreamInput)
         assertFalse("private" in input.title)
         assertFalse("top-secret" in input.title)
         assertFalse("hidden" in input.title)
@@ -118,51 +116,6 @@ class PlaylistInputNormalizationTest {
         )
 
         assertEquals("channels", input.title)
-    }
-
-    @Test
-    fun `xtream clipboard uses normalized parsed fields and preserves password spaces`() {
-        val input = ClipboardPlaylistInput.parse(
-            rawUrl =
-                " https://example.test/player_api.php" +
-                    "?username=viewer&password=%20secret%20&xtream_type=live\n",
-            source = DataSource.Xtream,
-        )
-        val xtream = assertNotNull(input.xtreamInput)
-
-        assertEquals("", input.title)
-        assertEquals(null, input.m3uUrl)
-        assertEquals("viewer", xtream.username)
-        assertEquals(" secret ", xtream.password)
-        assertEquals(DataSource.Xtream.TYPE_LIVE, xtream.type)
-    }
-
-    @Test
-    fun `invalid xtream clipboard has no m3u reference or parsed credentials`() {
-        val input = ClipboardPlaylistInput.parse(
-            rawUrl = "not a valid account?token=secret",
-            source = DataSource.Xtream,
-        )
-
-        assertEquals(null, input.m3uUrl)
-        assertEquals(null, input.xtreamInput)
-        assertFalse("secret" in input.title)
-    }
-
-    @Test
-    fun `xtream reference is rebuilt from edited account instead of clipboard credentials`() {
-        val rebuilt = buildXtreamPlaylistUrlOrEmpty(
-            basicUrl = "https://new.example.test",
-            username = "new-user",
-            password = " new-secret ",
-            type = DataSource.Xtream.TYPE_SERIES,
-        )
-        val decoded = assertNotNull(XtreamInput.decodeFromPlaylistUrlOrNull(rebuilt))
-
-        assertEquals("new-user", decoded.username)
-        assertEquals(" new-secret ", decoded.password)
-        assertEquals(DataSource.Xtream.TYPE_SERIES, decoded.type)
-        assertTrue(rebuilt.startsWith("https://"))
     }
 
     @Test

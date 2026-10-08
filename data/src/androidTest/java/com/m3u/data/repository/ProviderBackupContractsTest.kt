@@ -128,7 +128,7 @@ class ProviderBackupContractsTest {
         val playlist = Playlist(
             title = "Media",
             url = "m3u-provider://account/account/live",
-            source = DataSource.Emby,
+            source = DataSource.Provider,
             userAgent = "token-agent",
             epgUrls = listOf("https://example.com/epg?token=secret"),
         ).toProviderBackupCopy()
@@ -158,7 +158,7 @@ class ProviderBackupContractsTest {
 
     @Test
     fun everyLegacyProviderSourceIsNormalizedBeforeItCanBeWrittenAgain() {
-        listOf(DataSource.Emby, DataSource.Jellyfin, DataSource.Provider).forEach { source ->
+        listOf(DataSource.Provider).forEach { source ->
             val normalized = Playlist(
                 title = "Media",
                 url = "m3u-provider://account/account/live",

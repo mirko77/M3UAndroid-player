@@ -71,7 +71,6 @@ import com.m3u.core.foundation.ui.composableOf
 import com.m3u.core.foundation.ui.thenIf
 import com.m3u.core.foundation.util.collections.indexOf
 import com.m3u.data.database.model.Channel
-import com.m3u.data.database.model.Episode
 import com.m3u.data.database.model.Programme
 import com.m3u.data.database.model.ProgrammeRange
 import com.m3u.data.service.MediaCommand
@@ -415,12 +414,6 @@ private fun ChannelGallery(
                     }
                 }
             }
-
-            is ChannelGalleryValue.XtreamEpisode -> {
-                items(value.episodes) { series ->
-                    // TODO
-                }
-            }
         }
     }
     if (!vertical) {
@@ -448,11 +441,6 @@ private sealed class ChannelGalleryValue {
     data class PagingChannel(
         val channels: LazyPagingItems<Channel>,
         val channelId: Int
-    ) : ChannelGalleryValue()
-
-    data class XtreamEpisode(
-        val episodes: List<Episode>,
-        val seriesId: Int
     ) : ChannelGalleryValue()
 }
 
@@ -537,17 +525,6 @@ private fun ScrollToCurrentEffect(
                             break
                         }
                     }
-                    if (index != -1) {
-                        lazyListState.animateScrollToItem(index, scrollOffset)
-                    }
-                }
-            }
-
-            is ChannelGalleryValue.XtreamEpisode -> {
-                val episodes = value.episodes
-                val seriesId = value.seriesId
-                LaunchedEffect(episodes.size) {
-                    val index = episodes.indexOf { it.id == seriesId }
                     if (index != -1) {
                         lazyListState.animateScrollToItem(index, scrollOffset)
                     }

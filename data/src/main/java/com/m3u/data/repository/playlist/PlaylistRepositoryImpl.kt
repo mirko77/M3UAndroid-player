@@ -29,15 +29,6 @@ import com.m3u.data.database.model.refreshable
 import com.m3u.data.database.model.toMap
 import com.m3u.data.parser.m3u.M3UParser
 import com.m3u.data.parser.m3u.toChannel
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
-import com.m3u.data.parser.xtream.XtreamInput
-import com.m3u.data.parser.xtream.XtreamLive
-import com.m3u.data.parser.xtream.XtreamParser
-import com.m3u.data.parser.xtream.toXtreamEpisodeInfo
-import com.m3u.data.parser.xtream.XtreamSerial
-import com.m3u.data.parser.xtream.XtreamVod
-import com.m3u.data.parser.xtream.asChannel
-import com.m3u.data.parser.xtream.toChannel
 import com.m3u.data.repository.BackupStagingFiles
 import com.m3u.data.repository.BackupOrRestoreContracts
 import com.m3u.data.repository.BoundedJsonlRecordStaging
@@ -59,10 +50,8 @@ import com.m3u.data.worker.epgSubscriptionWorkName
 import com.m3u.data.worker.hashedWorkTag
 import com.m3u.data.worker.m3uSubscriptionWorkName
 import com.m3u.data.worker.playlistWorkTag
-import com.m3u.data.worker.xtreamPlaylistWorkTag
 import com.m3u.extension.api.subscription.SubscriptionRefreshReason
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.http.Url
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -157,7 +146,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
     private val programmeDao: ProgrammeDao,
     @OkhttpClient(true) private val okHttpClient: OkHttpClient,
     private val m3uParser: M3UParser,
-    private val xtreamParser: XtreamParser,
     private val workManager: WorkManager,
     @ApplicationContext private val context: Context,
     private val settings: Settings,
@@ -294,165 +282,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
             staging.close()
         }
     }
-
-    override suspend fun xtreamOrThrow(
-        title: String,
-        basicUrl: String,
-        username: String,
-        password: String,
-        type: String?,
-        callback: (count: Int) -> Unit
-    ): Unit = PlaylistDataMaintenanceCoordinator.withExclusive {
-        val input = XtreamInput(basicUrl, username, password, type)
-        val (
-            liveCategories,
-            vodCategories,
-            serialCategories,
-            allowedOutputFormats,
-            serverProtocol,
-            port
-        ) = withContext(Dispatchers.IO) {
-            xtreamParser.getXtreamOutput(input)
-        }
-
-        // we like ts but not m3u8.
-        val liveContainerExtension = if ("ts" in allowedOutputFormats) "ts"
-        else allowedOutputFormats.firstOrNull() ?: "ts"
-
-        val livePlaylistUrl = XtreamInput.encodeToPlaylistUrl(
-            input = input.copy(type = DataSource.Xtream.TYPE_LIVE),
-            serverProtocol = serverProtocol,
-            port = port
-        )
-        val vodPlaylistUrl = XtreamInput.encodeToPlaylistUrl(
-            input = input.copy(type = DataSource.Xtream.TYPE_VOD),
-            serverProtocol = serverProtocol,
-            port = port
-        )
-        val seriesPlaylistUrl = XtreamInput.encodeToPlaylistUrl(
-            input = input.copy(type = DataSource.Xtream.TYPE_SERIES),
-            serverProtocol = serverProtocol,
-            port = port
-        )
-
-        extensionContributionRunCoordinator.withPlaylists(
-            listOf(livePlaylistUrl, vodPlaylistUrl, seriesPlaylistUrl)
-        ) {
-            val requiredLives = type == null || type == DataSource.Xtream.TYPE_LIVE
-            val requiredVods = type == null || type == DataSource.Xtream.TYPE_VOD
-            val requiredSeries = type == null || type == DataSource.Xtream.TYPE_SERIES
-            val requiredPlaylistUrls = buildList {
-                if (requiredLives) add(livePlaylistUrl)
-                if (requiredVods) add(vodPlaylistUrl)
-                if (requiredSeries) add(seriesPlaylistUrl)
-            }
-            callback(0)
-            val stagedChannels = xtreamParser.parse(input).map { current ->
-                when (current) {
-                    is XtreamLive -> StagedChannel(
-                        channel = current.toChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
-                            playlistUrl = livePlaylistUrl,
-                            category = liveCategories
-                                .find { it.categoryId == current.categoryId }
-                                ?.categoryName
-                                .orEmpty(),
-                            containerExtension = liveContainerExtension,
-                        ),
-                        preservationRelationId = current.streamId?.toString(),
-                    )
-
-                    is XtreamVod -> StagedChannel(
-                        channel = current.toChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
-                            playlistUrl = vodPlaylistUrl,
-                            category = vodCategories
-                                .find { it.categoryId == current.categoryId }
-                                ?.categoryName
-                                .orEmpty(),
-                        ),
-                        preservationRelationId = current.streamId?.toString(),
-                    )
-
-                    // Series are persisted as channels and resolved when selected.
-                    is XtreamSerial -> StagedChannel(
-                        channel = current.asChannel(
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
-                            playlistUrl = seriesPlaylistUrl,
-                            category = serialCategories
-                                .find { it.categoryId == current.categoryId }
-                                ?.categoryName
-                                .orEmpty(),
-                        ),
-                        preservationRelationId = current.seriesId?.toString(),
-                    )
-                }
-            }
-            val staging = stageChannels(
-                progressBatchSize = BUFFER_XTREAM_CAPACITY,
-                callback = callback,
-                channels = stagedChannels,
-            )
-            try {
-                val playlistStrategy = settings[PreferencesKeys.PLAYLIST_STRATEGY]
-                database.withTransaction {
-                    val favOrHiddenRelationIdsByPlaylistUrl: Map<String, Set<String>> =
-                        when (playlistStrategy) {
-                            PlaylistStrategy.ALL -> emptyMap()
-                            PlaylistStrategy.KEEP ->
-                                requiredPlaylistUrls
-                                    .associateWith { playlistUrl ->
-                                        channelDao
-                                            .getFavOrHiddenRelationIdsByPlaylistUrl(playlistUrl)
-                                            .toHashSet()
-                                    }
-                            else -> emptyMap()
-                        }
-                    val requiredPlaylists = requiredPlaylistUrls.map { playlistUrl ->
-                        currentXtreamPlaylist(title, playlistUrl)
-                    }
-                    requiredPlaylists.forEach { playlist ->
-                        deleteChannelsForImport(playlist.url, playlistStrategy)
-                        playlistDao.insertOrReplace(playlist)
-                    }
-                    staging.forEachBatch(BUFFER_XTREAM_CAPACITY) { staged ->
-                        val channelsToInsert = staged
-                            .asSequence()
-                            .filterNot { record ->
-                                playlistStrategy == PlaylistStrategy.KEEP &&
-                                    isXtreamRelationPreserved(
-                                        playlistUrl = record.channel.playlistUrl,
-                                        relationId = record.preservationRelationId,
-                                        preservedRelationIdsByPlaylistUrl =
-                                            favOrHiddenRelationIdsByPlaylistUrl,
-                                    )
-                            }
-                            .map(StagedChannel::channel)
-                            .toList()
-                        if (channelsToInsert.isNotEmpty()) {
-                            channelDao.insertOrReplaceAll(*channelsToInsert.toTypedArray())
-                        }
-                    }
-                    requiredPlaylists.forEach { playlist ->
-                        channelDao.deleteOrphanedMetadata(playlist.url)
-                    }
-                }
-                replaceExtensionContributions(
-                    cancelPlaylistUrls = requiredPlaylistUrls,
-                    schedulePlaylistUrls = requiredPlaylistUrls,
-                )
-            } finally {
-                staging.close()
-            }
-        }
-    }
-
     private suspend fun stageChannels(
         progressBatchSize: Int,
         callback: (count: Int) -> Unit,
@@ -519,18 +348,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun currentXtreamPlaylist(
-        title: String,
-        url: String,
-    ): Playlist = playlistDao.get(url)
-        ?.takeIf { playlist -> playlist.source == DataSource.Xtream }
-        ?.copy(title = title)
-        ?: Playlist(
-            title = title,
-            url = url,
-            source = DataSource.Xtream,
-        )
-
     override suspend fun insertEpgAsPlaylist(
         title: String,
         epg: String,
@@ -585,20 +402,7 @@ internal class PlaylistRepositoryImpl @Inject constructor(
                 SubscriptionWorker.epg(workManager, url, true)
             }
 
-            DataSource.Xtream -> {
-                val xtreamInput = XtreamInput.decodeFromPlaylistUrl(url)
-                SubscriptionWorker.xtream(
-                    workManager = workManager,
-                    title = playlist.title,
-                    url = url,
-                    basicUrl = xtreamInput.basicUrl,
-                    username = xtreamInput.username,
-                    password = xtreamInput.password,
-                    requireExistingPlaylist = true,
-                )
-            }
-
-            DataSource.Emby, DataSource.Jellyfin, DataSource.Provider -> {
+            DataSource.Provider -> {
                 ProviderRefreshWorker.enqueue(
                     workManager = workManager,
                     playlistUrl = url,
@@ -1088,7 +892,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
             workManager.cancelAllWorkByTag(playlistWorkTag(candidateUrl)).await()
             workManager.cancelUniqueWork(m3uSubscriptionWorkName(candidateUrl)).await()
             workManager.cancelUniqueWork(epgSubscriptionWorkName(candidateUrl)).await()
-            workManager.cancelAllWorkByTag(xtreamPlaylistWorkTag(candidateUrl)).await()
         }
         return PlaylistDataMaintenanceCoordinator.withExclusive {
             val target = playlistDao.get(url)
@@ -1146,17 +949,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
     override fun observeAllCounts(): Flow<Map<Playlist, Int>> = playlistDao.observeAllCounts()
             .map { it.toMap() }
             .catch { emit(emptyMap()) }
-
-    override suspend fun readEpisodesOrThrow(series: Channel): List<XtreamEpisodeInfo> {
-        val playlist = checkNotNull(get(series.playlistUrl)) { "playlist is not exist" }
-        val seriesInfo = xtreamParser.getSeriesInfoOrThrow(
-            input = XtreamInput.decodeFromPlaylistUrl(playlist.url),
-            seriesId = Url(series.url).rawSegments.last().toInt()
-        )
-        // fixme: do not flatmap
-        return seriesInfo.episodes.flatMap { it.value }.map { it.toXtreamEpisodeInfo() }
-    }
-
     override suspend fun deleteEpgPlaylistAndProgrammes(
         epgUrl: String,
     ) {
@@ -1472,13 +1264,6 @@ internal class PlaylistRepositoryImpl @Inject constructor(
         const val MAX_LOCAL_M3U_BYTES = 256L * 1024L * 1024L
     }
 }
-
-internal fun isXtreamRelationPreserved(
-    playlistUrl: String,
-    relationId: String?,
-    preservedRelationIdsByPlaylistUrl: Map<String, Set<String>>,
-): Boolean = relationId != null &&
-    relationId in preservedRelationIdsByPlaylistUrl[playlistUrl].orEmpty()
 
 private fun normalizePlaylistTitle(title: String): String? =
     title

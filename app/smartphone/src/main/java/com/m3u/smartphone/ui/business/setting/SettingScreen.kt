@@ -730,11 +730,7 @@ private fun SettingScreen(
                                 playlistSubscriptionInProgress ||
                                     playlistSubscriptionState.phase !=
                                     PlaylistSubscriptionPhase.IDLE,
-                            providerDiscoveryState = providerDiscoveryState,
                             providerOperationState = providerOperationState,
-                            onSelectSubscriptionProviderVariant =
-                                onSelectSubscriptionProviderVariant,
-                            onRetryProviderDiscovery = onRetryProviderDiscovery,
                             onOpenEditor = { sourceKey ->
                                 coroutineScope.launch {
                                     navigator.navigateTo(
@@ -770,23 +766,11 @@ private fun SettingScreen(
                                     PlaylistSubscriptionPhase.IDLE,
                             sourceKey = destination.sourceKey,
                             draftKey = destination.draftKey,
-                            providerId = destination.providerId,
-                            providerKind = destination.providerKind,
                             reauthenticationPlaylistUrl =
                                 destination.reauthenticationPlaylistUrl,
                             onClipboard = onClipboard,
                             onBeginSubscriptionDraft = onBeginSubscriptionDraft,
                             onSubscribe = onSubscribe,
-                            providerDiscoveryState = providerDiscoveryState,
-                            providerSubscriptionForm = providerSubscriptionForm,
-                            providerOperationState = providerOperationState,
-                            onSelectSubscriptionProviderVariant =
-                                onSelectSubscriptionProviderVariant,
-                            onUpdateSubscriptionProviderSetting =
-                                onUpdateSubscriptionProviderSetting,
-                            onRetryProviderDiscovery = onRetryProviderDiscovery,
-                            onRetryProviderReauthentication =
-                                onReauthenticateProviderAccount,
                             contentPadding = contentPadding,
                             modifier = Modifier.fillMaxSize(),
                         )

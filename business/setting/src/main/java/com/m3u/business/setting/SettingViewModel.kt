@@ -32,7 +32,6 @@ import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.ColorScheme
 import com.m3u.data.database.model.DataSource
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.parser.xtream.XtreamInput
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.extension.ExtensionSettingEditToken
 import com.m3u.data.repository.extension.ExtensionSettingUpdateResult
@@ -42,7 +41,6 @@ import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.provider.DiscoveredSubscriptionProvider
 import com.m3u.data.repository.provider.ProviderAccountSummary
 import com.m3u.data.repository.provider.ProviderDiscoveryException
-import com.m3u.data.repository.provider.ProviderSubscriptionRequest
 import com.m3u.data.repository.provider.SubscriptionProviderRepository
 import com.m3u.data.repository.plugin.ExtensionPluginRepository
 import com.m3u.data.repository.plugin.PluginAuthorizationToken
@@ -102,7 +100,6 @@ class SettingViewModel @Inject constructor(
 ) : ViewModel() {
     private val _codecPackState = MutableStateFlow(codecPackRepository.toPendingState())
     val codecPackState: StateFlow<CodecPackState> = _codecPackState
-    private var providerSubscriptionJob: Job? = null
     private var providerDiscoveryJob: Job? = null
     private var providerDiscoveryGeneration = 0L
     private var providerLocaleTag: String? = null
@@ -915,20 +912,6 @@ class SettingViewModel @Inject constructor(
         properties.basicUrlState.value = ""
         properties.usernameState.value = ""
         properties.passwordState.value = ""
-        properties.xtreamPlaylistTypeState.value = null
-        when (source) {
-            DataSource.M3U -> Unit
-            DataSource.Xtream -> {
-                val xtreamInput = input.xtreamInput ?: return
-                properties.basicUrlState.value = xtreamInput.basicUrl
-                properties.usernameState.value = xtreamInput.username
-                properties.passwordState.value = xtreamInput.password
-                properties.xtreamPlaylistTypeState.value = xtreamInput.type
-                    ?.takeIf { type -> type in SUPPORTED_XTREAM_PLAYLIST_TYPES }
-            }
-
-            else -> Unit
-        }
     }
 
     fun onUnhideChannel(channelId: Int) {
@@ -960,8 +943,6 @@ class SettingViewModel @Inject constructor(
         val epg = properties.epgState.value.normalizePlaylistInputForSubmission(
             PlaylistInputKind.EPG_URL
         )
-        val xtreamPlaylistType = properties.xtreamPlaylistTypeState.value
-            ?.takeIf { type -> type in SUPPORTED_XTREAM_PLAYLIST_TYPES }
         val selected = properties.selectedState.value
         val localStorage = properties.localStorageState.value
         val forTv = properties.forTvState.value
@@ -971,14 +952,6 @@ class SettingViewModel @Inject constructor(
         properties.usernameState.value = username
         properties.passwordState.value = password
         properties.epgState.value = epg
-        properties.xtreamPlaylistTypeState.value = xtreamPlaylistType
-
-        val xtreamPlaylistUrl = buildXtreamPlaylistUrlOrEmpty(
-            basicUrl = inputBasicUrl,
-            username = username,
-            password = password,
-            type = xtreamPlaylistType,
-        )
 
         val localUriReference = uri
             .takeIf { uri != Uri.EMPTY }?.toString().orEmpty()
@@ -992,7 +965,6 @@ class SettingViewModel @Inject constructor(
             ?: url
         val submittedUrl = when (selected) {
             DataSource.M3U -> m3uUrlOrUri
-            DataSource.Xtream -> xtreamPlaylistUrl
             else -> ""
         }
 
@@ -1016,9 +988,6 @@ class SettingViewModel @Inject constructor(
                 password = password,
                 epg = epg
             )
-            return
-        }
-        if (selected.isSubscriptionProvider() && _providerOperationState.value.isBusy) {
             return
         }
 
@@ -1087,67 +1056,6 @@ class SettingViewModel @Inject constructor(
                     }
                 }
 
-                DataSource.Xtream -> {
-                    if (title.isBlank()) {
-                        messager.emit(SettingMessage.EmptyTitle)
-                        return
-                    }
-                    if (inputBasicUrl.isBlank()) {
-                        messager.emit(SettingMessage.EmptyUrl)
-                        return
-                    }
-                    if (username.isBlank() || password.isBlank()) {
-                        return
-                    }
-                    val workId = runCatching {
-                        SubscriptionWorker.xtream(
-                            workManager = workManager,
-                            title = title,
-                            url = xtreamPlaylistUrl,
-                            basicUrl = basicUrl,
-                            username = username,
-                            password = password,
-                        )
-                    }.getOrElse {
-                        messager.emit(SettingMessage.PlaylistOperationFailed)
-                        return
-                    }
-                    rememberPlaylistSubscription(
-                        title = title,
-                        source = DataSource.Xtream,
-                        workId = workId,
-                    )
-                    messager.emit(SettingMessage.Enqueued)
-                    _subscriptionAccepted.tryEmit(Unit)
-                }
-
-                DataSource.Provider -> {
-                    if (title.isBlank()) {
-                        messager.emit(SettingMessage.EmptyTitle)
-                        return
-                    }
-                    val form = _providerSubscriptionForm.value ?: return
-                    if (!_providerDiscoveryState.value.supports(form)) return
-                    when (
-                        val result = form.buildRequest(
-                            title = title,
-                            stageCredential = subscriptionProviderRepository::stageCredential,
-                        )
-                    ) {
-                        is ProviderSubscriptionFormBuildResult.Invalid -> {
-                            _providerSubscriptionForm.value = result.form
-                            messager.emit(SettingMessage.ProviderCredentialsRequired)
-                        }
-                        is ProviderSubscriptionFormBuildResult.Ready -> {
-                            enqueueProviderSubscription(
-                                request = result.request,
-                                reauthenticationPlaylistUrl = form.reauthenticationPlaylistUrl,
-                            )
-                        }
-                    }
-                    return
-                }
-
                 else -> return
             }
         resetAllInputs()
@@ -1193,57 +1101,6 @@ class SettingViewModel @Inject constructor(
         savedStateHandle[PLAYLIST_SUBSCRIPTION_SOURCE_KEY] = ""
     }
 
-    private fun enqueueProviderSubscription(
-        request: ProviderSubscriptionRequest,
-        reauthenticationPlaylistUrl: String? = null,
-    ) {
-        if (
-            providerSubscriptionJob?.isActive == true ||
-            _providerOperationState.value.submission != null
-        ) {
-            return
-        }
-        val operation = ProviderSubmissionOperation(
-            providerId = request.providerId,
-            providerKind = request.providerKind,
-            reauthenticationPlaylistUrl = reauthenticationPlaylistUrl,
-        )
-        val submittedInputs = providerInputSnapshot()
-        _providerOperationState.value = _providerOperationState.value.copy(
-            submission = operation,
-        )
-        providerSubscriptionJob = viewModelScope.launch {
-            try {
-                val result = runCatching {
-                    withContext(Dispatchers.IO) {
-                        subscriptionProviderRepository.subscribe(request)
-                    }
-                }.onFailure { error ->
-                    if (error is CancellationException) throw error
-                }
-                result.fold(
-                    onSuccess = {
-                        messager.emit(SettingMessage.ProviderAdded)
-                        if (providerInputSnapshot() == submittedInputs) {
-                            resetAllInputs()
-                        }
-                        _subscriptionAccepted.emit(Unit)
-                    },
-                    onFailure = {
-                        messager.emit(SettingMessage.ProviderSubscriptionFailed)
-                    },
-                )
-            } finally {
-                if (_providerOperationState.value.submission == operation) {
-                    _providerOperationState.value = _providerOperationState.value.copy(
-                        submission = null,
-                    )
-                }
-                providerSubscriptionJob = null
-            }
-        }
-    }
-
     private fun subscribeForTv(
         selected: DataSource,
         title: String,
@@ -1277,20 +1134,6 @@ class SettingViewModel @Inject constructor(
                 }
                 if (epg.isBlank()) {
                     messager.emit(SettingMessage.EmptyEpg)
-                    return
-                }
-            }
-
-            DataSource.Xtream -> {
-                if (title.isBlank()) {
-                    messager.emit(SettingMessage.EmptyTitle)
-                    return
-                }
-                if (basicUrl.removePrefix("http://").isBlank()) {
-                    messager.emit(SettingMessage.EmptyUrl)
-                    return
-                }
-                if (username.isBlank() || password.isBlank()) {
                     return
                 }
             }
@@ -1406,31 +1249,7 @@ class SettingViewModel @Inject constructor(
             usernameState.value = ""
             passwordState.value = ""
             epgState.value = ""
-            xtreamPlaylistTypeState.value = null
         }
-        _providerSubscriptionForm.value = _providerSubscriptionForm.value?.let { form ->
-            val descriptor = currentSubscriptionProviders().firstOrNull { provider ->
-                provider.descriptor.providerId == form.providerId
-            }?.descriptor ?: return@let null
-            ProviderSubscriptionForm.create(descriptor, form.providerKind)
-        }
-    }
-
-    private fun providerInputSnapshot(): ProviderInputSnapshot = with(properties) {
-        ProviderInputSnapshot(
-            selected = selectedState.value,
-            title = titleState.value,
-            url = urlState.value,
-            uri = uriState.value,
-            localStorage = localStorageState.value,
-            forTv = forTvState.value,
-            basicUrl = basicUrlState.value,
-            username = usernameState.value,
-            password = passwordState.value,
-            epg = epgState.value,
-            xtreamPlaylistType = xtreamPlaylistTypeState.value,
-            providerForm = _providerSubscriptionForm.value?.inputSnapshot(),
-        )
     }
 
     fun deleteEpgPlaylist(epgUrl: String) {
@@ -1491,61 +1310,13 @@ class SettingViewModel @Inject constructor(
         val SUBSCRIPTION_DRAFT_SOURCES = setOf(
             DataSource.M3U,
             DataSource.EPG,
-            DataSource.Xtream,
-            DataSource.Provider,
-        )
-        val SUPPORTED_XTREAM_PLAYLIST_TYPES = setOf(
-            DataSource.Xtream.TYPE_LIVE,
-            DataSource.Xtream.TYPE_SERIES,
-            DataSource.Xtream.TYPE_VOD,
         )
     }
 }
 
-private data class ProviderInputSnapshot(
-    val selected: DataSource,
-    val title: String,
-    val url: String,
-    val uri: Uri,
-    val localStorage: Boolean,
-    val forTv: Boolean,
-    val basicUrl: String,
-    val username: String,
-    val password: String,
-    val epg: String,
-    val xtreamPlaylistType: String?,
-    val providerForm: ProviderFormInputSnapshot?,
-)
-
-private data class ProviderFormInputSnapshot(
-    val providerId: ExtensionId,
-    val providerKind: String,
-    val schemaVersion: Int?,
-    val reauthenticationPlaylistUrl: String?,
-    val inputs: List<Pair<String, String?>>,
-)
-
-private fun ProviderSubscriptionForm.inputSnapshot(): ProviderFormInputSnapshot =
-    ProviderFormInputSnapshot(
-        providerId = providerId,
-        providerKind = providerKind.value,
-        schemaVersion = schemaVersion,
-        reauthenticationPlaylistUrl = reauthenticationPlaylistUrl,
-        inputs = fields
-            .map { field -> field.definition.key to field.input }
-            .sortedBy { (key, _) -> key },
-    )
-
-private fun DataSource.isSubscriptionProvider(): Boolean = when (this) {
-    DataSource.Provider -> true
-
-    else -> false
-}
-
 private fun DataSource.supportsRemoteTvSubscription(): Boolean = when (this) {
     DataSource.M3U,
-    DataSource.EPG,
-    DataSource.Xtream -> true
+    DataSource.EPG -> true
 
     else -> false
 }
@@ -1555,40 +1326,6 @@ private val LEGACY_WARM_PRESET_NAMES = setOf("parchment", "ink")
 private fun ColorScheme.isLegacyWarmPresetRecord(): Boolean =
     argb == ThemePreset.WARM_EDITORIAL_SEED &&
         name in LEGACY_WARM_PRESET_NAMES
-
-internal fun buildXtreamPlaylistUrlOrEmpty(
-    basicUrl: String,
-    username: String,
-    password: String,
-    type: String?,
-): String {
-    if (type == null) return ""
-    val resolvedBasicUrl = if (basicUrl.startWithHttpScheme()) {
-        basicUrl
-    } else {
-        "http://$basicUrl"
-    }
-    val protocol = if (resolvedBasicUrl.startsWith("https://", ignoreCase = true)) {
-        "https"
-    } else {
-        "http"
-    }
-    val encoded = runCatching {
-        XtreamInput.encodeToPlaylistUrl(
-            input = XtreamInput(
-                basicUrl = resolvedBasicUrl,
-                username = username,
-                password = password,
-                type = type,
-            ),
-            serverProtocol = protocol,
-        )
-    }.getOrNull() ?: return ""
-    return encoded.takeIf {
-        it == it.normalizePlaylistInputForSubmission(PlaylistInputKind.URL)
-    }.orEmpty()
-}
-
 private fun List<DiscoveredSubscriptionProvider>.providerFor(
     account: ProviderAccountSummary,
 ) = singleOrNull { discovered ->

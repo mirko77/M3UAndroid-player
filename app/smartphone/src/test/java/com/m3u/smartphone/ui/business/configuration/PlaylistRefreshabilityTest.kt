@@ -11,9 +11,8 @@ class PlaylistRefreshabilityTest {
     @Test
     fun `remote subscriptions expose refresh while local snapshots do not`() {
         assertTrue(playlist(DataSource.M3U, "https://example.com/list.m3u").refreshable)
-        assertTrue(playlist(DataSource.Xtream, "xtream://account").refreshable)
-        assertTrue(playlist(DataSource.Provider, "provider://account").refreshable)
 
+        assertFalse(playlist(DataSource.Provider, "provider://account").refreshable)
         assertFalse(playlist(DataSource.M3U, "content://media/list.m3u").refreshable)
         assertFalse(playlist(DataSource.M3U, "file:///tmp/list.m3u").refreshable)
         assertFalse(playlist(DataSource.M3U, Playlist.URL_IMPORTED).refreshable)

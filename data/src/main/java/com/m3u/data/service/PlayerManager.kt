@@ -11,7 +11,6 @@ import androidx.media3.common.TrackGroup
 import androidx.media3.common.Tracks
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -65,10 +64,6 @@ data class PlayerTrack(
 @Immutable
 sealed class MediaCommand(open val channelId: Int) {
     data class Common(override val channelId: Int) : MediaCommand(channelId)
-    data class XtreamEpisode(
-        override val channelId: Int,
-        val episode: XtreamEpisodeInfo
-    ) : MediaCommand(channelId)
 }
 
 val PlayerManager.tracks: Flow<Map<@C.TrackType Int, List<PlayerTrack>>>

@@ -6,11 +6,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.m3u.annotation.Exclude
 import com.m3u.annotation.Likable
-import com.m3u.data.parser.xtream.XtreamEpisodeInfo
-import io.ktor.http.URLBuilder
-import io.ktor.http.Url
-import io.ktor.http.appendPathSegments
-import io.ktor.http.path
 import kotlinx.serialization.Serializable
 
 @Entity(
@@ -72,16 +67,4 @@ data class Channel(
         const val LICENSE_TYPE_CLEAR_KEY_2 = "org.w3.clearkey"
         const val LICENSE_TYPE_PLAY_READY = "com.microsoft.playready"
     }
-}
-
-fun Channel.copyXtreamEpisode(episode: XtreamEpisodeInfo): Channel {
-    val url = Url(url)
-    val newUrl = URLBuilder(url)
-        .apply { path(*url.rawSegments.dropLast(1).toTypedArray()) }
-        .appendPathSegments("${episode.id}.${episode.containerExtension}")
-        .build()
-    return copy(
-        url = newUrl.toString(),
-        title = episode.title.orEmpty()
-    )
 }

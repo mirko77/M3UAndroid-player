@@ -10,8 +10,6 @@ import androidx.room.Relation
 import com.m3u.annotation.Exclude
 import com.m3u.annotation.Likable
 import com.m3u.core.foundation.util.basic.startsWithAny
-import com.m3u.data.parser.xtream.XtreamInput
-import com.m3u.data.parser.xtream.XtreamParser
 import com.m3u.i18n.R
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -62,12 +60,8 @@ data class Playlist(
     companion object {
         const val URL_IMPORTED = "imported"
 
-        val SERIES_TYPES = arrayOf(
-            DataSource.Xtream.TYPE_SERIES
-        )
-        val VOD_TYPES = arrayOf(
-            DataSource.Xtream.TYPE_VOD
-        )
+        val SERIES_TYPES = emptyArray<String>()
+        val VOD_TYPES = emptyArray<String>()
     }
 }
 
@@ -82,43 +76,13 @@ val Playlist.refreshable: Boolean
             ignoreCase = true
         )
 
-        DataSource.Xtream,
-        DataSource.Emby,
-        DataSource.Jellyfin,
-        DataSource.Provider -> true
         else -> false
     }
 
 
-val Playlist.type: String?
-    get() = when (source) {
-        DataSource.Xtream -> XtreamInput.decodeFromPlaylistUrl(url).type
-        else -> null
-    }
+val Playlist.type: String? get() = null
 
-fun Playlist.epgUrlsOrXtreamXmlUrl(): List<String> = when (source) {
-    DataSource.Xtream -> {
-        when (type) {
-            DataSource.Xtream.TYPE_LIVE -> {
-                val input = XtreamInput.decodeFromPlaylistUrl(url)
-                val epgUrl = XtreamParser.createXmlUrl(
-                    basicUrl = input.basicUrl,
-                    username = input.username,
-                    password = input.password
-                )
-                listOf(epgUrl)
-            }
-
-            else -> emptyList()
-        }
-    }
-
-    else -> epgUrls
-}
-
-fun Playlist.copyXtreamSeries(series: Channel): Playlist = copy(
-    title = series.title
-)
+fun Playlist.epgUrlsOrXtreamXmlUrl(): List<String> = epgUrls
 
 @Immutable
 sealed class DataSource(
@@ -132,19 +96,10 @@ sealed class DataSource(
     // not like other playlist types, it maps to programmes but not channels.
     // so epg playlists should not be displayed in foryou page.
     // m3u playlist can refer epg playlist ids.
-    // xtream playlist need not save or refer epg playlists.
     object EPG : DataSource(R.string.feat_setting_data_source_epg, "epg", true)
 
-    object Xtream : DataSource(R.string.feat_setting_data_source_xtream, "xtream", true) {
-        const val TYPE_LIVE = "live"
-        const val TYPE_VOD = "vod"
-        const val TYPE_SERIES = "series"
-    }
-
-    object Emby : DataSource(R.string.feat_setting_data_source_emby, "emby", true)
-
-    object Jellyfin : DataSource(R.string.feat_setting_data_source_jellyfin, "jellyfin", true)
-
+    // Generic extension-provider namespace. No built-in providers ship with
+    // this fork and the plugins UI is removed, so this stays dormant.
     object Provider : DataSource(R.string.feat_setting_data_source_provider, "provider", true)
 
     object Dropbox : DataSource(R.string.feat_setting_data_source_dropbox, "dropbox")
@@ -155,9 +110,6 @@ sealed class DataSource(
         fun of(value: String): DataSource = when (value) {
             "m3u" -> M3U
             "epg" -> EPG
-            "xtream" -> Xtream
-            "emby" -> Emby
-            "jellyfin" -> Jellyfin
             "provider" -> Provider
             "dropbox" -> Dropbox
             else -> throw UnsupportedOperationException()
