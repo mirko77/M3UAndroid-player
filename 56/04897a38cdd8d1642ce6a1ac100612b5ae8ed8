@@ -1,0 +1,16 @@
+app/smartphone/src/main/res/drawable/ic_splash.xml
+  h_2231ff2aa93473 1-26
+app/smartphone/src/main/res/values/colors.xml
+  h_2231ff2aa93473 5-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5604897a38cdd8d1642ce6a1ac100612b5ae8ed8",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
