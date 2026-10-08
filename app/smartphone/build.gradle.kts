@@ -169,8 +169,6 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     // accompanist
     implementation(libs.google.accompanist.permissions)
-    // performance
-    debugImplementation(libs.squareup.leakcanary)
     // other
     implementation(libs.androidx.graphics.shapes)
     implementation(libs.androidx.constraintlayout.compose)
