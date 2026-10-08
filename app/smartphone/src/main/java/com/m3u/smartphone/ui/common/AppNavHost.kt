@@ -2,8 +2,9 @@ package com.m3u.smartphone.ui.common
 
 import android.app.ActivityOptions
 import android.content.Intent
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,10 +44,18 @@ fun AppNavHost(
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            enterTransition = { fadeIn() },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { fadeIn() },
-            popExitTransition = { ExitTransition.None },
+            enterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = DESTINATION_FADE_MILLIS))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = DESTINATION_FADE_MILLIS))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(durationMillis = DESTINATION_FADE_MILLIS))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = DESTINATION_FADE_MILLIS))
+            },
             modifier = modifier
         ) {
         rootGraph(
@@ -94,3 +103,5 @@ fun AppNavHost(
         }
     }
 }
+
+private const val DESTINATION_FADE_MILLIS = 160
