@@ -2,15 +2,8 @@ package com.m3u.smartphone.ui.business.playlist.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BrokenImage
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -40,17 +32,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
-import coil.request.ImageRequest
-import coil.size.Size
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.preferenceOf
-import com.m3u.core.foundation.components.CircularProgressIndicator
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Programme
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.TimeUtils.formatEOrSh
-import com.m3u.core.foundation.ui.composableOf
 import com.m3u.smartphone.ui.material.model.LocalSpacing
 import com.m3u.core.foundation.components.AbsoluteSmoothCornerShape
 import kotlin.time.Clock
@@ -72,17 +59,13 @@ internal fun ChannelItem(
     onLongClick: () -> Unit,
     programme: Programme?,
     modifier: Modifier = Modifier,
-    isVodOrSeriesPlaylist: Boolean = true
 ) {
-    val context = LocalContext.current
     val spacing = LocalSpacing.current
 
     val favourite = channel.favourite
 
     val recentlyString = stringResource(string.ui_sort_recently)
     val neverPlayedString = stringResource(string.ui_sort_never_played)
-
-    val noPictureMode by preferenceOf(PreferencesKeys.NO_PICTURE_MODE)
 
     val star = remember(favourite) {
         movableContentOf {
@@ -107,132 +90,68 @@ internal fun ChannelItem(
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
         shape = AbsoluteSmoothCornerShape(spacing.medium, 65)
     ) {
-        when {
-            !noPictureMode && isVodOrSeriesPlaylist -> {
-                Box(
-                    modifier = Modifier
-                        .combinedClickable(
-                            onClick = onClick,
-                            onLongClick = onLongClick
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = channel.title.trim(),
+                    style = MaterialTheme.typography.titleSmall,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
+            leadingContent = {
+                AsyncImage(
+                    model = cover,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(56.dp)
+                )
+            },
+            supportingContent = {
+                when {
+                    recently -> {
+                        Text(
+                            text = remember(channel.seen) {
+                                val now = Clock.System.now()
+                                val instant = Instant.fromEpochMilliseconds(channel.seen)
+                                val duration = now - instant
+                                duration.toComponents { days, hours, minutes, seconds, _ ->
+                                    when {
+                                        channel.seen == 0L -> neverPlayedString
+                                        days > 0 -> days.days.toString()
+                                        hours > 0 -> hours.hours.toString()
+                                        minutes > 0 -> minutes.minutes.toString()
+                                        seconds > 0 -> seconds.seconds.toString()
+                                        else -> recentlyString
+                                    }
+                                }
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalContentColor.current.copy(0.56f)
                         )
-                        .then(modifier)
-                ) {
-                    SubcomposeAsyncImage(
-                        model = remember(cover) {
-                            ImageRequest.Builder(context)
-                                .data(cover)
-                                .size(Size.ORIGINAL)
-                                .build()
-                        },
-                        contentDescription = channel.title,
-                        contentScale = ContentScale.FillWidth,
-                        loading = {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        },
-                        error = {
-                            Column(
-                                verticalArrangement = Arrangement.SpaceAround,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(3 / 4f)
-                                    .padding(spacing.medium)
-                            ) {
-                                Text(
-                                    text = channel.title,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Icon(
-                                    imageVector = Icons.Rounded.BrokenImage,
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (favourite) {
-                        Box(
-                            modifier = Modifier
-                                .padding(spacing.small)
-                                .align(Alignment.BottomEnd)
-                        ) { star() }
+                    }
+
+                    programme != null -> {
+                        Text(
+                            text = programme.readText(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalContentColor.current.copy(0.56f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
-            }
-
-            else -> {
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = channel.title.trim(),
-                            style = MaterialTheme.typography.titleSmall,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    },
-                    leadingContent = composableOf(!noPictureMode) {
-                        AsyncImage(
-                            model = cover,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(56.dp)
-                        )
-                    },
-                    supportingContent = {
-                        when {
-                            recently -> {
-                                Text(
-                                    text = remember(channel.seen) {
-                                        val now = Clock.System.now()
-                                        val instant = Instant.fromEpochMilliseconds(channel.seen)
-                                        val duration = now - instant
-                                        duration.toComponents { days, hours, minutes, seconds, _ ->
-                                            when {
-                                                channel.seen == 0L -> neverPlayedString
-                                                days > 0 -> days.days.toString()
-                                                hours > 0 -> hours.hours.toString()
-                                                minutes > 0 -> minutes.minutes.toString()
-                                                seconds > 0 -> seconds.seconds.toString()
-                                                else -> recentlyString
-                                            }
-                                        }
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = LocalContentColor.current.copy(0.56f)
-                                )
-                            }
-
-                            programme != null -> {
-                                Text(
-                                    text = programme.readText(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = LocalContentColor.current.copy(0.56f),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    },
-                    trailingContent = star,
-                    colors = ListItemDefaults.colors(Color.Transparent),
-                    modifier = Modifier
-                        .combinedClickable(
-                            onClick = onClick,
-                            onLongClick = onLongClick
-                        )
-                        .then(modifier)
+            },
+            trailingContent = star,
+            colors = ListItemDefaults.colors(Color.Transparent),
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
                 )
-            }
-        }
+                .then(modifier)
+        )
     }
 }
 

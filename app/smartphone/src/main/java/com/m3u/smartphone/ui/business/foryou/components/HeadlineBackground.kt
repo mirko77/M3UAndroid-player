@@ -25,8 +25,6 @@ import androidx.compose.ui.unit.IntOffset
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.smartphone.ui.material.transformation.BlurTransformation
 import com.m3u.smartphone.ui.common.helper.LocalHelper
 import com.m3u.smartphone.ui.common.helper.Metadata
@@ -39,8 +37,6 @@ internal fun HeadlineBackground(modifier: Modifier = Modifier) {
     val configuration = LocalConfiguration.current
     val helper = LocalHelper.current
     val colorScheme = MaterialTheme.colorScheme
-
-    val noPictureMode by preferenceOf(PreferencesKeys.NO_PICTURE_MODE)
 
     val useDarkTheme = colorScheme.background.luminance() < 0.5f
 
@@ -60,48 +56,46 @@ internal fun HeadlineBackground(modifier: Modifier = Modifier) {
         animationSpec = tween(800)
     )
 
-    if (!noPictureMode) {
-        AsyncImage(
-            model = remember(url) {
-                ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(800)
-                    .memoryCachePolicy(CachePolicy.DISABLED)
-                    .transformations(
-                        BlurTransformation(context)
+    AsyncImage(
+        model = remember(url) {
+            ImageRequest.Builder(context)
+                .data(url)
+                .crossfade(800)
+                .memoryCachePolicy(CachePolicy.DISABLED)
+                .transformations(
+                    BlurTransformation(context)
+                )
+                .build()
+        },
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = ((configuration.screenWidthDp * headlineAspectRatio) * -fraction).roundToInt()
+                )
+            }
+            .aspectRatio(headlineAspectRatio)
+            .graphicsLayer { alpha = 0.99f }
+            .drawWithContent {
+                drawContent()
+                if (url.isNotEmpty()) {
+                    drawRect(
+                        color = currentMaskColor
                     )
-                    .build()
-            },
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .offset {
-                    IntOffset(
-                        x = 0,
-                        y = ((configuration.screenWidthDp * headlineAspectRatio) * -fraction).roundToInt()
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black,
+                                Color.Transparent
+                            )
+                        ),
+                        blendMode = BlendMode.DstIn
                     )
                 }
-                .aspectRatio(headlineAspectRatio)
-                .graphicsLayer { alpha = 0.99f }
-                .drawWithContent {
-                    drawContent()
-                    if (url.isNotEmpty()) {
-                        drawRect(
-                            color = currentMaskColor
-                        )
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black,
-                                    Color.Transparent
-                                )
-                            ),
-                            blendMode = BlendMode.DstIn
-                        )
-                    }
-                }
-        )
-    }
+            }
+    )
 }

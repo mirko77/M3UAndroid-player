@@ -157,7 +157,6 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.CLIP_MODE, ClipMode.ADAPTIVE)
     put(PreferencesKeys.AUTO_REFRESH_CHANNELS, false)
     put(PreferencesKeys.FULL_INFO_PLAYER, false)
-    put(PreferencesKeys.NO_PICTURE_MODE, false)
     put(PreferencesKeys.DARK_MODE, ThemePreference.DEFAULT.isDark)
     put(
         PreferencesKeys.USE_DYNAMIC_COLORS,
@@ -219,7 +218,6 @@ object PreferencesKeys {
     val CLIP_MODE = intPreferencesKey("clip-mode")
     val AUTO_REFRESH_CHANNELS = booleanPreferencesKey("auto-refresh-channels")
     val FULL_INFO_PLAYER = booleanPreferencesKey("full-info-player")
-    val NO_PICTURE_MODE = booleanPreferencesKey("no-picture-mode")
     val DARK_MODE = booleanPreferencesKey("dark-mode")
     val USE_DYNAMIC_COLORS = booleanPreferencesKey("use-dynamic-colors")
     val FOLLOW_SYSTEM_THEME = booleanPreferencesKey("follow-system-theme")

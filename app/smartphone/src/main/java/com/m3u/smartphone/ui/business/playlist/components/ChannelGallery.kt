@@ -26,8 +26,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.m3u.business.playlist.ChannelWithProgramme
 import com.m3u.data.database.model.Channel
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.components.CircularProgressIndicator
 import com.m3u.smartphone.ui.material.ktx.plus
 import com.m3u.smartphone.ui.material.model.LocalSpacing
@@ -42,7 +40,6 @@ internal fun ChannelGallery(
     channels: Flow<PagingData<ChannelWithProgramme>>,
     zapping: Channel?,
     recently: Boolean,
-    isVodOrSeriesPlaylist: Boolean,
     onClick: (Channel) -> Unit,
     onLongClick: (Channel) -> Unit,
     reloadThumbnail: suspend (channelUrl: String) -> Uri?,
@@ -51,18 +48,6 @@ internal fun ChannelGallery(
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val spacing = LocalSpacing.current
-
-    val noPictureMode by preferenceOf(PreferencesKeys.NO_PICTURE_MODE)
-
-    val actualRowCount by remember(isVodOrSeriesPlaylist, rowCount) {
-        derivedStateOf {
-            when {
-                noPictureMode -> rowCount
-                isVodOrSeriesPlaylist -> rowCount + 2
-                else -> rowCount
-            }
-        }
-    }
 
     val channels = channels.collectAsLazyPagingItems()
 
@@ -80,7 +65,7 @@ internal fun ChannelGallery(
     ) {
         LazyVerticalStaggeredGrid(
             state = state,
-            columns = StaggeredGridCells.Fixed(actualRowCount),
+            columns = StaggeredGridCells.Fixed(rowCount),
             verticalItemSpacing = spacing.medium,
             horizontalArrangement = Arrangement.spacedBy(spacing.medium),
             contentPadding = PaddingValues(vertical = spacing.medium) + contentPadding,
@@ -114,7 +99,6 @@ internal fun ChannelGallery(
                         cover = loadedUrl,
                         recently = recently,
                         zapping = zapping == channel,
-                        isVodOrSeriesPlaylist = isVodOrSeriesPlaylist,
                         onClick = { onClick(channel) },
                         onLongClick = { onLongClick(channel) },
                         modifier = Modifier.fillMaxWidth()

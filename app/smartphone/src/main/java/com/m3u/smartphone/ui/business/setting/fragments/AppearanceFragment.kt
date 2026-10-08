@@ -24,7 +24,6 @@ import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.FitScreen
 import androidx.compose.material.icons.rounded.FormatSize
-import androidx.compose.material.icons.rounded.HideImage
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -83,7 +82,6 @@ internal fun AppearanceFragment(
     val colorArgb = selectedTheme.argb
     var clipMode by mutablePreferenceOf(PreferencesKeys.CLIP_MODE)
     var compactDimension by mutablePreferenceOf(PreferencesKeys.COMPACT_DIMENSION)
-    var noPictureMode by mutablePreferenceOf(PreferencesKeys.NO_PICTURE_MODE)
     val followSystemTheme = themePreferences.followSystemTheme
 
     val colorScheme = MaterialTheme.colorScheme
@@ -258,15 +256,6 @@ internal fun AppearanceFragment(
                 icon = Icons.Rounded.FormatSize,
                 checked = compactDimension,
                 onChanged = { compactDimension = !compactDimension }
-            )
-        }
-        item {
-            SwitchSharedPreference(
-                title = string.feat_setting_no_picture_mode,
-                content = string.feat_setting_no_picture_mode_description,
-                icon = Icons.Rounded.HideImage,
-                checked = noPictureMode,
-                onChanged = { noPictureMode = !noPictureMode }
             )
         }
         item {

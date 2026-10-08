@@ -391,7 +391,6 @@ private fun PlaylistScreen(
                 channels = channels,
                 zapping = state.zapping,
                 recently = state.sort == Sort.RECENTLY,
-                isVodOrSeriesPlaylist = state.isVodPlaylist || state.isSeriesPlaylist,
                 onClick = actions.onPlayChannel,
                 contentPadding = state.contentPadding.minus(state.contentPadding.only(WindowInsetsSides.Top)),
                 onLongClick = {

@@ -598,7 +598,6 @@ private fun AppContent(
                     channels = channels,
                     zapping = null,
                     recently = false,
-                    isVodOrSeriesPlaylist = false,
                     onClick = { channel ->
                         coroutineScope.launch {
                             helper.play(MediaCommand.Common(channel.id))

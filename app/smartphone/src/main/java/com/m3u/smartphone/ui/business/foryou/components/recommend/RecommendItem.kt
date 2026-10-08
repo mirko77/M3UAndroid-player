@@ -43,8 +43,6 @@ import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.m3u.business.foryou.Recommend
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.components.AbsoluteSmoothCornerShape
 import com.m3u.core.foundation.ui.composableOf
 import com.m3u.core.foundation.util.basic.title
@@ -111,8 +109,6 @@ private fun RecommendItemContent(
     val context = LocalContext.current
     val spacing = LocalSpacing.current
 
-    val noPictureMode by preferenceOf(PreferencesKeys.NO_PICTURE_MODE)
-
     Box(Modifier.fillMaxSize()) {
         val info = @Composable {
             Column(Modifier.padding(spacing.medium)) {
@@ -139,34 +135,30 @@ private fun RecommendItemContent(
                 }
             }
         }
-        if (!noPictureMode) {
-            val request = remember(cover) {
-                ImageRequest.Builder(context)
-                    .data(cover)
-                    .crossfade(1600)
-                    .build()
-            }
-            AsyncImage(
-                model = request,
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth(0.78f)
-                    .matchParentSize()
-                    .align(Alignment.TopEnd)
-                    .drawWithCache {
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(brush = RecommendCardContainerBrush(size))
-                        }
+        val request = remember(cover) {
+            ImageRequest.Builder(context)
+                .data(cover)
+                .crossfade(1600)
+                .build()
+        }
+        AsyncImage(
+            model = request,
+            contentScale = ContentScale.Crop,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(0.78f)
+                .matchParentSize()
+                .align(Alignment.TopEnd)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(brush = RecommendCardContainerBrush(size))
                     }
-            )
-            CompositionLocalProvider(
-                LocalContentColor provides Color.White,
-            ) {
-                info()
-            }
-        } else {
+                }
+        )
+        CompositionLocalProvider(
+            LocalContentColor provides Color.White,
+        ) {
             info()
         }
     }
