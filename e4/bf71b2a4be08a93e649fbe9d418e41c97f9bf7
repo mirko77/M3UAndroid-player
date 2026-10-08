@@ -1,0 +1,18 @@
+data/src/main/java/com/m3u/data/worker/BackupWorker.kt
+  h_2231ff2aa93473 41
+data/src/main/java/com/m3u/data/worker/RestoreWorker.kt
+  h_2231ff2aa93473 42
+data/src/main/java/com/m3u/data/worker/SubscriptionWorker.kt
+  h_2231ff2aa93473 245
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e4bf71b2a4be08a93e649fbe9d418e41c97f9bf7",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
