@@ -1,0 +1,14 @@
+.gitmodules
+  h_2231ff2aa93473 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4ad0cc07a48cbc37a73c5db21252d4ddb14098a0",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
