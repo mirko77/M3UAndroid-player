@@ -1,0 +1,18 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/App.kt
+  h_2231ff2aa93473 6,41,43-44,126,147-156,164,188,329,348,504,522,537,563-590
+app/smartphone/src/main/java/com/m3u/smartphone/ui/AppViewModel.kt
+  h_2231ff2aa93473 3-5,19,21,23,25,32,38,43-44,46,65,70,149-157,180-229
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 60-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8190db26b73e7e96339604a522102d47134f7fd8",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
