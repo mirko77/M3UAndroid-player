@@ -533,6 +533,7 @@ private fun AppContent(
 ) {
     val helper = LocalHelper.current
     val coroutineScope = rememberCoroutineScope()
+    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
     val contextualTitleStyle = if (LocalThemeStyle.current == ThemeStyle.WARM_EDITORIAL) {
         MaterialTheme.typography.titleLarge.withEditorialVoice()
     } else {
@@ -660,7 +661,9 @@ private fun AppContent(
                         coroutineScope.launch {
                             helper.play(MediaCommand.Common(channel.id))
                             navigateToChannel()
-                            onRefreshPlaylist(channel.playlistUrl)
+                            if (refreshOnPlay) {
+                                onRefreshPlaylist(channel.playlistUrl)
+                            }
                         }
                     },
                     onLongClick = {},

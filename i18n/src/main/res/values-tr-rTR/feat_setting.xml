@@ -76,8 +76,6 @@
     <string name="feat_setting_clip_mode_adaptive">uyarlanabilir</string>
     <string name="feat_setting_clip_mode_clip">kırp</string>
     <string name="feat_setting_clip_mode_stretched">gerilmiş</string>
-    <string name="feat_setting_auto_refresh_channels">kanalları otomatik yenile</string>
-    <string name="feat_setting_auto_refresh_channels_description">kanala girildiğinde otomatik olarak yenilenir</string>
     <string name="feat_setting_full_info_player">tam bilgi oynatıcısı</string>
     <string name="feat_setting_full_info_player_description">oynatıcıda daha fazla bilgi göster</string>
     <string name="feat_setting_slider">kaydırıcı</string>

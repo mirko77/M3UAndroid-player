@@ -203,13 +203,13 @@ internal fun OptionalFragment(
             )
         }
         item {
-            var autoRefreshChannels by mutablePreferenceOf(PreferencesKeys.AUTO_REFRESH_CHANNELS)
+            var refreshOnPlay by mutablePreferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
             SwitchSharedPreference(
                 title = string.feat_setting_auto_refresh_channels,
                 content = string.feat_setting_auto_refresh_channels_description,
                 icon = Icons.Rounded.Refresh,
-                checked = autoRefreshChannels,
-                onChanged = { autoRefreshChannels = !autoRefreshChannels }
+                checked = refreshOnPlay,
+                onChanged = { refreshOnPlay = !refreshOnPlay }
             )
 
         }

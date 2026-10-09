@@ -27,6 +27,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.m3u.business.favorite.FavoriteViewModel
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
+import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Sort
 import com.m3u.data.database.model.Channel
@@ -59,6 +60,7 @@ fun FavoriteRoute(
     val coroutineScope = rememberCoroutineScope()
 
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
+    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
 
     val channels = viewModel.channels.collectAsLazyPagingItems()
     val zapping by viewModel.zapping.collectAsStateWithLifecycle()
@@ -98,7 +100,9 @@ fun FavoriteRoute(
             coroutineScope.launch {
                 helper.play(MediaCommand.Common(channel.id))
                 navigateToChannel()
-                viewModel.refreshPlaylistInBackground(channel.playlistUrl)
+                if (refreshOnPlay) {
+                    viewModel.refreshPlaylistInBackground(channel.playlistUrl)
+                }
             }
         },
         onLongClickChannel = { mediaSheetValue = MediaSheetValue.FavoriteScreen(it) },

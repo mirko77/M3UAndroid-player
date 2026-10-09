@@ -111,7 +111,7 @@ internal fun PlaylistRoute(
     val coroutineScope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
 
-    val autoRefreshChannels by preferenceOf(PreferencesKeys.AUTO_REFRESH_CHANNELS)
+    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
 
     val zapping by viewModel.zapping.collectAsStateWithLifecycle()
@@ -152,12 +152,6 @@ internal fun PlaylistRoute(
         onPauseOrDispose {}
     }
 
-    LaunchedEffect(autoRefreshChannels, playlistUrl) {
-        if (playlistUrl.isNotEmpty() && autoRefreshChannels) {
-            viewModel.refresh(background = true)
-        }
-    }
-
     BackHandler(query.isNotEmpty()) {
         viewModel.query.value = ""
     }
@@ -184,6 +178,9 @@ internal fun PlaylistRoute(
                 coroutineScope.launch {
                     helper.play(MediaCommand.Common(channel.id))
                     navigateToChannel()
+                    if (refreshOnPlay) {
+                        viewModel.refresh(background = true)
+                    }
                 }
             },
             onScrollUp = { viewModel.scrollUp.value = eventOf(Unit) },

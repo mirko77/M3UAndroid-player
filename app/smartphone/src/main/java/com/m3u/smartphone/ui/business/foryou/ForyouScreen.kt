@@ -34,6 +34,7 @@ import com.m3u.business.foryou.ForyouViewModel
 import com.m3u.business.foryou.Recommend
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
+import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.ui.composableOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Resource
@@ -69,6 +70,7 @@ fun ForyouRoute(
     val coroutineScope = rememberCoroutineScope()
 
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
+    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
 
     val title = stringResource(string.ui_title_foryou)
     val addContentDescription = stringResource(string.ui_action_add)
@@ -109,7 +111,9 @@ fun ForyouRoute(
                 coroutineScope.launch {
                     helper.play(MediaCommand.Common(channel.id))
                     navigateToChannel()
-                    viewModel.refreshPlaylistInBackground(channel.playlistUrl)
+                    if (refreshOnPlay) {
+                        viewModel.refreshPlaylistInBackground(channel.playlistUrl)
+                    }
                 }
             },
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,

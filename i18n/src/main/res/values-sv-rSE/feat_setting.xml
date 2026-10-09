@@ -76,8 +76,6 @@
     <string name="feat_setting_clip_mode_adaptive">adaptivt</string>
     <string name="feat_setting_clip_mode_clip">beskär</string>
     <string name="feat_setting_clip_mode_stretched">sträckt</string>
-    <string name="feat_setting_auto_refresh_channels">uppdatera kanaler automatiskt</string>
-    <string name="feat_setting_auto_refresh_channels_description">uppdateras automatiskt när du går in i kanalen</string>
     <string name="feat_setting_full_info_player">fullständig informationsspelare</string>
     <string name="feat_setting_full_info_player_description">visa mer information i spelaren</string>
     <string name="feat_setting_slider">skjutreglage</string>

@@ -155,7 +155,7 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.ROW_COUNT, 1)
     put(PreferencesKeys.CONNECT_TIMEOUT, ConnectTimeout.SHORT)
     put(PreferencesKeys.CLIP_MODE, ClipMode.ADAPTIVE)
-    put(PreferencesKeys.AUTO_REFRESH_CHANNELS, false)
+    put(PreferencesKeys.REFRESH_ON_PLAY, true)
     put(PreferencesKeys.FULL_INFO_PLAYER, false)
     put(PreferencesKeys.DARK_MODE, ThemePreference.DEFAULT.isDark)
     put(
@@ -213,7 +213,7 @@ object PreferencesKeys {
     val CONNECT_TIMEOUT = longPreferencesKey("connect-timeout")
 
     val CLIP_MODE = intPreferencesKey("clip-mode")
-    val AUTO_REFRESH_CHANNELS = booleanPreferencesKey("auto-refresh-channels")
+    val REFRESH_ON_PLAY = booleanPreferencesKey("refresh-on-play")
     val FULL_INFO_PLAYER = booleanPreferencesKey("full-info-player")
     val DARK_MODE = booleanPreferencesKey("dark-mode")
     val USE_DYNAMIC_COLORS = booleanPreferencesKey("use-dynamic-colors")
