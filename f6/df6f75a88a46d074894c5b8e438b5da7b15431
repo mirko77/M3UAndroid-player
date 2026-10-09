@@ -1,0 +1,24 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/App.kt
+  h_2231ff2aa93473 148,171,311,329,484,501,609
+app/smartphone/src/main/java/com/m3u/smartphone/ui/AppViewModel.kt
+  h_2231ff2aa93473 21,148-156
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/favourite/FavouriteScreen.kt
+  h_2231ff2aa93473 101
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/ForyouScreen.kt
+  h_2231ff2aa93473 112
+business/favorite/src/main/java/com/m3u/business/favorite/FavouriteViewModel.kt
+  h_2231ff2aa93473 28,131-139
+business/foryou/src/main/java/com/m3u/business/foryou/ForyouViewModel.kt
+  h_2231ff2aa93473 11,97-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f6df6f75a88a46d074894c5b8e438b5da7b15431",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
