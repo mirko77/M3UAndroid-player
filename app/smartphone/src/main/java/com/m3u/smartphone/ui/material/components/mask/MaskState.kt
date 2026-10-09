@@ -45,7 +45,7 @@ private class MaskStateCoroutineImpl(
     private var lastTime: Long by mutableLongStateOf(0L)
     private var explicitlySleeping by mutableStateOf(true)
     private var keys by mutableStateOf<Set<Any>>(emptySet())
-    override val locked: Boolean = keys.isNotEmpty()
+    override val locked: Boolean get() = keys.isNotEmpty()
 
     override val visible: Boolean by derivedStateOf {
         val before = locked || (!explicitlySleeping && currentTime - lastTime <= minDuration)

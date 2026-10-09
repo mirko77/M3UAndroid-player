@@ -162,6 +162,14 @@ fun ChannelMask(
 
     val muted = currentVolume == 0f
 
+    // Keep the mask visible while playback has failed so the error alert
+    // cannot be missed behind the mask auto-hide.
+    val hasPlayerError = playerState.playerError != null
+    LaunchedEffect(hasPlayerError, maskState.locked) {
+        if (hasPlayerError) maskState.lock(PlayerErrorMaskLock)
+        else maskState.unlock(PlayerErrorMaskLock)
+    }
+
     val defaultBrightnessOrVolumeContentDescription = when {
         muted -> stringResource(string.feat_channel_tooltip_unmute)
         else -> stringResource(string.feat_channel_tooltip_mute)
@@ -773,5 +781,9 @@ private enum class MaskCenterRole {
 private enum class MaskNavigateRole {
     Next, Previous
 }
+
+// Stable lock key that keeps the player mask (and its error message)
+// visible while playback has failed.
+private object PlayerErrorMaskLock
 
 data class CwPosition(val milliseconds: Long)
