@@ -3,6 +3,7 @@ package com.m3u.smartphone.ui
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -37,7 +38,10 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.SettingsRemote
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -119,6 +123,7 @@ import com.m3u.smartphone.ui.navigation.shouldShowRemoteControlAction
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @Composable
@@ -139,6 +144,16 @@ fun App(
     }
     val destination = startDestination ?: return
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val updateCompletedText =
+        stringResource(string.feat_setting_playlist_update_all_completed)
+    LaunchedEffect(viewModel) {
+        viewModel.refreshAllResult.collect { succeeded ->
+            if (succeeded) {
+                Toast.makeText(context, updateCompletedText, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     AppImpl(
         navController = navController,
@@ -146,6 +161,7 @@ fun App(
         channels = viewModel.channels,
         onSearchQuery = { query -> viewModel.searchQuery.value = query },
         onRefreshPlaylist = viewModel::refreshPlaylistInBackground,
+        onUpdateAllPlaylists = viewModel::refreshAllPlaylists,
         isRemoteControlSheetVisible = viewModel.isConnectSheetVisible,
         remoteControlSheetValue = viewModel.remoteControlSheetValue,
         openRemoteControlSheet = { viewModel.isConnectSheetVisible = true },
@@ -169,6 +185,7 @@ private fun AppImpl(
     channels: Flow<PagingData<ChannelWithProgramme>>,
     onSearchQuery: (String) -> Unit,
     onRefreshPlaylist: (String) -> Unit,
+    onUpdateAllPlaylists: () -> Unit,
     isRemoteControlSheetVisible: Boolean,
     remoteControlSheetValue: RemoteControlSheetValue,
     openRemoteControlSheet: () -> Unit,
@@ -309,6 +326,7 @@ private fun AppImpl(
                 navigateToDestination = arguments.navigateToDestination,
                 navigateToChannel = arguments.navigateToChannel,
                 onRefreshPlaylist = arguments.onRefreshPlaylist,
+                onUpdateAllPlaylists = arguments.onUpdateAllPlaylists,
                 contentPadding = arguments.contentPadding,
                 showBottomEdgeBlur = arguments.showBottomEdgeBlur,
                 showContextualTopBar = arguments.showContextualTopBar,
@@ -327,6 +345,7 @@ private fun AppImpl(
         navigateToDestination = { navController.navigate(it.name) },
         navigateToChannel = navigateToChannel,
         onRefreshPlaylist = onRefreshPlaylist,
+        onUpdateAllPlaylists = onUpdateAllPlaylists,
         contentPadding = contentInsets.contentPadding,
         showBottomEdgeBlur = shouldShowBottomEdgeBlur(navigationMode),
         showContextualTopBar = shouldShowContextualTopBar(
@@ -482,6 +501,7 @@ private class AppContentArguments(
     val navigateToDestination: (Destination) -> Unit,
     val navigateToChannel: () -> Unit,
     val onRefreshPlaylist: (String) -> Unit,
+    val onUpdateAllPlaylists: () -> Unit,
     val contentPadding: PaddingValues,
     val showBottomEdgeBlur: Boolean,
     val showContextualTopBar: Boolean,
@@ -499,6 +519,7 @@ private fun AppContent(
     navigateToDestination: (Destination) -> Unit,
     navigateToChannel: () -> Unit,
     onRefreshPlaylist: (String) -> Unit,
+    onUpdateAllPlaylists: () -> Unit,
     contentPadding: PaddingValues,
     showBottomEdgeBlur: Boolean,
     showContextualTopBar: Boolean,
@@ -513,6 +534,7 @@ private fun AppContent(
         MaterialTheme.typography.titleLarge
     }
     val inputField = @Composable {
+        var overflowMenuExpanded by remember { mutableStateOf(false) }
         SearchBarDefaults.InputField(
             searchBarState = searchBarState,
             textFieldState = textFieldState,
@@ -538,7 +560,34 @@ private fun AppContent(
                     Icon(Icons.Default.Search, contentDescription = null)
                 }
             },
-            trailingIcon = null,
+            trailingIcon = {
+                Box {
+                    IconButton(onClick = { overflowMenuExpanded = true }) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = null,
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = overflowMenuExpanded,
+                        onDismissRequest = { overflowMenuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(
+                                        string.feat_setting_playlist_update_all
+                                    )
+                                )
+                            },
+                            onClick = {
+                                overflowMenuExpanded = false
+                                onUpdateAllPlaylists()
+                            },
+                        )
+                    }
+                }
+            },
         )
     }
 

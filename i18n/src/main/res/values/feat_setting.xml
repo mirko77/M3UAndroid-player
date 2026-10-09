@@ -57,6 +57,9 @@
     <string name="feat_setting_playlist_backup_description">Backups save your playlists and channels and may include server addresses or access details. Store them somewhere secure.</string>
     <string name="feat_setting_playlist_restore_description">Restore playlists and channels from a backup. Provider sign-in details are not restored, so you must sign in to those accounts again.</string>
     <string name="feat_setting_playlist_backup_filename">M3UAndroid_backup_%1$d.txt</string>
+    <string name="feat_setting_playlist_update_all">Update playlists</string>
+    <string name="feat_setting_playlist_update_all_completed">Playlists updated</string>
+    <string name="feat_setting_playlist_update_all_failed">Couldn\'t update some playlists.</string>
     <string name="feat_setting_playlist_epg_sources_empty">No programme guide sources</string>
     <string name="feat_setting_playlist_hidden_channels_empty">No hidden channels</string>
     <string name="feat_setting_playlist_hidden_categories_empty">No hidden categories</string>

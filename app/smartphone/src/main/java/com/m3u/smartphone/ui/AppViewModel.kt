@@ -1,5 +1,8 @@
 package com.m3u.smartphone.ui
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,25 +16,34 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.insertHeaderItem
 import androidx.paging.map as pagingMap
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import com.m3u.business.playlist.ChannelWithProgramme
+import com.m3u.core.foundation.wrapper.Message
 import com.m3u.data.api.TvApiDelegate
+import com.m3u.data.database.model.DataSource
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.extension.ExtensionContributionRepository
 import com.m3u.data.repository.playlist.PlaylistRefreshReason
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.tv.ConnectionToTvValue
 import com.m3u.data.repository.tv.TvRepository
+import com.m3u.data.service.Messager
 import com.m3u.data.tv.model.RemoteDirection
 import com.m3u.data.tv.model.TvInfo
 import com.m3u.data.worker.SubscriptionWorker
 import com.m3u.smartphone.ui.common.connect.RemoteControlSheetValue
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -50,10 +62,12 @@ import javax.inject.Inject
 @HiltViewModel
 @OptIn(FlowPreview::class)
 class AppViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val playlistRepository: PlaylistRepository,
     private val channelRepository: ChannelRepository,
     private val extensionContributionRepository: ExtensionContributionRepository,
     private val workManager: WorkManager,
+    private val messager: Messager,
     private val tvRepository: TvRepository,
     private val tvApi: TvApiDelegate,
 ) : ViewModel() {
@@ -132,6 +146,15 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    private fun isOnline(): Boolean {
+        val connectivity =
+            context.getSystemService(ConnectivityManager::class.java) ?: return false
+        val network = connectivity.activeNetwork ?: return false
+        val capabilities = connectivity.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+
     private fun refreshProgrammes() {
         viewModelScope.launch {
             val playlists = playlistRepository.getAllAutoRefresh()
@@ -151,6 +174,56 @@ class AppViewModel @Inject constructor(
                 url = playlistUrl,
                 reason = PlaylistRefreshReason.BACKGROUND,
             )
+        }
+    }
+
+    private val _refreshAllResult = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    val refreshAllResult: SharedFlow<Boolean> = _refreshAllResult
+    private var refreshAllJob: Job? = null
+
+    fun refreshAllPlaylists() {
+        if (refreshAllJob?.isActive == true) return
+        refreshAllJob = viewModelScope.launch {
+            if (!isOnline()) {
+                messager.emit(
+                    object : Message.Static(
+                        level = Message.LEVEL_ERROR,
+                        tag = "refresh-all",
+                        type = Message.TYPE_SNACK,
+                        resId = com.m3u.i18n.R.string.feat_channel_playback_state_offline,
+                    ) {}
+                )
+                return@launch
+            }
+            val urls = playlistRepository.getAll()
+                .filter { it.source == DataSource.M3U }
+                .map { it.url }
+            val workIds = urls.mapNotNull { url ->
+                playlistRepository.refreshWithWorkId(
+                    url = url,
+                    reason = PlaylistRefreshReason.USER,
+                )
+            }
+            if (workIds.isEmpty()) {
+                _refreshAllResult.emit(true)
+                return@launch
+            }
+            val infos = workManager.getWorkInfosFlow(WorkQuery.fromIds(workIds))
+                .first { list ->
+                    list.size >= workIds.size && list.all { it.state.isFinished }
+                }
+            val succeeded = infos.all { it.state == WorkInfo.State.SUCCEEDED }
+            if (!succeeded) {
+                messager.emit(
+                    object : Message.Static(
+                        level = Message.LEVEL_ERROR,
+                        tag = "refresh-all",
+                        type = Message.TYPE_SNACK,
+                        resId = com.m3u.i18n.R.string.feat_setting_playlist_update_all_failed,
+                    ) {}
+                )
+            }
+            _refreshAllResult.emit(succeeded)
         }
     }
 
