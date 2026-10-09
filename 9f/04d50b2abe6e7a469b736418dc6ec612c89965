@@ -1,0 +1,18 @@
+app/smartphone/src/androidTest/java/com/m3u/testing/PlaylistAdaptiveLayoutTest.kt
+  h_2231ff2aa93473 40,126-128,130,133-134,142
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/SettingScreen.kt
+  h_2231ff2aa93473 595-598
+testing/bin/run-smartphone-provider-ui-matrix.sh
+  h_2231ff2aa93473 24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9f04d50b2abe6e7a469b736418dc6ec612c89965",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
