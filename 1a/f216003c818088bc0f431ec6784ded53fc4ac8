@@ -1,0 +1,20 @@
+app/smartphone/src/main/java/com/m3u/smartphone/TimeUtils.kt
+  h_2231ff2aa93473 3,11-12
+app/smartphone/src/main/java/com/m3u/smartphone/glance/FavouriteWidget.kt
+  h_2231ff2aa93473 45,183
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/components/ProgrammeGuide.kt
+  h_2231ff2aa93473 56,71,321,338-339,426
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/components/ChannelItem.kt
+  h_2231ff2aa93473 25,40,162,167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1af216003c818088bc0f431ec6784ded53fc4ac8",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
