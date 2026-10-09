@@ -3,6 +3,7 @@
 package com.m3u.data.api
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.m3u.data.Certs
@@ -46,6 +47,7 @@ internal object ApiModule {
             .newBuilder()
             .addInterceptor(
                 ChuckerInterceptor.Builder(context)
+                    .collector(ChuckerCollector(context, showNotification = false))
                     .maxContentLength(10240)
                     .build()
             )
