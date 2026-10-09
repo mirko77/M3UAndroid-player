@@ -1,0 +1,14 @@
+app/smartphone/build.gradle.kts
+  h_2231ff2aa93473 33-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "07f49c7bca07607b717370a0e28407a66aaf201e",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
