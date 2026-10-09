@@ -109,6 +109,7 @@ fun ForyouRoute(
                 coroutineScope.launch {
                     helper.play(MediaCommand.Common(channel.id))
                     navigateToChannel()
+                    viewModel.refreshPlaylistInBackground(channel.playlistUrl)
                 }
             },
             navigateToPlaylistConfiguration = navigateToPlaylistConfiguration,

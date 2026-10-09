@@ -98,6 +98,7 @@ fun FavoriteRoute(
             coroutineScope.launch {
                 helper.play(MediaCommand.Common(channel.id))
                 navigateToChannel()
+                viewModel.refreshPlaylistInBackground(channel.playlistUrl)
             }
         },
         onLongClickChannel = { mediaSheetValue = MediaSheetValue.FavoriteScreen(it) },

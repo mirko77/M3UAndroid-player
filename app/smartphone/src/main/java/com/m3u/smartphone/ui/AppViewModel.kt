@@ -18,6 +18,7 @@ import com.m3u.business.playlist.ChannelWithProgramme
 import com.m3u.data.api.TvApiDelegate
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.extension.ExtensionContributionRepository
+import com.m3u.data.repository.playlist.PlaylistRefreshReason
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.tv.ConnectionToTvValue
 import com.m3u.data.repository.tv.TvRepository
@@ -141,6 +142,15 @@ class AppViewModel @Inject constructor(
                     ignoreCache = true
                 )
             }
+        }
+    }
+
+    fun refreshPlaylistInBackground(playlistUrl: String) {
+        viewModelScope.launch {
+            playlistRepository.refresh(
+                url = playlistUrl,
+                reason = PlaylistRefreshReason.BACKGROUND,
+            )
         }
     }
 

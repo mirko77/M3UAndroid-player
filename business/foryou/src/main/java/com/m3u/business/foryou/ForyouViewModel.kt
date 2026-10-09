@@ -8,6 +8,7 @@ import androidx.work.WorkQuery
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.repository.channel.ChannelRepository
+import com.m3u.data.repository.playlist.PlaylistRefreshReason
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.programme.ProgrammeRepository
 import com.m3u.data.service.PlayerManager
@@ -90,6 +91,15 @@ class ForyouViewModel @Inject constructor(
     fun onUnsubscribePlaylist(url: String) {
         viewModelScope.launch {
             playlistRepository.unsubscribe(url)
+        }
+    }
+
+    fun refreshPlaylistInBackground(playlistUrl: String) {
+        viewModelScope.launch {
+            playlistRepository.refresh(
+                url = playlistUrl,
+                reason = PlaylistRefreshReason.BACKGROUND,
+            )
         }
     }
 

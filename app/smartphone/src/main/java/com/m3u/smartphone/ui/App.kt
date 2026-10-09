@@ -145,6 +145,7 @@ fun App(
         startDestination = destination,
         channels = viewModel.channels,
         onSearchQuery = { query -> viewModel.searchQuery.value = query },
+        onRefreshPlaylist = viewModel::refreshPlaylistInBackground,
         isRemoteControlSheetVisible = viewModel.isConnectSheetVisible,
         remoteControlSheetValue = viewModel.remoteControlSheetValue,
         openRemoteControlSheet = { viewModel.isConnectSheetVisible = true },
@@ -167,6 +168,7 @@ private fun AppImpl(
     startDestination: String,
     channels: Flow<PagingData<ChannelWithProgramme>>,
     onSearchQuery: (String) -> Unit,
+    onRefreshPlaylist: (String) -> Unit,
     isRemoteControlSheetVisible: Boolean,
     remoteControlSheetValue: RemoteControlSheetValue,
     openRemoteControlSheet: () -> Unit,
@@ -306,6 +308,7 @@ private fun AppImpl(
                 textFieldState = arguments.textFieldState,
                 navigateToDestination = arguments.navigateToDestination,
                 navigateToChannel = arguments.navigateToChannel,
+                onRefreshPlaylist = arguments.onRefreshPlaylist,
                 contentPadding = arguments.contentPadding,
                 showBottomEdgeBlur = arguments.showBottomEdgeBlur,
                 showContextualTopBar = arguments.showContextualTopBar,
@@ -323,6 +326,7 @@ private fun AppImpl(
         textFieldState = textFieldState,
         navigateToDestination = { navController.navigate(it.name) },
         navigateToChannel = navigateToChannel,
+        onRefreshPlaylist = onRefreshPlaylist,
         contentPadding = contentInsets.contentPadding,
         showBottomEdgeBlur = shouldShowBottomEdgeBlur(navigationMode),
         showContextualTopBar = shouldShowContextualTopBar(
@@ -477,6 +481,7 @@ private class AppContentArguments(
     val textFieldState: TextFieldState,
     val navigateToDestination: (Destination) -> Unit,
     val navigateToChannel: () -> Unit,
+    val onRefreshPlaylist: (String) -> Unit,
     val contentPadding: PaddingValues,
     val showBottomEdgeBlur: Boolean,
     val showContextualTopBar: Boolean,
@@ -493,6 +498,7 @@ private fun AppContent(
     textFieldState: TextFieldState,
     navigateToDestination: (Destination) -> Unit,
     navigateToChannel: () -> Unit,
+    onRefreshPlaylist: (String) -> Unit,
     contentPadding: PaddingValues,
     showBottomEdgeBlur: Boolean,
     showContextualTopBar: Boolean,
@@ -600,6 +606,7 @@ private fun AppContent(
                         coroutineScope.launch {
                             helper.play(MediaCommand.Common(channel.id))
                             navigateToChannel()
+                            onRefreshPlaylist(channel.playlistUrl)
                         }
                     },
                     onLongClick = {},
