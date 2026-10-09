@@ -1,0 +1,28 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/App.kt
+  h_2231ff2aa93473 536,664-666
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/favourite/FavouriteScreen.kt
+  h_2231ff2aa93473 30,63,103-105
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/foryou/ForyouScreen.kt
+  h_2231ff2aa93473 37,73,114-116
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/PlaylistScreen.kt
+  h_2231ff2aa93473 114,181-183
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/OptionalFragment.kt
+  h_2231ff2aa93473 206,211-212
+core/foundation/src/main/java/com/m3u/core/foundation/architecture/preferences/Preferences.kt
+  h_2231ff2aa93473 158,216
+i18n/src/main/res/values-it-rIT/feat_setting.xml
+  h_2231ff2aa93473 80-81
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 89-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1dba9e9bfbdaf54c030b257ea84c29b448c3780f",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
