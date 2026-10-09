@@ -165,6 +165,16 @@ internal fun OptionalFragment(
             )
         }
         item {
+            var autoPip by mutablePreferenceOf(PreferencesKeys.AUTO_PIP)
+            SwitchSharedPreference(
+                title = string.feat_setting_auto_pip,
+                content = string.feat_setting_auto_pip_description,
+                icon = Icons.Rounded.PictureInPicture,
+                checked = autoPip,
+                onChanged = { autoPip = !autoPip }
+            )
+        }
+        item {
             var playlistStrategy by mutablePreferenceOf(PreferencesKeys.PLAYLIST_STRATEGY)
             TextPreference(
                 title = stringResource(string.feat_setting_sync_mode).title(),

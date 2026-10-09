@@ -3,6 +3,7 @@ package com.m3u.smartphone.ui.business.channel
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +17,10 @@ import androidx.lifecycle.lifecycleScope
 import com.m3u.business.channel.ChannelViewModel
 import com.m3u.core.foundation.Contracts
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
+import com.m3u.core.foundation.architecture.preferences.flowOf
 import com.m3u.core.foundation.architecture.preferences.get
 import com.m3u.core.foundation.architecture.preferences.settings
+import com.m3u.core.foundation.util.basic.isNotEmpty
 import com.m3u.data.database.model.isSeries
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
@@ -28,6 +31,7 @@ import com.m3u.smartphone.ui.material.components.Background
 import com.m3u.smartphone.ui.material.model.LocalHazeState
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.haze.HazeState
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,6 +47,8 @@ class PlayerActivity : ComponentActivity() {
             private set
     }
 
+    private var autoPiPEnabled: Boolean = false
+
     @Inject
     lateinit var channelRepository: ChannelRepository
 
@@ -55,6 +61,11 @@ class PlayerActivity : ComponentActivity() {
         lifecycleScope.launch {
             if (settings[PreferencesKeys.AUTO_LANDSCAPE]) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
+        lifecycleScope.launch {
+            settings.flowOf(PreferencesKeys.AUTO_PIP).collect {
+                autoPiPEnabled = it
             }
         }
         handleIntent(intent)
@@ -130,6 +141,18 @@ class PlayerActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.pauseOrContinue(true)
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (isFinishing || isInPictureInPictureMode) return
+        if (!autoPiPEnabled) return
+        val state = viewModel.playerState.value
+        if (!state.isPlaying) return
+        val size = state.videoSize
+            .takeIf { it.isNotEmpty }
+            ?: Rect(0, 0, 16, 9)
+        helper.enterPipMode(size)
     }
 
     override fun onPause() {
