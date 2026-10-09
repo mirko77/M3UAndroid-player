@@ -1,0 +1,16 @@
+i18n/src/main/res/values-it-rIT/feat_setting.xml
+  h_2231ff2aa93473 4
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "de21204e66cc62d6ea0ea928e25bc19db70be460",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
