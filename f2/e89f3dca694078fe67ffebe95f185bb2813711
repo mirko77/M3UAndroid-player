@@ -1,0 +1,16 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/ChannelMask.kt
+  h_2231ff2aa93473 165-172,785-788
+app/smartphone/src/main/java/com/m3u/smartphone/ui/material/components/mask/MaskState.kt
+  h_2231ff2aa93473 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2e89f3dca694078fe67ffebe95f185bb2813711",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
