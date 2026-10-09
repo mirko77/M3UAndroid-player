@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">appversion</string>
-    <string name="feat_setting_label_subscribe">Prenumerera</string>
     <string name="feat_setting_success_subscribe">prenumeration lyckades</string>
     <string name="feat_setting_failed_malformed_url">felaktig URL (%s)</string>
     <string name="feat_setting_error_empty_title">spellistans namn är tomt</string>

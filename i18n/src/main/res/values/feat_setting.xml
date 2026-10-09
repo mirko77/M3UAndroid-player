@@ -3,7 +3,7 @@
     <string name="feat_setting_external_extensions">External extensions</string>
     <string name="feat_setting_external_extensions_description">Allow installed extensions to connect to the app</string>
     <string name="feat_setting_app_version">app version</string>
-    <string name="feat_setting_label_subscribe">Subscribe</string>
+    <string name="feat_setting_label_subscribe">Add</string>
     <string name="feat_setting_success_subscribe">subscribe successfully</string>
     <string name="feat_setting_failed_malformed_url">malformed url (%s)</string>
     <string name="feat_setting_error_empty_title">playlist name is empty</string>

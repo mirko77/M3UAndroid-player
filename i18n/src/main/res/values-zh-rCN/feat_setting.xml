@@ -3,7 +3,6 @@
     <string name="feat_setting_external_extensions">外部扩展</string>
     <string name="feat_setting_external_extensions_description">允许已安装的扩展连接到此应用</string>
     <string name="feat_setting_app_version">应用版本</string>
-    <string name="feat_setting_label_subscribe">订阅</string>
     <string name="feat_setting_success_subscribe">订阅成功</string>
     <string name="feat_setting_failed_malformed_url">URL错误（%s）</string>
     <string name="feat_setting_error_empty_title">订阅名称为空</string>

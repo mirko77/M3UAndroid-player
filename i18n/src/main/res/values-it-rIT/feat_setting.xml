@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">versione app</string>
-    <string name="feat_setting_label_subscribe">Abbonati</string>
+    <string name="feat_setting_label_subscribe">Aggiungi</string>
     <string name="feat_setting_success_subscribe">iscrizione completata</string>
     <string name="feat_setting_failed_malformed_url">url non valido (%s)</string>
     <string name="feat_setting_error_empty_title">il nome della playlist è vuoto</string>
