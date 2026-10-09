@@ -1,0 +1,46 @@
+README.md
+  h_2231ff2aa93473 27-28
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/PlaylistScreen.kt
+  h_2231ff2aa93473 351
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/preferences/RegularPreferences.kt
+  h_2231ff2aa93473 64
+app/smartphone/src/test/java/com/m3u/smartphone/ui/business/setting/fragments/SubscriptionSourceKeyTest.kt
+  h_2231ff2aa93473 11
+business/setting/src/main/java/com/m3u/business/setting/SettingViewModel.kt
+  h_2231ff2aa93473 954,1080,1205
+i18n/src/main/res/values-de-rDE/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-es-rES/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-es-rMX/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-fr-rFR/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-id-rID/feat_setting.xml
+  h_2231ff2aa93473 4,21-24
+i18n/src/main/res/values-it-rIT/feat_setting.xml
+  h_2231ff2aa93473 22-25
+i18n/src/main/res/values-pt-rBR/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-ro-rRO/feat_setting.xml
+  h_2231ff2aa93473 4,23-26
+i18n/src/main/res/values-sv-rSE/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-tr-rTR/feat_setting.xml
+  h_2231ff2aa93473 4,22-25
+i18n/src/main/res/values-zh-rCN/feat_setting.xml
+  h_2231ff2aa93473 6,24-27
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b4ce346a382f37fd211ae29b8459d9c196a40098",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
