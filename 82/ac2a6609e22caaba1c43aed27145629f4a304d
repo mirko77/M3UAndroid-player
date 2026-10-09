@@ -1,0 +1,20 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/PlayerActivity.kt
+  h_2231ff2aa93473 6,20,23,34,50-51,66-70,146-157
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/setting/fragments/OptionalFragment.kt
+  h_2231ff2aa93473 167-176
+core/foundation/src/main/java/com/m3u/core/foundation/architecture/preferences/Preferences.kt
+  h_2231ff2aa93473 172,224
+i18n/src/main/res/values/feat_setting.xml
+  h_2231ff2aa93473 312-313
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "82ac2a6609e22caaba1c43aed27145629f4a304d",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
