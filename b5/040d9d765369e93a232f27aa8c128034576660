@@ -1,0 +1,14 @@
+data/src/main/java/com/m3u/data/api/ApiModule.kt
+  h_2231ff2aa93473 6,50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b5040d9d765369e93a232f27aa8c128034576660",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
