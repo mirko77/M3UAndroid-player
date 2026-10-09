@@ -4,6 +4,7 @@
     <string name="feat_channel_playback_state_buffering">buffering</string>
     <string name="feat_channel_playback_state_ready">ready</string>
     <string name="feat_channel_playback_state_ended">completed</string>
+    <string name="feat_channel_playback_state_offline">No internet connection</string>
     <string name="feat_channel_tooltip_on_back_pressed">back</string>
     <string name="feat_channel_tooltip_mute">mute</string>
     <string name="feat_channel_tooltip_unmute">unmute</string>

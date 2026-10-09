@@ -1,12 +1,16 @@
 package com.m3u.smartphone.ui.business.channel
 
 import android.database.ContentObserver
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -42,9 +46,11 @@ internal object ChannelMaskUtils {
     }
 
     @Composable
-    fun playbackExceptionDisplayText(e: PlaybackException?): String = when (e) {
-        null -> ""
-        else -> "[${e.errorCode}] ${e.errorCodeName}"
+    fun playbackExceptionDisplayText(e: PlaybackException?): String {
+        if (e == null) return ""
+        val isOnline by IsOnline
+        if (!isOnline) return stringResource(string.feat_channel_playback_state_offline)
+        return "[${e.errorCode}] ${e.errorCodeName}"
     }
 
     @Composable
@@ -103,6 +109,48 @@ internal object ChannelMaskUtils {
                 )
                 awaitDispose {
                     contentResolver.unregisterContentObserver(observer)
+                }
+            }
+        }
+
+    val IsOnline: State<Boolean>
+        @Composable get() {
+            val context = LocalContext.current
+            val connectivity = context.getSystemService(ConnectivityManager::class.java)
+            fun check(): Boolean {
+                val network = connectivity?.activeNetwork ?: return false
+                val capabilities = connectivity.getNetworkCapabilities(network)
+                    ?: return false
+                return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            }
+            return produceState(check()) {
+                val callback = object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network) {
+                        super.onAvailable(network)
+                        value = check()
+                    }
+
+                    override fun onLost(network: Network) {
+                        super.onLost(network)
+                        value = check()
+                    }
+
+                    override fun onCapabilitiesChanged(
+                        network: Network,
+                        networkCapabilities: NetworkCapabilities
+                    ) {
+                        super.onCapabilitiesChanged(network, networkCapabilities)
+                        value = check()
+                    }
+                }
+                runCatching {
+                    connectivity?.registerDefaultNetworkCallback(callback)
+                }
+                awaitDispose {
+                    runCatching {
+                        connectivity?.unregisterNetworkCallback(callback)
+                    }
                 }
             }
         }
