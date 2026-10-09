@@ -175,7 +175,6 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.THEME_STYLE, ThemePreference.DEFAULT.style)
     put(PreferencesKeys.THEME_PRESET_ID, ThemePreference.DEFAULT.presetId)
     put(PreferencesKeys.TUNNELING, false)
-    put(PreferencesKeys.CLOCK_MODE, false)
     put(PreferencesKeys.REMOTE_CONTROL, false)
     put(PreferencesKeys.SLIDER, true)
     put(PreferencesKeys.ALWAYS_SHOW_REPLAY, false)
@@ -228,7 +227,6 @@ object PreferencesKeys {
     val THEME_STYLE = intPreferencesKey("theme-style")
     val THEME_PRESET_ID = stringPreferencesKey("theme-preset-id")
     val TUNNELING = booleanPreferencesKey("tunneling")
-    val CLOCK_MODE = booleanPreferencesKey("12h-clock-mode")
     val REMOTE_CONTROL = booleanPreferencesKey("remote-control")
 
     val SLIDER = booleanPreferencesKey("slider")

@@ -1,5 +1,6 @@
 package com.m3u.smartphone
 
+import android.content.Context
 import android.text.format.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -7,6 +8,8 @@ import java.util.Locale
 import kotlinx.datetime.LocalDateTime
 
 object TimeUtils {
+    fun Context.isSystemTwelveHourClock(): Boolean = !DateFormat.is24HourFormat(this)
+
     fun LocalDateTime.toEOrSh(): Float = run { hour + minute / 60f + second / 3600f }
 
     fun LocalDateTime.formatEOrSh(

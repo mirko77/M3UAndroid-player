@@ -146,7 +146,6 @@
     <string name="feat_setting_canvas_light">claro</string>
     <string name="feat_setting_canvas_apply">aplicar</string>
     <string name="feat_setting_canvas_reset">reiniciar</string>
-    <string name="feat_setting_epg_clock_mode">modo reloj de 12 h en programas</string>
     <string name="feat_setting_remote_control">control remoto</string>
     <string name="feat_setting_remote_control_description">Permite controlar la TV a distancia</string>
     <string name="feat_setting_remote_control_tv_side">control remoto</string>

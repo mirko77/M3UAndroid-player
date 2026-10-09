@@ -146,7 +146,6 @@
     <string name="feat_setting_canvas_light">açık</string>
     <string name="feat_setting_canvas_apply">uygula</string>
     <string name="feat_setting_canvas_reset">sıfırla</string>
-    <string name="feat_setting_epg_clock_mode">program 12 saat modu</string>
     <string name="feat_setting_remote_control">uzaktan kumanda</string>
     <string name="feat_setting_remote_control_description">TV’nizi uzaktan kontrol edin</string>
     <string name="feat_setting_remote_control_tv_side">uzaktan kumanda</string>

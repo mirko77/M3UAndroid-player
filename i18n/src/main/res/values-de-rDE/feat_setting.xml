@@ -144,7 +144,6 @@
     <string name="feat_setting_canvas_light">hell</string>
     <string name="feat_setting_canvas_apply">anwenden</string>
     <string name="feat_setting_canvas_reset">zurücksetzen</string>
-    <string name="feat_setting_epg_clock_mode">EPG 12h Modus</string>
     <string name="feat_setting_remote_control">Fernbedienung</string>
     <string name="feat_setting_remote_control_description">Fernsteuerung des Fernsehers aktivieren</string>
     <string name="feat_setting_remote_control_tv_side">Fernbedienung</string>

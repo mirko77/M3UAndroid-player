@@ -146,7 +146,6 @@
     <string name="feat_setting_canvas_light">ljus</string>
     <string name="feat_setting_canvas_apply">tillämpa</string>
     <string name="feat_setting_canvas_reset">återställ</string>
-    <string name="feat_setting_epg_clock_mode">program 12-timmars klockläge</string>
     <string name="feat_setting_remote_control">fjärrkontroll</string>
     <string name="feat_setting_remote_control_description">Aktivera fjärrstyrning av TV:n</string>
     <string name="feat_setting_remote_control_tv_side">fjärrkontroll</string>

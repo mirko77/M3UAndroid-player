@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Collections
@@ -213,15 +212,6 @@ internal fun OptionalFragment(
                 onChanged = { autoRefreshChannels = !autoRefreshChannels }
             )
 
-        }
-        item {
-            var twelveHourClock by mutablePreferenceOf(PreferencesKeys.CLOCK_MODE)
-            SwitchSharedPreference(
-                title = string.feat_setting_epg_clock_mode,
-                icon = Icons.Rounded.AccessTime,
-                checked = twelveHourClock,
-                onChanged = { twelveHourClock = !twelveHourClock }
-            )
         }
     }
 }

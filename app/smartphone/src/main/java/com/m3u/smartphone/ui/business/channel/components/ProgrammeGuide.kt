@@ -53,6 +53,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,13 +63,12 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.paging.compose.LazyPagingItems
-import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.data.database.model.Programme
 import com.m3u.data.database.model.ProgrammeRange
 import com.m3u.data.database.model.ProgrammeRange.Companion.HOUR_LENGTH
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.TimeUtils.formatEOrSh
+import com.m3u.smartphone.TimeUtils.isSystemTwelveHourClock
 import com.m3u.smartphone.TimeUtils.toEOrSh
 import com.m3u.smartphone.ui.material.components.FontFamilies
 import com.m3u.smartphone.ui.material.model.LocalSpacing
@@ -318,7 +318,7 @@ private fun ProgrammeCell(
 ) {
     val currentOnPressed by rememberUpdatedState(onPressed)
     val spacing = LocalSpacing.current
-    val clockMode by preferenceOf(PreferencesKeys.CLOCK_MODE)
+    val twelveHourClock = LocalContext.current.isSystemTwelveHourClock()
     val formatLocale = LocalConfiguration.current.locales[0]
 
     val content = @Composable {
@@ -335,8 +335,8 @@ private fun ProgrammeCell(
                 .toLocalDateTime(TimeZone.currentSystemDefault())
                 .toEOrSh()
             Text(
-                text = "${start.formatEOrSh(clockMode, locale = formatLocale)} - ${
-                    end.formatEOrSh(clockMode, locale = formatLocale)
+                text = "${start.formatEOrSh(twelveHourClock, locale = formatLocale)} - ${
+                    end.formatEOrSh(twelveHourClock, locale = formatLocale)
                 }",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -423,7 +423,7 @@ private fun CurrentTimelineCell(
 ) {
     val spacing = LocalSpacing.current
 
-    val twelveHourClock by preferenceOf(PreferencesKeys.CLOCK_MODE)
+    val twelveHourClock = LocalContext.current.isSystemTwelveHourClock()
     val formatLocale = LocalConfiguration.current.locales[0]
 
     val color = MaterialTheme.colorScheme.error

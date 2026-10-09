@@ -42,6 +42,7 @@ import com.m3u.core.foundation.Contracts
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Programme
 import com.m3u.smartphone.TimeUtils.formatEOrSh
+import com.m3u.smartphone.TimeUtils.isSystemTwelveHourClock
 import dagger.hilt.android.EntryPointAccessors
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
@@ -179,7 +180,7 @@ private fun Programme.readText(context: Context): String = buildString {
     val start = Instant.fromEpochMilliseconds(start)
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .formatEOrSh(
-            twelveHourClock = true,
+            twelveHourClock = context.isSystemTwelveHourClock(),
             locale = context.resources.configuration.locales[0],
         )
     append("[$start] $title")
