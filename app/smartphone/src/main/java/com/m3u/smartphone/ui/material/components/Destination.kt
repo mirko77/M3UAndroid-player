@@ -65,10 +65,6 @@ sealed interface SettingDestination : Parcelable {
 
     @Immutable
     @Parcelize
-    data object PlaylistSourcePicker : SettingDestination
-
-    @Immutable
-    @Parcelize
     data class PlaylistEditor(
         val sourceKey: String,
         val draftKey: String = UUID.randomUUID().toString(),

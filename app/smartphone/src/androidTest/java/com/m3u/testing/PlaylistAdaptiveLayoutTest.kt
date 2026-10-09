@@ -37,7 +37,7 @@ class PlaylistAdaptiveLayoutTest {
     private val device = UiDevice.getInstance(instrumentation)
 
     @Test
-    fun narrowWidthOverviewSourcePickerAndEditorActionsRemainUsable() {
+    fun narrowWidthOverviewEditorActionsRemainUsable() {
         val configuration = currentConfiguration()
         assertEquals(
             MATRIX_CASE_COMPACT_NARROW_LTR,
@@ -51,12 +51,6 @@ class PlaylistAdaptiveLayoutTest {
         openPlaylistManagementOverview()
         composeRule.onNodeWithTag(ADD_ACTION_TAG).run {
             performScrollTo()
-            performClick()
-        }
-        waitUntilTagExists(SOURCE_PICKER_TAG)
-        composeRule.onNodeWithTag(M3U_SOURCE_TAG).run {
-            performScrollTo()
-            assertHasClickAction()
             performClick()
         }
         waitUntilTagExists(M3U_EDITOR_TAG)
@@ -129,15 +123,15 @@ class PlaylistAdaptiveLayoutTest {
             performScrollTo()
             performClick()
         }
-        waitUntilTagExists(SOURCE_PICKER_TAG)
-        val pickerBack = assertPaneHeader(
-            contentTag = SOURCE_PICKER_TAG,
+        waitUntilTagExists(M3U_EDITOR_TAG)
+        val editorBack = assertPaneHeader(
+            contentTag = M3U_EDITOR_TAG,
             title = context.getString(
-                string.feat_setting_playlist_source_picker_title
+                string.feat_setting_label_add_playlist
             ),
         )
-        clickBoundsCenter(pickerBack)
-        waitUntilTagGone(SOURCE_PICKER_TAG)
+        clickBoundsCenter(editorBack)
+        waitUntilTagGone(M3U_EDITOR_TAG)
         waitUntilTagExists(OVERVIEW_TAG)
 
         val restoredOverviewBack = assertPaneHeader(
@@ -145,7 +139,7 @@ class PlaylistAdaptiveLayoutTest {
             title = context.getString(string.feat_setting_playlist_management),
         )
         assertEquals(
-            "The overview pane header moved after returning from the source picker",
+            "The overview pane header moved after returning from the playlist editor",
             overviewBack,
             restoredOverviewBack,
         )
@@ -492,8 +486,6 @@ class PlaylistAdaptiveLayoutTest {
 
         const val OVERVIEW_TAG = "playlist-management-overview"
         const val ADD_ACTION_TAG = "playlist-add-action"
-        const val SOURCE_PICKER_TAG = "playlist-source-picker"
-        const val M3U_SOURCE_TAG = "playlist-source:data-source:m3u"
         const val M3U_EDITOR_TAG = "playlist-editor:data-source:m3u"
         const val SUBMIT_ACTION_TAG = "subscription-submit-action"
         const val EPG_SOURCES_ACTION_TAG = "playlist-overview-epg-sources"

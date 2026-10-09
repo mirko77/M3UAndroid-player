@@ -60,7 +60,6 @@ internal fun RegularPreferences(
 private fun SettingDestination.isPlaylistDestination(): Boolean = when (this) {
     SettingDestination.Playlists,
     is SettingDestination.PlaylistConfiguration,
-    SettingDestination.PlaylistSourcePicker,
     is SettingDestination.PlaylistEditor,
     SettingDestination.PlaylistEpgSources,
     SettingDestination.PlaylistHiddenChannels,

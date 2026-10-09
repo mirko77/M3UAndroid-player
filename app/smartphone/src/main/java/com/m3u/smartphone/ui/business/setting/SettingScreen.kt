@@ -93,7 +93,6 @@ import com.m3u.smartphone.ui.business.setting.fragments.HiddenChannelListScreen
 import com.m3u.smartphone.ui.business.setting.fragments.OptionalFragment
 import com.m3u.smartphone.ui.business.setting.fragments.PlaylistManagementOverviewScreen
 import com.m3u.smartphone.ui.business.setting.fragments.SubscriptionEditorScreen
-import com.m3u.smartphone.ui.business.setting.fragments.SubscriptionSourcePickerScreen
 import com.m3u.smartphone.ui.business.setting.fragments.providerSourceSelectionKey
 import com.m3u.smartphone.ui.business.setting.fragments.resolveExtensionPluginDetailContentState
 import com.m3u.smartphone.ui.business.setting.fragments.subscriptionSelectionKey
@@ -344,8 +343,6 @@ private fun SettingScreen(
 
     val defaultTitle = stringResource(string.ui_title_setting)
     val playlistTitle = stringResource(string.feat_setting_playlist_management)
-    val playlistSourcePickerTitle =
-        stringResource(string.feat_setting_playlist_source_picker_title)
     val playlistEditorTitle = stringResource(string.feat_setting_label_add_playlist)
     val playlistEpgEditorTitle =
         stringResource(string.feat_setting_playlist_add_epg_source)
@@ -445,7 +442,6 @@ private fun SettingScreen(
         extensionPlugins,
         defaultTitle,
         playlistTitle,
-        playlistSourcePickerTitle,
         playlistEditorTitle,
         playlistEpgEditorTitle,
         playlistReauthenticationTitle,
@@ -465,7 +461,6 @@ private fun SettingScreen(
             SettingDestination.Default -> defaultTitle
             SettingDestination.Playlists -> playlistTitle
             is SettingDestination.PlaylistConfiguration -> configurationTitle
-            SettingDestination.PlaylistSourcePicker -> playlistSourcePickerTitle
             is SettingDestination.PlaylistEditor -> currentPlaylistEditorTitle
             SettingDestination.PlaylistEpgSources -> playlistEpgTitle
             SettingDestination.PlaylistHiddenChannels -> playlistHiddenChannelsTitle
@@ -597,7 +592,10 @@ private fun SettingScreen(
                                 coroutineScope.launch {
                                     navigator.navigateTo(
                                         pane = ListDetailPaneScaffoldRole.Detail,
-                                        contentKey = SettingDestination.PlaylistSourcePicker,
+                                        contentKey = SettingDestination.PlaylistEditor(
+                                            sourceKey =
+                                                DataSource.M3U.subscriptionSelectionKey(),
+                                        ),
                                     )
                                 }
                             },
@@ -685,40 +683,6 @@ private fun SettingScreen(
                             onPlaylistRemoved = {
                                 coroutineScope.launch {
                                     navigator.returnToPlaylistManagement()
-                                }
-                            },
-                            contentPadding = contentPadding,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                }
-
-                SettingDestination.PlaylistSourcePicker -> {
-                    PlaylistDetailPane(
-                        showHeader = showPlaylistPaneHeader,
-                        title = playlistSourcePickerTitle,
-                        onBack = {
-                            coroutineScope.launch {
-                                navigator.navigateBack(backNavigationBehavior)
-                            }
-                        },
-                    ) {
-                        SubscriptionSourcePickerScreen(
-                            dataOperationInProgress =
-                                backingUpOrRestoring != BackingUpAndRestoringState.NONE,
-                            subscriptionSubmissionBlocked =
-                                playlistSubscriptionInProgress ||
-                                    playlistSubscriptionState.phase !=
-                                    PlaylistSubscriptionPhase.IDLE,
-                            providerOperationState = providerOperationState,
-                            onOpenEditor = { sourceKey ->
-                                coroutineScope.launch {
-                                    navigator.navigateTo(
-                                        pane = ListDetailPaneScaffoldRole.Detail,
-                                        contentKey = SettingDestination.PlaylistEditor(
-                                            sourceKey = sourceKey,
-                                        ),
-                                    )
                                 }
                             },
                             contentPadding = contentPadding,
@@ -1042,7 +1006,6 @@ private fun SettingDestination.usesLocalizedStaticTitle(): Boolean = when (this)
     SettingDestination.CodecPack -> true
     SettingDestination.Playlists,
     is SettingDestination.PlaylistConfiguration,
-    SettingDestination.PlaylistSourcePicker,
     is SettingDestination.PlaylistEditor,
     SettingDestination.PlaylistEpgSources,
     SettingDestination.PlaylistHiddenChannels,
