@@ -5,7 +5,6 @@ import android.view.View
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -17,11 +16,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.m3u.i18n.R.string
-import com.m3u.smartphone.DebugExtensionPlatformEntryPoint
 import com.m3u.smartphone.MainActivity
-import com.m3u.data.worker.playlistWorkTag
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -146,137 +141,6 @@ class PlaylistAdaptiveLayoutTest {
         clickBoundsCenter(restoredOverviewBack)
         waitUntilTagGone(OVERVIEW_TAG)
         waitUntilMatcherExists(playlistManagementEntryMatcher())
-    }
-
-    @Test
-    fun epgLeafDeleteActionDoesNotOverlapContentAtTwoHundredPercentText() {
-        val configuration = currentConfiguration()
-        assertEquals(
-            MATRIX_CASE_COMPACT_RTL_LARGE,
-            requestedAccessibilityMatrixCase(),
-        )
-        assertEquals(
-            "The large-text case must use the RTL pseudo locale",
-            LOCALE_RTL_PSEUDO,
-            configuration.locales[0].toLanguageTag(),
-        )
-        assertEquals(
-            "The large-text case must be RTL",
-            View.LAYOUT_DIRECTION_RTL,
-            configuration.layoutDirection,
-        )
-        assertTrue(
-            "Expected 200% text, actual=${configuration.fontScale}",
-            configuration.fontScale >= LARGE_TEXT_MINIMUM_SCALE,
-        )
-        assertTrue(
-            "Expected a 320dp narrow window, actual=${configuration.screenWidthDp}",
-            configuration.screenWidthDp in NARROW_WIDTH_RANGE,
-        )
-
-        val playlistRepository = EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            DebugExtensionPlatformEntryPoint::class.java,
-        ).playlistRepository()
-        runBlocking {
-            playlistRepository.get(TEST_EPG_URL)?.let {
-                playlistRepository.deleteEpgPlaylistAndProgrammes(TEST_EPG_URL)
-            }
-            playlistRepository.insertEpgAsPlaylist(
-                title = TEST_EPG_TITLE,
-                epg = TEST_EPG_URL,
-            )
-        }
-
-        try {
-            openPlaylistManagementOverview()
-            composeRule.onNodeWithTag(EPG_SOURCES_ACTION_TAG).run {
-                performScrollTo()
-                performClick()
-            }
-            waitUntilTagExists(EPG_SOURCES_LIST_TAG)
-            waitUntilTagExists(epgItemTag())
-
-            val itemBounds = composeRule.onNodeWithTag(epgItemTag())
-                .fetchSemanticsNode()
-                .boundsInWindow
-            val deleteAction = hasContentDescription(
-                TEST_EPG_TITLE,
-                substring = true,
-                ignoreCase = false,
-            ) and hasClickAction()
-            waitUntilMatcherExists(deleteAction)
-            val deleteBounds = composeRule.onNode(deleteAction)
-                .fetchSemanticsNode()
-                .boundsInWindow
-            val titleBounds = composeRule.onNode(
-                hasTextIgnoringBidiControls(
-                    expected = TEST_EPG_TITLE,
-                    substring = false,
-                ),
-                useUnmergedTree = true,
-            ).fetchSemanticsNode().boundsInWindow
-            val urlBounds = composeRule.onNode(
-                hasTextIgnoringBidiControls(
-                    expected = TEST_EPG_DISPLAY_REFERENCE,
-                    substring = true,
-                ),
-                useUnmergedTree = true,
-            ).fetchSemanticsNode().boundsInWindow
-            listOf(
-                "password",
-                "private-token",
-                "query-secret",
-                "large-text-guide.xml",
-            ).forEach { sensitiveValue ->
-                assertTrue(
-                    "EPG semantics exposed sensitive source text: $sensitiveValue",
-                    composeRule.onAllNodes(
-                        hasText(
-                            sensitiveValue,
-                            substring = true,
-                            ignoreCase = false,
-                        ),
-                        useUnmergedTree = true,
-                    ).fetchSemanticsNodes().isEmpty(),
-                )
-            }
-            val density = composeRule.density.density
-
-            assertTrue(
-                "EPG delete action must keep a 48dp touch target: $deleteBounds",
-                deleteBounds.width >= MINIMUM_TOUCH_TARGET_DP * density &&
-                    deleteBounds.height >= MINIMUM_TOUCH_TARGET_DP * density,
-            )
-            assertTrue(
-                "EPG delete action escaped its list item: " +
-                    "action=$deleteBounds, item=$itemBounds",
-                itemBounds.contains(deleteBounds),
-            )
-            assertFalse(
-                "EPG delete action overlaps the title at 200% text: " +
-                    "action=$deleteBounds, title=$titleBounds",
-                deleteBounds.intersects(titleBounds),
-            )
-            assertFalse(
-                "EPG delete action overlaps the URL at 200% text: " +
-                    "action=$deleteBounds, url=$urlBounds",
-                deleteBounds.intersects(urlBounds),
-            )
-
-            composeRule.onNode(deleteAction)
-                .assertHasClickAction()
-                .performClick()
-            waitUntilTagExists(DELETE_EPG_DIALOG_TAG)
-            device.pressBack()
-            waitUntilTagGone(DELETE_EPG_DIALOG_TAG)
-        } finally {
-            runBlocking {
-                playlistRepository.get(TEST_EPG_URL)?.let {
-                    playlistRepository.deleteEpgPlaylistAndProgrammes(TEST_EPG_URL)
-                }
-            }
-        }
     }
 
     private fun openPlaylistManagementOverview() {
@@ -412,35 +276,6 @@ class PlaylistAdaptiveLayoutTest {
         }
     }
 
-    private fun hasTextIgnoringBidiControls(
-        expected: String,
-        substring: Boolean,
-    ): SemanticsMatcher {
-        val normalizedExpected = expected.withoutBidiControls()
-        return SemanticsMatcher(
-            "Text matches '$normalizedExpected' after removing bidi controls",
-        ) { node ->
-            node.config
-                .getOrElse(SemanticsProperties.Text) { emptyList() }
-                .any { text ->
-                    val normalizedActual = text.text.withoutBidiControls()
-                    if (substring) {
-                        normalizedActual.contains(normalizedExpected)
-                    } else {
-                        normalizedActual == normalizedExpected
-                    }
-                }
-        }
-    }
-
-    private fun String.withoutBidiControls(): String = filterNot { character ->
-        character == '\u061C' ||
-            character == '\u200E' ||
-            character == '\u200F' ||
-            character in '\u202A'..'\u202E' ||
-            character in '\u2066'..'\u2069'
-    }
-
     private fun tagExists(tag: String): Boolean =
         composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
 
@@ -461,23 +296,17 @@ class PlaylistAdaptiveLayoutTest {
             right >= other.right - BOUNDS_TOLERANCE_PX &&
             bottom >= other.bottom - BOUNDS_TOLERANCE_PX
 
-    private fun epgItemTag(): String =
-        "playlist-epg:${playlistWorkTag(TEST_EPG_URL)}"
-
     private companion object {
         const val UI_TIMEOUT_MILLIS = 15_000L
         const val ARG_ACCESSIBILITY_MATRIX_CASE = "accessibilityMatrixCase"
         const val MATRIX_CASE_MEDIUM_LTR = "medium-ltr"
         const val MATRIX_CASE_COMPACT_NARROW_LTR = "compact-narrow-ltr"
-        const val MATRIX_CASE_COMPACT_RTL_LARGE = "compact-rtl-large"
         const val LOCALE_ENGLISH = "en"
-        const val LOCALE_RTL_PSEUDO = "ar-XB"
         const val MEDIUM_WIDTH_MINIMUM_DP = 600
         const val MEDIUM_WIDTH_MAXIMUM_DP = 839
         val MEDIUM_WIDTH_RANGE =
             MEDIUM_WIDTH_MINIMUM_DP..MEDIUM_WIDTH_MAXIMUM_DP
         val NARROW_WIDTH_RANGE = 315..325
-        const val LARGE_TEXT_MINIMUM_SCALE = 1.95f
         const val LARGE_TEXT_THRESHOLD = 1.3f
         const val MINIMUM_TOUCH_TARGET_DP = 48
         const val MINIMUM_SIDE_RAIL_WIDTH_DP = 72
@@ -488,13 +317,5 @@ class PlaylistAdaptiveLayoutTest {
         const val ADD_ACTION_TAG = "playlist-add-action"
         const val M3U_EDITOR_TAG = "playlist-editor:data-source:m3u"
         const val SUBMIT_ACTION_TAG = "subscription-submit-action"
-        const val EPG_SOURCES_ACTION_TAG = "playlist-overview-epg-sources"
-        const val EPG_SOURCES_LIST_TAG = "playlist-list:epg-sources"
-        const val DELETE_EPG_DIALOG_TAG = "playlist-delete-epg-dialog"
-        const val TEST_EPG_TITLE = "قناة News 24"
-        const val TEST_EPG_URL =
-            "https://viewer:password@example.invalid/private-token/" +
-                "large-text-guide.xml?access_token=query-secret"
-        const val TEST_EPG_DISPLAY_REFERENCE = "https://example.invalid"
     }
 }

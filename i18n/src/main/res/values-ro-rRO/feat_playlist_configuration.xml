@@ -6,7 +6,6 @@
     <string name="feat_playlist_configuration_refresh_playlist">Actualizează canalele</string>
     <string name="feat_playlist_configuration_cancel_refresh_playlist">Anulează actualizarea canalelor</string>
     <string name="feat_playlist_configuration_refresh_playlist_description">Descarcă cele mai recente canale din această sursă</string>
-    <string name="feat_playlist_configuration_enabled_epgs">Surse EPG activate</string>
     <string name="feat_playlist_configuration_sync_programmes">Sincronizează programele</string>
     <string name="feat_playlist_configuration_cancel_sync_programmes">Anulează sincronizarea programelor</string>
     <string name="feat_playlist_configuration_programmes_expired_time">Expiră: %s</string>

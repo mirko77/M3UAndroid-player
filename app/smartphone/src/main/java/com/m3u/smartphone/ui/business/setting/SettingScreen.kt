@@ -87,8 +87,6 @@ import com.m3u.smartphone.ui.business.setting.fragments.ExtensionPluginAuthoriza
 import com.m3u.smartphone.ui.business.setting.fragments.ExtensionPluginDetailScreen
 import com.m3u.smartphone.ui.business.setting.fragments.ExtensionPluginListScreen
 import com.m3u.smartphone.ui.business.setting.fragments.ExtensionSettingsScreen
-import com.m3u.smartphone.ui.business.setting.fragments.EpgSourceListScreen
-import com.m3u.smartphone.ui.business.setting.fragments.HiddenCategoryListScreen
 import com.m3u.smartphone.ui.business.setting.fragments.HiddenChannelListScreen
 import com.m3u.smartphone.ui.business.setting.fragments.OptionalFragment
 import com.m3u.smartphone.ui.business.setting.fragments.PlaylistManagementOverviewScreen
@@ -126,9 +124,7 @@ fun SettingRoute(
         viewModel.playlistSubscriptionInProgress.collectAsStateWithLifecycle()
     val playlistSubscriptionState by
         viewModel.playlistSubscriptionState.collectAsStateWithLifecycle()
-    val epgs by viewModel.epgs.collectAsStateWithLifecycle()
     val hiddenChannels by viewModel.hiddenChannels.collectAsStateWithLifecycle()
-    val hiddenCategoriesWithPlaylists by viewModel.hiddenCategoriesWithPlaylists.collectAsStateWithLifecycle()
     val backingUpOrRestoring by viewModel.backingUpOrRestoring.collectAsStateWithLifecycle()
     val codecPackState by viewModel.codecPackState.collectAsStateWithLifecycle()
     val extensionPluginDiscoveryState by
@@ -223,9 +219,7 @@ fun SettingRoute(
                 viewModel::cancelPlaylistSubscription,
             onDismissPlaylistSubscription =
                 viewModel::dismissPlaylistSubscriptionStatus,
-            epgs = epgs,
             hiddenChannels = hiddenChannels,
-            hiddenCategoriesWithPlaylists = hiddenCategoriesWithPlaylists,
             backup = backup,
             restore = restore,
             colorSchemes = colorSchemes,
@@ -238,10 +232,6 @@ fun SettingRoute(
                 viewModel.subscribe()
             },
             onUnhideChannel = { viewModel.onUnhideChannel(it) },
-            onUnhidePlaylistCategory = { playlistUrl, group ->
-                viewModel.onUnhidePlaylistCategory(playlistUrl, group)
-            },
-            onDeleteEpgPlaylist = { viewModel.deleteEpgPlaylist(it) },
             onInstallCodecPack = viewModel::installCodecPack,
             onDeleteCodecPack = viewModel::deleteCodecPack,
             onRefreshCodecPack = viewModel::refreshCodecPack,
@@ -299,17 +289,13 @@ private fun SettingScreen(
     subscriptionAccepted: Flow<Unit>,
     onSubscribe: () -> Unit,
     hiddenChannels: List<Channel>,
-    hiddenCategoriesWithPlaylists: List<Pair<Playlist, String>>,
     onUnhideChannel: (Int) -> Unit,
-    onUnhidePlaylistCategory: (playlistUrl: String, group: String) -> Unit,
     backup: () -> Unit,
     restore: () -> Unit,
     onClipboard: (String) -> Unit,
     onBeginSubscriptionDraft: (String, DataSource) -> Unit,
     colorSchemes: List<ColorScheme>,
     onSelectTheme: (ThemePreference) -> Unit,
-    epgs: List<Playlist>,
-    onDeleteEpgPlaylist: (String) -> Unit,
     onInstallCodecPack: () -> Unit,
     onDeleteCodecPack: () -> Unit,
     onRefreshCodecPack: () -> Unit,
@@ -344,15 +330,10 @@ private fun SettingScreen(
     val defaultTitle = stringResource(string.ui_title_setting)
     val playlistTitle = stringResource(string.feat_setting_playlist_management)
     val playlistEditorTitle = stringResource(string.feat_setting_label_add_playlist)
-    val playlistEpgEditorTitle =
-        stringResource(string.feat_setting_playlist_add_epg_source)
     val playlistReauthenticationTitle =
         stringResource(string.feat_setting_provider_reauthenticate)
-    val playlistEpgTitle = stringResource(string.feat_setting_label_epg_playlists)
     val playlistHiddenChannelsTitle =
         stringResource(string.feat_setting_label_hidden_channels)
-    val playlistHiddenCategoriesTitle =
-        stringResource(string.feat_setting_label_hidden_playlist_groups)
     val extensionPluginsTitle = stringResource(string.feat_setting_extension_plugins)
     val extensionDetailsTitle = stringResource(string.feat_setting_extension_details)
     val extensionAuthorizationTitle =
@@ -401,8 +382,6 @@ private fun SettingScreen(
         destination !is SettingDestination.PlaylistEditor -> playlistEditorTitle
         destination.reauthenticationPlaylistUrl != null ->
             playlistReauthenticationTitle
-        destination.sourceKey == DataSource.EPG.subscriptionSelectionKey() ->
-            playlistEpgEditorTitle
         else -> playlistEditorTitle
     }
 
@@ -443,11 +422,8 @@ private fun SettingScreen(
         defaultTitle,
         playlistTitle,
         playlistEditorTitle,
-        playlistEpgEditorTitle,
         playlistReauthenticationTitle,
-        playlistEpgTitle,
         playlistHiddenChannelsTitle,
-        playlistHiddenCategoriesTitle,
         extensionPluginsTitle,
         extensionDetailsTitle,
         extensionAuthorizationTitle,
@@ -462,9 +438,7 @@ private fun SettingScreen(
             SettingDestination.Playlists -> playlistTitle
             is SettingDestination.PlaylistConfiguration -> configurationTitle
             is SettingDestination.PlaylistEditor -> currentPlaylistEditorTitle
-            SettingDestination.PlaylistEpgSources -> playlistEpgTitle
             SettingDestination.PlaylistHiddenChannels -> playlistHiddenChannelsTitle
-            SettingDestination.PlaylistHiddenCategories -> playlistHiddenCategoriesTitle
             SettingDestination.ExtensionPlugins -> extensionPluginsTitle
             is SettingDestination.ExtensionPluginDetails -> extensionDetailsTitle
             is SettingDestination.ExtensionPluginAuthorization ->
@@ -582,9 +556,7 @@ private fun SettingScreen(
                                     )
                                 }
                             },
-                            epgCount = epgs.size,
                             hiddenChannelCount = hiddenChannels.size,
-                            hiddenCategoryCount = hiddenCategoriesWithPlaylists.size,
                             providerDiscoveryState = providerDiscoveryState,
                             providerAccountSummaries = providerAccountSummaries,
                             providerOperationState = providerOperationState,
@@ -613,27 +585,11 @@ private fun SettingScreen(
                                     )
                                 }
                             },
-                            onOpenEpgSources = {
-                                coroutineScope.launch {
-                                    navigator.navigateTo(
-                                        pane = ListDetailPaneScaffoldRole.Detail,
-                                        contentKey = SettingDestination.PlaylistEpgSources,
-                                    )
-                                }
-                            },
                             onOpenHiddenChannels = {
                                 coroutineScope.launch {
                                     navigator.navigateTo(
                                         pane = ListDetailPaneScaffoldRole.Detail,
                                         contentKey = SettingDestination.PlaylistHiddenChannels,
-                                    )
-                                }
-                            },
-                            onOpenHiddenCategories = {
-                                coroutineScope.launch {
-                                    navigator.navigateTo(
-                                        pane = ListDetailPaneScaffoldRole.Detail,
-                                        contentKey = SettingDestination.PlaylistHiddenCategories,
                                     )
                                 }
                             },
@@ -721,39 +677,6 @@ private fun SettingScreen(
                     }
                 }
 
-                SettingDestination.PlaylistEpgSources -> {
-                    PlaylistDetailPane(
-                        showHeader = showPlaylistPaneHeader,
-                        title = playlistEpgTitle,
-                        onBack = {
-                            coroutineScope.launch {
-                                navigator.navigateBack(backNavigationBehavior)
-                            }
-                        },
-                    ) {
-                        EpgSourceListScreen(
-                            epgs = epgs,
-                            onAddEpgSource = {
-                                coroutineScope.launch {
-                                    navigator.navigateTo(
-                                        pane = ListDetailPaneScaffoldRole.Detail,
-                                        contentKey = SettingDestination.PlaylistEditor(
-                                            sourceKey =
-                                                DataSource.EPG.subscriptionSelectionKey(),
-                                        ),
-                                    )
-                                }
-                            },
-                            onDeleteEpgPlaylist = onDeleteEpgPlaylist,
-                            enabled = backingUpOrRestoring ==
-                                BackingUpAndRestoringState.NONE &&
-                                !providerOperationState.isBusy,
-                            contentPadding = contentPadding,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                }
-
                 SettingDestination.PlaylistHiddenChannels -> {
                     PlaylistDetailPane(
                         showHeader = showPlaylistPaneHeader,
@@ -767,29 +690,6 @@ private fun SettingScreen(
                         HiddenChannelListScreen(
                             hiddenChannels = hiddenChannels,
                             onUnhideChannel = onUnhideChannel,
-                            enabled = backingUpOrRestoring ==
-                                BackingUpAndRestoringState.NONE &&
-                                !providerOperationState.isBusy,
-                            contentPadding = contentPadding,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                }
-
-                SettingDestination.PlaylistHiddenCategories -> {
-                    PlaylistDetailPane(
-                        showHeader = showPlaylistPaneHeader,
-                        title = playlistHiddenCategoriesTitle,
-                        onBack = {
-                            coroutineScope.launch {
-                                navigator.navigateBack(backNavigationBehavior)
-                            }
-                        },
-                    ) {
-                        HiddenCategoryListScreen(
-                            hiddenCategoriesWithPlaylists =
-                                hiddenCategoriesWithPlaylists,
-                            onUnhidePlaylistCategory = onUnhidePlaylistCategory,
                             enabled = backingUpOrRestoring ==
                                 BackingUpAndRestoringState.NONE &&
                                 !providerOperationState.isBusy,
@@ -1007,9 +907,7 @@ private fun SettingDestination.usesLocalizedStaticTitle(): Boolean = when (this)
     SettingDestination.Playlists,
     is SettingDestination.PlaylistConfiguration,
     is SettingDestination.PlaylistEditor,
-    SettingDestination.PlaylistEpgSources,
     SettingDestination.PlaylistHiddenChannels,
-    SettingDestination.PlaylistHiddenCategories,
     SettingDestination.ExtensionPlugins,
     is SettingDestination.ExtensionPluginDetails,
     is SettingDestination.ExtensionPluginAuthorization,

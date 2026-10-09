@@ -24,7 +24,8 @@ The fork keeps the phone/tablet app and deliberately simplifies it:
   [GitHub Releases](https://github.com/mirko77/M3UAndroid-player/releases/latest).
 - Android 10+ only.
 - Extras removed: debug playback samples, God Mode, unseen-channel
-  recommendations, TV remote control, extension plugins UI.
+  recommendations, TV remote control, extension plugins UI, standalone
+  programme-guide (EPG) source management, and hidden-category management.
 - Extras added: open-on-favorites startup tab, auto-landscape player,
   compact headline cards.
 

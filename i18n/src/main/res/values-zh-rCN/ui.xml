@@ -40,10 +40,8 @@
     <string name="ui_action_add">添加</string>
     <string name="ui_action_refresh">刷新</string>
     <string name="ui_action_save_changes">保存更改</string>
-    <string name="ui_action_delete_epg">删除 EPG</string>
     <string name="ui_action_pin">置顶</string>
     <string name="ui_action_unpin">取消置顶</string>
-    <string name="ui_action_hide">隐藏</string>
     <string name="ui_action_expand_categories">展开分类</string>
     <string name="ui_action_collapse_categories">收起分类</string>
     <string name="ui_action_category_options">分类选项</string>

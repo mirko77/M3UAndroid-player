@@ -84,10 +84,8 @@
     <string name="ui_action_add">Add</string>
     <string name="ui_action_refresh">Refresh</string>
     <string name="ui_action_save_changes">Save changes</string>
-    <string name="ui_action_delete_epg">Delete EPG</string>
     <string name="ui_action_pin">Pin</string>
     <string name="ui_action_unpin">Unpin</string>
-    <string name="ui_action_hide">Hide</string>
     <string name="ui_action_expand_categories">Expand categories</string>
     <string name="ui_action_collapse_categories">Collapse categories</string>
     <string name="ui_action_category_options">Category options</string>

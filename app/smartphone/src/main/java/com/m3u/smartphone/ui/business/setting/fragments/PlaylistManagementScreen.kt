@@ -23,14 +23,12 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -41,10 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -80,10 +75,7 @@ import com.m3u.data.worker.playlistWorkTag
 import com.m3u.i18n.R.plurals
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.configuration.providerDisplayName
-import com.m3u.smartphone.ui.business.setting.components.EpgPlaylistItem
 import com.m3u.smartphone.ui.business.setting.components.HiddenChannelItem
-import com.m3u.smartphone.ui.business.setting.components.HiddenPlaylistGroupItem
-import com.m3u.smartphone.ui.material.ktx.UiBidiFormatter
 import com.m3u.smartphone.ui.material.ktx.plus
 import com.m3u.smartphone.ui.material.ktx.rememberUiBidiFormatter
 import com.m3u.smartphone.ui.material.ktx.safeDisplayText
@@ -101,20 +93,13 @@ internal fun playlistTitleComparator(locale: Locale): Comparator<String> {
     }
 }
 
-internal fun playlistTitleInLocalizedSentence(
-    title: String,
-    bidiFormatter: UiBidiFormatter,
-): String = bidiFormatter.natural(title.safeDisplayText())
-
 @Composable
 internal fun PlaylistManagementOverviewScreen(
     backingUpOrRestoring: BackingUpAndRestoringState,
     playlists: Map<Playlist, Int>?,
     playlistSubscriptionInProgress: Boolean,
     playlistSubscriptionState: PlaylistSubscriptionState,
-    epgCount: Int,
     hiddenChannelCount: Int,
-    hiddenCategoryCount: Int,
     providerDiscoveryState: ProviderDiscoveryState,
     providerAccountSummaries: List<ProviderAccountSummary>,
     providerOperationState: ProviderOperationState,
@@ -123,9 +108,7 @@ internal fun PlaylistManagementOverviewScreen(
     onDismissPlaylistSubscription: () -> Unit,
     onRetryPlaylistSubscription: (DataSource) -> Unit,
     onOpenPlaylistConfiguration: (Playlist) -> Unit,
-    onOpenEpgSources: () -> Unit,
     onOpenHiddenChannels: () -> Unit,
-    onOpenHiddenCategories: () -> Unit,
     onReauthenticateProviderAccount: (ProviderAccountSummary) -> Unit,
     onBackup: () -> Unit,
     onRestore: () -> Unit,
@@ -305,25 +288,6 @@ internal fun PlaylistManagementOverviewScreen(
                 )
             }
         }
-        item(key = "epg-sources") {
-            PlaylistPageContent {
-                PlaylistDestinationRow(
-                    headline = stringResource(string.feat_setting_label_epg_playlists),
-                    supporting = listOf(
-                        stringResource(string.feat_setting_playlist_manage_epg_description),
-                        pluralStringResource(
-                            plurals.feat_setting_playlist_epg_source_count,
-                            epgCount,
-                            epgCount,
-                        ),
-                    ),
-                    icon = Icons.Rounded.DateRange,
-                    onClick = onOpenEpgSources,
-                    modifier = Modifier.testTag("playlist-overview-epg-sources"),
-                )
-                PlaylistInsetDivider()
-            }
-        }
         item(key = "hidden-channels") {
             PlaylistPageContent {
                 PlaylistDestinationRow(
@@ -345,29 +309,6 @@ internal fun PlaylistManagementOverviewScreen(
                 PlaylistInsetDivider()
             }
         }
-        item(key = "hidden-categories") {
-            PlaylistPageContent {
-                PlaylistDestinationRow(
-                    headline = stringResource(
-                        string.feat_setting_label_hidden_playlist_groups
-                    ),
-                    supporting = listOf(
-                        stringResource(
-                            string.feat_setting_playlist_restore_hidden_categories_description
-                        ),
-                        pluralStringResource(
-                            plurals.feat_setting_playlist_hidden_category_count,
-                            hiddenCategoryCount,
-                            hiddenCategoryCount,
-                        ),
-                    ),
-                    icon = Icons.AutoMirrored.Rounded.List,
-                    onClick = onOpenHiddenCategories,
-                    modifier = Modifier.testTag("playlist-overview-hidden-categories"),
-                )
-            }
-        }
-
         item(key = "data-heading") {
             PlaylistPageContent {
                 PlaylistSectionHeading(
@@ -736,123 +677,6 @@ private fun PlaylistLoadingState(
 }
 
 @Composable
-internal fun EpgSourceListScreen(
-    epgs: List<Playlist>,
-    onAddEpgSource: () -> Unit,
-    onDeleteEpgPlaylist: (String) -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
-) {
-    var pendingDeletion by remember { mutableStateOf<Playlist?>(null) }
-    val bidiFormatter = rememberUiBidiFormatter()
-
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag("playlist-list:epg-sources"),
-        contentPadding = contentPadding + PaddingValues(vertical = 16.dp),
-    ) {
-        item(key = "add-epg-source") {
-            PlaylistPageContent {
-                PlaylistDestinationRow(
-                    headline = stringResource(
-                        string.feat_setting_playlist_add_epg_source
-                    ),
-                    supporting = stringResource(
-                        string.feat_setting_playlist_add_epg_source_description
-                    ),
-                    icon = Icons.Rounded.Add,
-                    onClick = onAddEpgSource,
-                    emphasized = true,
-                    enabled = enabled,
-                    modifier = Modifier.testTag("playlist-add-epg-action"),
-                )
-            }
-        }
-        if (epgs.isEmpty()) {
-            item(key = "empty") {
-                PlaylistEmptyState(
-                    text = stringResource(
-                        string.feat_setting_playlist_epg_sources_empty
-                    ),
-                    icon = Icons.Rounded.DateRange,
-                )
-            }
-        } else {
-            itemsIndexed(
-                items = epgs,
-                key = { _, playlist -> playlist.url },
-            ) { index, playlist ->
-                val titleInAction = playlistTitleInLocalizedSentence(
-                    title = playlist.title,
-                    bidiFormatter = bidiFormatter,
-                )
-                val deleteDescription = stringResource(
-                    string.feat_setting_playlist_delete_epg_action_description,
-                    titleInAction,
-                )
-                PlaylistPageContent {
-                    EpgPlaylistItem(
-                        epgPlaylist = playlist,
-                        onDeleteEpgPlaylist = { pendingDeletion = playlist },
-                        deleteContentDescription = deleteDescription,
-                        enabled = enabled,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag(
-                                "playlist-epg:${playlistWorkTag(playlist.url)}"
-                            ),
-                    )
-                    if (index != epgs.lastIndex) {
-                        PlaylistInsetDivider(startPadding = 16.dp)
-                    }
-                }
-            }
-        }
-    }
-
-    pendingDeletion?.let { playlist ->
-        val title = playlistTitleInLocalizedSentence(
-            title = playlist.title,
-            bidiFormatter = bidiFormatter,
-        )
-        AlertDialog(
-            onDismissRequest = { pendingDeletion = null },
-            title = {
-                Text(stringResource(string.feat_setting_playlist_delete_epg_title))
-            },
-            text = {
-                Text(
-                    stringResource(
-                        string.feat_setting_playlist_delete_epg_message,
-                        title,
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingDeletion = null
-                        onDeleteEpgPlaylist(playlist.url)
-                    },
-                    modifier = Modifier.testTag("playlist-delete-epg-confirm"),
-                    enabled = enabled,
-                ) {
-                    Text(stringResource(string.ui_action_delete_epg))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDeletion = null }) {
-                    Text(stringResource(android.R.string.cancel))
-                }
-            },
-            modifier = Modifier.testTag("playlist-delete-epg-dialog"),
-        )
-    }
-}
-
-@Composable
 internal fun HiddenChannelListScreen(
     hiddenChannels: List<Channel>,
     onUnhideChannel: (Int) -> Unit,
@@ -889,56 +713,6 @@ internal fun HiddenChannelListScreen(
                         .testTag("playlist-hidden-channel:${channel.id}"),
                 )
                 if (index != hiddenChannels.lastIndex) {
-                    PlaylistInsetDivider(startPadding = 16.dp)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun HiddenCategoryListScreen(
-    hiddenCategoriesWithPlaylists: List<Pair<Playlist, String>>,
-    onUnhidePlaylistCategory: (playlistUrl: String, category: String) -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
-) {
-    val bidiFormatter = rememberUiBidiFormatter()
-    PlaylistManagementList(
-        empty = hiddenCategoriesWithPlaylists.isEmpty(),
-        emptyText = stringResource(string.feat_setting_playlist_hidden_categories_empty),
-        emptyIcon = Icons.AutoMirrored.Rounded.List,
-        testTag = "playlist-list:hidden-categories",
-        modifier = modifier,
-        contentPadding = contentPadding,
-    ) {
-        itemsIndexed(
-            items = hiddenCategoriesWithPlaylists,
-            key = { _, (playlist, category) ->
-                "${playlist.url}\u0000$category"
-            },
-        ) { index, (playlist, category) ->
-            val categoryInAction = bidiFormatter.natural(category)
-            val categoryKey = playlistWorkTag("${playlist.url}\u0000$category")
-            PlaylistPageContent {
-                HiddenPlaylistGroupItem(
-                    playlist = playlist,
-                    group = category,
-                    onShow = {
-                        onUnhidePlaylistCategory(playlist.url, category)
-                    },
-                    showLabel = stringResource(string.feat_setting_playlist_show_action),
-                    showContentDescription = stringResource(
-                        string.feat_setting_playlist_show_category_action_description,
-                        categoryInAction,
-                    ),
-                    enabled = enabled,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("playlist-hidden-category:$categoryKey"),
-                )
-                if (index != hiddenCategoriesWithPlaylists.lastIndex) {
                     PlaylistInsetDivider(startPadding = 16.dp)
                 }
             }

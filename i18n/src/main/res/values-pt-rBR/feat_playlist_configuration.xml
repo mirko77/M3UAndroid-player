@@ -6,7 +6,6 @@
     <string name="feat_playlist_configuration_refresh_playlist">Atualizar canais</string>
     <string name="feat_playlist_configuration_cancel_refresh_playlist">Cancelar atualização dos canais</string>
     <string name="feat_playlist_configuration_refresh_playlist_description">Baixar os canais mais recentes desta fonte</string>
-    <string name="feat_playlist_configuration_enabled_epgs">EPGs habilitados</string>
     <string name="feat_playlist_configuration_sync_programmes">Sincronizar programação</string>
     <string name="feat_playlist_configuration_cancel_sync_programmes">Cancelar sincronização da programação</string>
     <string name="feat_playlist_configuration_programmes_expired_time">Expira em: %s</string>

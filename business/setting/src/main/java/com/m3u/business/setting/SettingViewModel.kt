@@ -768,14 +768,6 @@ class SettingViewModel @Inject constructor(
         ) : ExtensionSettingsRefreshResult
     }
 
-    val epgs: StateFlow<List<Playlist>> = playlistRepository
-        .observeAllEpgs()
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed(5_000L)
-        )
-
     val playlists: StateFlow<Map<Playlist, Int>?> = playlistRepository
         .observeAllCounts()
         .map<Map<Playlist, Int>, Map<Playlist, Int>?> { counts -> counts }
@@ -812,27 +804,6 @@ class SettingViewModel @Inject constructor(
             initialValue = emptyList(),
             started = SharingStarted.WhileSubscribed(5_000L)
         )
-
-    val hiddenCategoriesWithPlaylists: StateFlow<List<Pair<Playlist, String>>> =
-        playlistRepository
-            .observeAll()
-            .map { playlists ->
-                playlists
-                    .filter { it.hiddenCategories.isNotEmpty() }
-                    .flatMap { playlist -> playlist.hiddenCategories.map { playlist to it } }
-            }
-            .flowOn(Dispatchers.Default)
-            .stateIn(
-                scope = viewModelScope,
-                initialValue = emptyList(),
-                started = SharingStarted.WhileSubscribed(5_000L)
-            )
-
-    fun onUnhidePlaylistCategory(playlistUrl: String, group: String) {
-        viewModelScope.launch {
-            playlistRepository.hideOrUnhideCategory(playlistUrl, group)
-        }
-    }
 
     fun refreshCodecPack() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -939,9 +910,6 @@ class SettingViewModel @Inject constructor(
         val password = properties.passwordState.value.normalizePlaylistInputForSubmission(
             PlaylistInputKind.PASSWORD
         )
-        val epg = properties.epgState.value.normalizePlaylistInputForSubmission(
-            PlaylistInputKind.EPG_URL
-        )
         val selected = properties.selectedState.value
         val localStorage = properties.localStorageState.value
         val forTv = properties.forTvState.value
@@ -950,7 +918,6 @@ class SettingViewModel @Inject constructor(
         properties.basicUrlState.value = inputBasicUrl
         properties.usernameState.value = username
         properties.passwordState.value = password
-        properties.epgState.value = epg
 
         val localUriReference = uri
             .takeIf { uri != Uri.EMPTY }?.toString().orEmpty()
@@ -984,8 +951,7 @@ class SettingViewModel @Inject constructor(
                 url = submittedUrl,
                 basicUrl = basicUrl,
                 username = username,
-                password = password,
-                epg = epg
+                password = password
             )
             return
         }
@@ -1028,31 +994,6 @@ class SettingViewModel @Inject constructor(
                     )
                     messager.emit(SettingMessage.Enqueued)
                     _subscriptionAccepted.tryEmit(Unit)
-                }
-
-                DataSource.EPG -> {
-                    if (title.isBlank()) {
-                        messager.emit(SettingMessage.EmptyEpgTitle)
-                        return
-                    }
-                    if (epg.isBlank()) {
-                        messager.emit(SettingMessage.EmptyEpg)
-                        return
-                    }
-                    viewModelScope.launch {
-                        runCatching {
-                            playlistRepository.insertEpgAsPlaylist(title, epg)
-                        }.fold(
-                            onSuccess = {
-                                messager.emit(SettingMessage.EpgAdded)
-                                _subscriptionAccepted.emit(Unit)
-                            },
-                            onFailure = { error ->
-                                if (error is CancellationException) throw error
-                                messager.emit(SettingMessage.PlaylistOperationFailed)
-                            },
-                        )
-                    }
                 }
 
                 else -> return
@@ -1107,7 +1048,6 @@ class SettingViewModel @Inject constructor(
         basicUrl: String,
         username: String,
         password: String,
-        epg: String
     ) {
         if (tvRepository.connected.value == null) {
             messager.emit(SettingMessage.RemoteTvNotConnected)
@@ -1126,17 +1066,6 @@ class SettingViewModel @Inject constructor(
                 }
             }
 
-            DataSource.EPG -> {
-                if (title.isBlank()) {
-                    messager.emit(SettingMessage.EmptyEpgTitle)
-                    return
-                }
-                if (epg.isBlank()) {
-                    messager.emit(SettingMessage.EmptyEpg)
-                    return
-                }
-            }
-
             else -> return
         }
 
@@ -1148,7 +1077,7 @@ class SettingViewModel @Inject constructor(
                     basicUrl = basicUrl,
                     username = username,
                     password = password,
-                    epg = epg.ifBlank { null },
+                    epg = null,
                     dataSource = selected
                 )
             }.getOrNull()
@@ -1247,13 +1176,6 @@ class SettingViewModel @Inject constructor(
             basicUrlState.value = ""
             usernameState.value = ""
             passwordState.value = ""
-            epgState.value = ""
-        }
-    }
-
-    fun deleteEpgPlaylist(epgUrl: String) {
-        viewModelScope.launch {
-            playlistRepository.deleteEpgPlaylistAndProgrammes(epgUrl)
         }
     }
 
@@ -1275,14 +1197,12 @@ class SettingViewModel @Inject constructor(
         const val PLAYLIST_SUBSCRIPTION_WORK_ID_KEY = "playlist_subscription_work_id"
         val SUBSCRIPTION_DRAFT_SOURCES = setOf(
             DataSource.M3U,
-            DataSource.EPG,
         )
     }
 }
 
 private fun DataSource.supportsRemoteTvSubscription(): Boolean = when (this) {
-    DataSource.M3U,
-    DataSource.EPG -> true
+    DataSource.M3U -> true
 
     else -> false
 }

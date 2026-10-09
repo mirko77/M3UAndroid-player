@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">Versão do App</string>
+    <string name="feat_setting_label_subscribe">Adicionar</string>
     <string name="feat_setting_success_subscribe">Inscrição concluída</string>
     <string name="feat_setting_failed_malformed_url">URL malformada (%s)</string>
     <string name="feat_setting_error_empty_title">O nome da playlist está vazio</string>
@@ -18,11 +19,12 @@
         <item quantity="other">%1$d canais</item>
     </plurals>
     <string name="feat_setting_playlist_needs_attention">Requer atenção</string>
-    <string name="feat_setting_playlist_content_and_guide">Conteúdo e guia de programação</string>
+    <string name="feat_setting_playlist_content_and_guide">Conteúdo</string>
+    <string name="feat_setting_playlist_update_all">Atualizar playlists</string>
+    <string name="feat_setting_playlist_update_all_completed">Playlists atualizadas</string>
+    <string name="feat_setting_playlist_update_all_failed">Não foi possível atualizar algumas playlists.</string>
     <string name="feat_setting_playlist_data_and_recovery">Dados e recuperação</string>
     <string name="feat_setting_playlist_add_description">Adicione uma playlist por link, arquivo ou servidor de mídia</string>
-    <string name="feat_setting_playlist_add_epg_source">Adicionar fonte do guia de programação</string>
-    <string name="feat_setting_playlist_add_epg_source_description">Use uma URL XMLTV</string>
     <string name="feat_setting_playlist_maintenance_in_progress">A manutenção das playlists está em andamento. A edição está temporariamente indisponível.</string>
     <string name="feat_setting_playlist_update_in_progress">Adicionando ou atualizando uma playlist…</string>
     <string name="feat_setting_playlist_source_picker_title">Escolher uma fonte</string>
@@ -30,44 +32,25 @@
     <string name="feat_setting_playlist_built_in_sources">Fontes integradas</string>
     <string name="feat_setting_playlist_providers">Provedores</string>
     <string name="feat_setting_playlist_source_m3u_description">Adicione uma playlist por link ou arquivo</string>
-    <string name="feat_setting_playlist_source_epg_description">Adicione um guia de programação por uma URL XMLTV</string>
     <string name="feat_setting_playlist_source_xtream_description">Faça login em um servidor Xtream Codes</string>
-    <plurals name="feat_setting_playlist_epg_source_count">
-        <item quantity="one">%1$d fonte EPG</item>
-        <item quantity="other">%1$d fontes EPG</item>
-    </plurals>
     <plurals name="feat_setting_playlist_hidden_channel_count">
         <item quantity="one">%1$d canal oculto</item>
         <item quantity="other">%1$d canais ocultos</item>
     </plurals>
-    <plurals name="feat_setting_playlist_hidden_category_count">
-        <item quantity="one">%1$d categoria oculta</item>
-        <item quantity="other">%1$d categorias ocultas</item>
-    </plurals>
-    <string name="feat_setting_playlist_manage_epg_description">Gerencie as fontes do guia de programação</string>
     <string name="feat_setting_playlist_restore_hidden_channels_description">Volte a mostrar os canais que você ocultou</string>
-    <string name="feat_setting_playlist_restore_hidden_categories_description">Volte a mostrar as categorias que você ocultou</string>
     <string name="feat_setting_playlist_backup_description">Os backups salvam suas playlists e canais e podem incluir endereços de servidor ou parâmetros de acesso. Guarde-os em um local seguro.</string>
     <string name="feat_setting_playlist_restore_description">Restaure playlists e canais de um backup. Os dados de acesso dos provedores não são restaurados, então você precisará entrar novamente nessas contas.</string>
     <string name="feat_setting_playlist_backup_filename">M3UAndroid_backup_%1$d.txt</string>
-    <string name="feat_setting_playlist_epg_sources_empty">Nenhuma fonte do guia de programação</string>
     <string name="feat_setting_playlist_hidden_channels_empty">Nenhum canal oculto</string>
-    <string name="feat_setting_playlist_hidden_categories_empty">Nenhuma categoria oculta</string>
     <string name="feat_setting_playlist_file_access_failed">O app não conseguiu manter o acesso a esse arquivo. Selecione-o novamente ou use outro local.</string>
-    <string name="feat_setting_playlist_delete_epg_title">Excluir a fonte EPG?</string>
-    <string name="feat_setting_playlist_delete_epg_message">Excluir “%1$s”? As playlists que usam essa fonte não receberão mais atualizações do guia de programação.</string>
-    <string name="feat_setting_playlist_delete_epg_action_description">Excluir a fonte EPG %1$s</string>
     <string name="feat_setting_playlist_show_action">Mostrar</string>
     <string name="feat_setting_playlist_show_channel_action_description">Mostrar o canal oculto %1$s</string>
-    <string name="feat_setting_playlist_show_category_action_description">Mostrar a categoria oculta %1$s</string>
     <string name="feat_setting_connect_timeout">A conexão falhou</string>
     <string name="feat_setting_god_mode">Modo Avançado</string>
     <string name="feat_setting_god_mode_description">Ajuste os layouts através botões de volume</string>
     <string name="feat_setting_experimental_mode">Modo experimental</string>
     <string name="feat_setting_experimental_mode_description">Recursos instáveis podem gerar erros fatais</string>
-    <string name="feat_setting_label_epg_playlists">Fontes EPG</string>
     <string name="feat_setting_label_hidden_channels">Canais ocultos</string>
-    <string name="feat_setting_label_hidden_playlist_groups">Categorias ocultas</string>
     <string name="feat_setting_label_add_playlist">Adicionar playlist</string>
     <string name="feat_setting_label_parse_from_clipboard">Colar da área de transferência</string>
     <string name="feat_setting_label_select_from_local_storage">Selecionar arquivo</string>
@@ -266,9 +249,4 @@
     <string name="feat_setting_paging">Paginação em canais</string>
     <string name="feat_setting_paging_description">útil para grandes quantidades de canais, mas o agrupamento será desativado ao mesmo tempo</string>
     <string name="feat_setting_source_code">Código fonte</string>
-    <string name="feat_setting_placeholder_epg_title">Nome do EPG</string>
-    <string name="feat_setting_error_empty_epg_title">O nome EPG está vazio</string>
-    <string name="feat_setting_error_empty_epg">O link do EPG está vazio</string>
-    <string name="feat_setting_placeholder_epg">URL do EPG</string>
-    <string name="feat_setting_epg_added">Você pode associar uma playlist ao EPG</string>
 </resources>

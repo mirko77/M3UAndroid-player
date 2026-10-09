@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">versiune aplicatie</string>
+    <string name="feat_setting_label_subscribe">Adaugă</string>
     <string name="feat_setting_success_subscribe">abonare reusita</string>
     <string name="feat_setting_failed_malformed_url">link eronat (%s)</string>
     <string name="feat_setting_error_empty_title">nume lista este necompletat</string>
@@ -19,11 +20,12 @@
         <item quantity="other">%1$d de canale</item>
     </plurals>
     <string name="feat_setting_playlist_needs_attention">Necesită atenție</string>
-    <string name="feat_setting_playlist_content_and_guide">Conținut și ghid TV</string>
+    <string name="feat_setting_playlist_content_and_guide">Conținut</string>
+    <string name="feat_setting_playlist_update_all">Actualizează listele de redare</string>
+    <string name="feat_setting_playlist_update_all_completed">Liste de redare actualizate</string>
+    <string name="feat_setting_playlist_update_all_failed">Unele liste de redare nu au putut fi actualizate.</string>
     <string name="feat_setting_playlist_data_and_recovery">Date și restaurare</string>
     <string name="feat_setting_playlist_add_description">Adaugă o listă de redare dintr-un link, fișier sau server media</string>
-    <string name="feat_setting_playlist_add_epg_source">Adaugă o sursă pentru ghidul TV</string>
-    <string name="feat_setting_playlist_add_epg_source_description">Folosește un URL XMLTV</string>
     <string name="feat_setting_playlist_maintenance_in_progress">Întreținerea listelor de redare este în curs. Editarea nu este disponibilă temporar.</string>
     <string name="feat_setting_playlist_update_in_progress">Se adaugă sau se actualizează o listă de redare…</string>
     <string name="feat_setting_playlist_source_picker_title">Alege o sursă</string>
@@ -31,47 +33,26 @@
     <string name="feat_setting_playlist_built_in_sources">Surse integrate</string>
     <string name="feat_setting_playlist_providers">Furnizori</string>
     <string name="feat_setting_playlist_source_m3u_description">Adaugă o listă de redare dintr-un link sau fișier</string>
-    <string name="feat_setting_playlist_source_epg_description">Adaugă un ghid TV dintr-un URL XMLTV</string>
     <string name="feat_setting_playlist_source_xtream_description">Conectează-te la un server Xtream Codes</string>
-    <plurals name="feat_setting_playlist_epg_source_count">
-        <item quantity="one">%1$d sursă EPG</item>
-        <item quantity="few">%1$d surse EPG</item>
-        <item quantity="other">%1$d de surse EPG</item>
-    </plurals>
     <plurals name="feat_setting_playlist_hidden_channel_count">
         <item quantity="one">%1$d canal ascuns</item>
         <item quantity="few">%1$d canale ascunse</item>
         <item quantity="other">%1$d de canale ascunse</item>
     </plurals>
-    <plurals name="feat_setting_playlist_hidden_category_count">
-        <item quantity="one">%1$d categorie ascunsă</item>
-        <item quantity="few">%1$d categorii ascunse</item>
-        <item quantity="other">%1$d de categorii ascunse</item>
-    </plurals>
-    <string name="feat_setting_playlist_manage_epg_description">Gestionează sursele ghidului TV</string>
     <string name="feat_setting_playlist_restore_hidden_channels_description">Afișează din nou canalele pe care le-ai ascuns</string>
-    <string name="feat_setting_playlist_restore_hidden_categories_description">Afișează din nou categoriile pe care le-ai ascuns</string>
     <string name="feat_setting_playlist_backup_description">Copiile de rezervă salvează listele de redare și canalele și pot include adrese de server sau parametri de acces. Păstrează-le într-un loc sigur.</string>
     <string name="feat_setting_playlist_restore_description">Restaurează listele de redare și canalele dintr-o copie de rezervă. Datele de conectare ale furnizorilor nu sunt restaurate, așa că va trebui să te autentifici din nou în acele conturi.</string>
     <string name="feat_setting_playlist_backup_filename">M3UAndroid_copie_rezerva_%1$d.txt</string>
-    <string name="feat_setting_playlist_epg_sources_empty">Nicio sursă pentru ghidul TV</string>
     <string name="feat_setting_playlist_hidden_channels_empty">Niciun canal ascuns</string>
-    <string name="feat_setting_playlist_hidden_categories_empty">Nicio categorie ascunsă</string>
     <string name="feat_setting_playlist_file_access_failed">Aplicația nu a putut păstra accesul la acel fișier. Selectează-l din nou sau folosește altă locație.</string>
-    <string name="feat_setting_playlist_delete_epg_title">Ștergi sursa EPG?</string>
-    <string name="feat_setting_playlist_delete_epg_message">Ștergi „%1$s”? Listele de redare care folosesc această sursă nu vor mai primi actualizări ale ghidului TV.</string>
-    <string name="feat_setting_playlist_delete_epg_action_description">Șterge sursa EPG %1$s</string>
     <string name="feat_setting_playlist_show_action">Afișează</string>
     <string name="feat_setting_playlist_show_channel_action_description">Afișează canalul ascuns %1$s</string>
-    <string name="feat_setting_playlist_show_category_action_description">Afișează categoria ascunsă %1$s</string>
     <string name="feat_setting_connect_timeout">eroare conectare</string>
     <string name="feat_setting_god_mode">mod suprem</string>
     <string name="feat_setting_god_mode_description">aranjare ecran cu tastele fizice de volum</string>
     <string name="feat_setting_experimental_mode">mod experimental</string>
     <string name="feat_setting_experimental_mode_description">functionalitati instabile care pot genera erori fatale</string>
-    <string name="feat_setting_label_epg_playlists">Surse EPG</string>
     <string name="feat_setting_label_hidden_channels">Canale ascunse</string>
-    <string name="feat_setting_label_hidden_playlist_groups">Categorii ascunse</string>
     <string name="feat_setting_label_add_playlist">Adaugă o listă de redare</string>
     <string name="feat_setting_label_parse_from_clipboard">Lipește din clipboard</string>
     <string name="feat_setting_label_select_from_local_storage">Selectează un fișier</string>
@@ -158,8 +139,6 @@
     <string name="feat_setting_placeholder_username">Nume de utilizator</string>
     <string name="feat_setting_placeholder_password">Parolă</string>
     <string name="feat_setting_warning_xtream_takes_much_more_time">Procesarea poate dura mult mai mult</string>
-    <string name="feat_setting_placeholder_epg_title">Numele EPG</string>
-    <string name="feat_setting_placeholder_epg">URL-ul EPG</string>
     <string name="feat_setting_backing_up">salvare toate listele si canalele</string>
     <string name="feat_setting_restoring">restaurare toate listele si canalele</string>
     <string name="feat_setting_follow_system_theme">la fel ca tema telefonului</string>

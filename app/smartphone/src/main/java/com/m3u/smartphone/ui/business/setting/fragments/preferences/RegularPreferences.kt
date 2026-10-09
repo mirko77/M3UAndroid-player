@@ -61,8 +61,6 @@ private fun SettingDestination.isPlaylistDestination(): Boolean = when (this) {
     SettingDestination.Playlists,
     is SettingDestination.PlaylistConfiguration,
     is SettingDestination.PlaylistEditor,
-    SettingDestination.PlaylistEpgSources,
-    SettingDestination.PlaylistHiddenChannels,
-    SettingDestination.PlaylistHiddenCategories -> true
+    SettingDestination.PlaylistHiddenChannels -> true
     else -> false
 }

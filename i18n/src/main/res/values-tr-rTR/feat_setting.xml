@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">uygulama sürümü</string>
+    <string name="feat_setting_label_subscribe">Ekle</string>
     <string name="feat_setting_success_subscribe">başarıyla abone olundu</string>
     <string name="feat_setting_failed_malformed_url">geçersiz URL (%s)</string>
     <string name="feat_setting_error_empty_title">oynatma listesi adı boş</string>
@@ -18,11 +19,12 @@
         <item quantity="other">%1$d kanal</item>
     </plurals>
     <string name="feat_setting_playlist_needs_attention">İşlem gerekiyor</string>
-    <string name="feat_setting_playlist_content_and_guide">İçerik ve program rehberi</string>
+    <string name="feat_setting_playlist_content_and_guide">İçerik</string>
+    <string name="feat_setting_playlist_update_all">Oynatma listelerini güncelle</string>
+    <string name="feat_setting_playlist_update_all_completed">Oynatma listeleri güncellendi</string>
+    <string name="feat_setting_playlist_update_all_failed">Bazı oynatma listeleri güncellenemedi.</string>
     <string name="feat_setting_playlist_data_and_recovery">Veriler ve geri yükleme</string>
     <string name="feat_setting_playlist_add_description">Bağlantıdan, dosyadan veya medya sunucusundan oynatma listesi ekleyin</string>
-    <string name="feat_setting_playlist_add_epg_source">Program rehberi kaynağı ekleyin</string>
-    <string name="feat_setting_playlist_add_epg_source_description">Bir XMLTV URL’si kullanın</string>
     <string name="feat_setting_playlist_maintenance_in_progress">Oynatma listesi bakımı devam ediyor. Düzenleme geçici olarak kullanılamıyor.</string>
     <string name="feat_setting_playlist_update_in_progress">Oynatma listesi ekleniyor veya yenileniyor…</string>
     <string name="feat_setting_playlist_source_picker_title">Kaynak seçin</string>
@@ -30,44 +32,25 @@
     <string name="feat_setting_playlist_built_in_sources">Yerleşik kaynaklar</string>
     <string name="feat_setting_playlist_providers">Sağlayıcılar</string>
     <string name="feat_setting_playlist_source_m3u_description">Bağlantıdan veya dosyadan oynatma listesi ekleyin</string>
-    <string name="feat_setting_playlist_source_epg_description">XMLTV URL’sinden program rehberi ekleyin</string>
     <string name="feat_setting_playlist_source_xtream_description">Bir Xtream Codes sunucusunda oturum açın</string>
-    <plurals name="feat_setting_playlist_epg_source_count">
-        <item quantity="one">%1$d EPG kaynağı</item>
-        <item quantity="other">%1$d EPG kaynağı</item>
-    </plurals>
     <plurals name="feat_setting_playlist_hidden_channel_count">
         <item quantity="one">%1$d gizli kanal</item>
         <item quantity="other">%1$d gizli kanal</item>
     </plurals>
-    <plurals name="feat_setting_playlist_hidden_category_count">
-        <item quantity="one">%1$d gizli kategori</item>
-        <item quantity="other">%1$d gizli kategori</item>
-    </plurals>
-    <string name="feat_setting_playlist_manage_epg_description">Program rehberi kaynaklarını yönetin</string>
     <string name="feat_setting_playlist_restore_hidden_channels_description">Gizlediğiniz kanalları yeniden gösterin</string>
-    <string name="feat_setting_playlist_restore_hidden_categories_description">Gizlediğiniz kategorileri yeniden gösterin</string>
     <string name="feat_setting_playlist_backup_description">Yedekler oynatma listelerinizi ve kanallarınızı kaydeder; sunucu adresleri veya erişim parametreleri içerebilir. Yedekleri güvenli bir yerde saklayın.</string>
     <string name="feat_setting_playlist_restore_description">Oynatma listelerini ve kanalları bir yedekten geri yükleyin. Sağlayıcı oturum açma bilgileri geri yüklenmez; bu hesaplarda yeniden oturum açmanız gerekir.</string>
     <string name="feat_setting_playlist_backup_filename">M3UAndroid_yedek_%1$d.txt</string>
-    <string name="feat_setting_playlist_epg_sources_empty">Program rehberi kaynağı yok</string>
     <string name="feat_setting_playlist_hidden_channels_empty">Gizli kanal yok</string>
-    <string name="feat_setting_playlist_hidden_categories_empty">Gizli kategori yok</string>
     <string name="feat_setting_playlist_file_access_failed">Uygulama bu dosyaya erişimi koruyamadı. Dosyayı yeniden seçin veya farklı bir konum kullanın.</string>
-    <string name="feat_setting_playlist_delete_epg_title">EPG kaynağı silinsin mi?</string>
-    <string name="feat_setting_playlist_delete_epg_message">“%1$s” silinsin mi? Bu kaynağı kullanan oynatma listeleri artık program rehberi güncellemelerini almayacak.</string>
-    <string name="feat_setting_playlist_delete_epg_action_description">%1$s EPG kaynağını sil</string>
     <string name="feat_setting_playlist_show_action">Göster</string>
     <string name="feat_setting_playlist_show_channel_action_description">%1$s gizli kanalını göster</string>
-    <string name="feat_setting_playlist_show_category_action_description">%1$s gizli kategorisini göster</string>
     <string name="feat_setting_connect_timeout">bağlantı zaman aşımı</string>
     <string name="feat_setting_god_mode">tanrı modu</string>
     <string name="feat_setting_god_mode_description">fiziksel ses düğmeleriyle düzeni ayarla</string>
     <string name="feat_setting_experimental_mode">deneysel mod</string>
     <string name="feat_setting_experimental_mode_description">kararsız özellikler ciddi hatalar verebilir</string>
-    <string name="feat_setting_label_epg_playlists">EPG kaynakları</string>
     <string name="feat_setting_label_hidden_channels">Gizli kanallar</string>
-    <string name="feat_setting_label_hidden_playlist_groups">Gizli kategoriler</string>
     <string name="feat_setting_label_add_playlist">Oynatma listesi ekle</string>
     <string name="feat_setting_label_parse_from_clipboard">Panodan yapıştır</string>
     <string name="feat_setting_label_select_from_local_storage">Dosya seç</string>
@@ -269,10 +252,5 @@
     <string name="feat_setting_paging_description">çok sayıda kanal için faydalıdır\nancak gruplama devre dışı kalacaktır</string>
     <string name="feat_setting_source_code">kaynak kod</string>
     <string name="feat_setting_compact_dimension">sıkıştırılmış boyut</string>
-    <string name="feat_setting_placeholder_epg_title">EPG adı</string>
-    <string name="feat_setting_error_empty_epg_title">EPG adı boş</string>
-    <string name="feat_setting_error_empty_epg">EPG bağlantısı boş</string>
-    <string name="feat_setting_placeholder_epg">EPG URL’si</string>
-    <string name="feat_setting_epg_added">sonrasında oynatma listesi ile eşleştirebilirsiniz</string>
     <string name="feat_setting_randomly_in_favourite">yalnızca favorilerden rastgele oynat</string>
 </resources>

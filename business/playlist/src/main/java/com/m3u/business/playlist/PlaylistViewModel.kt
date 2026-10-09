@@ -389,13 +389,6 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun onHideCategory(category: String) {
-        val currentPlaylistUrl = playlistUrl.value
-        viewModelScope.launch {
-            playlistRepository.hideOrUnhideCategory(currentPlaylistUrl, category)
-        }
-    }
-
     fun setup(
         channelId: Int,
         onPlayMediaCommand: (MediaCommand) -> Unit

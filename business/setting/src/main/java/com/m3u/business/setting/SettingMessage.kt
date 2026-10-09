@@ -17,16 +17,6 @@ sealed class SettingMessage(
         type = TYPE_SNACK,
         resId = string.feat_setting_error_empty_title
     )
-    data object EmptyEpgTitle : SettingMessage(
-        level = LEVEL_ERROR,
-        type = TYPE_SNACK,
-        resId = string.feat_setting_error_empty_epg_title
-    )
-    data object EmptyEpg : SettingMessage(
-        level = LEVEL_ERROR,
-        type = TYPE_SNACK,
-        resId = string.feat_setting_error_empty_epg
-    )
 
     data object EmptyUrl : SettingMessage(
         level = LEVEL_ERROR,
@@ -68,12 +58,6 @@ sealed class SettingMessage(
         level = LEVEL_ERROR,
         type = TYPE_SNACK,
         resId = string.feat_setting_provider_subscription_failed
-    )
-
-    data object EpgAdded : SettingMessage(
-        level = LEVEL_INFO,
-        type = TYPE_SNACK,
-        resId = string.feat_setting_epg_added
     )
 
     data object PlaylistOperationFailed : SettingMessage(

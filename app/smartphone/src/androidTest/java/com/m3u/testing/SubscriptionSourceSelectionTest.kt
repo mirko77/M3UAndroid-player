@@ -110,28 +110,9 @@ class SubscriptionSourceSelectionTest {
     fun overviewDestinationsOpenDedicatedManagementLists() {
         openPlaylistManagementOverview()
 
-        composeRule.onNodeWithTag(EPG_SOURCES_ACTION_TAG).run {
-            performScrollTo()
-            assertHasClickAction()
-            performClick()
-        }
-        waitUntilTagExists(EPG_SOURCES_LIST_TAG)
-        composeRule.onNodeWithTag(ADD_EPG_ACTION_TAG).run {
-            assertHasClickAction()
-            performClick()
-        }
-        waitUntilTagExists(editorTag(EPG_SOURCE_KEY))
-        device.pressBack()
-        waitUntilTagExists(EPG_SOURCES_LIST_TAG)
-        device.pressBack()
-        waitUntilTagExists(OVERVIEW_TAG)
         assertOverviewDestination(
             actionTag = HIDDEN_CHANNELS_ACTION_TAG,
             destinationTag = HIDDEN_CHANNELS_LIST_TAG,
-        )
-        assertOverviewDestination(
-            actionTag = HIDDEN_CATEGORIES_ACTION_TAG,
-            destinationTag = HIDDEN_CATEGORIES_LIST_TAG,
         )
 
         composeRule.onNodeWithTag(BACKUP_ACTION_TAG).run {
@@ -445,17 +426,10 @@ class SubscriptionSourceSelectionTest {
         const val OVERVIEW_TAG = "playlist-management-overview"
         const val ADD_ACTION_TAG = "playlist-add-action"
         const val SOURCE_PICKER_TAG = "playlist-source-picker"
-        const val EPG_SOURCES_ACTION_TAG = "playlist-overview-epg-sources"
         const val HIDDEN_CHANNELS_ACTION_TAG = "playlist-overview-hidden-channels"
-        const val HIDDEN_CATEGORIES_ACTION_TAG =
-            "playlist-overview-hidden-categories"
-        const val EPG_SOURCES_LIST_TAG = "playlist-list:epg-sources"
-        const val ADD_EPG_ACTION_TAG = "playlist-add-epg-action"
         const val HIDDEN_CHANNELS_LIST_TAG = "playlist-list:hidden-channels"
-        const val HIDDEN_CATEGORIES_LIST_TAG = "playlist-list:hidden-categories"
         const val BACKUP_ACTION_TAG = "playlist-backup-action"
         const val RESTORE_ACTION_TAG = "playlist-restore-action"
         const val M3U_SOURCE_KEY = "data-source:m3u"
-        const val EPG_SOURCE_KEY = "data-source:epg"
     }
 }

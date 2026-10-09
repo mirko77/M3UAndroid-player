@@ -75,15 +75,7 @@ sealed interface SettingDestination : Parcelable {
 
     @Immutable
     @Parcelize
-    data object PlaylistEpgSources : SettingDestination
-
-    @Immutable
-    @Parcelize
     data object PlaylistHiddenChannels : SettingDestination
-
-    @Immutable
-    @Parcelize
-    data object PlaylistHiddenCategories : SettingDestination
 
     @Immutable
     @Parcelize

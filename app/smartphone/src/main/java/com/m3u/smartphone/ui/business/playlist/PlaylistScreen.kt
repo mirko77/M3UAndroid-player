@@ -170,7 +170,6 @@ internal fun PlaylistRoute(
         ),
         actions = PlaylistScreenActions(
             onPinOrUnpinCategory = { viewModel.onPinOrUnpinCategory(it) },
-            onHideCategory = { viewModel.onHideCategory(it) },
             onSort = { viewModel.sort(it) },
             onPlayChannel = { channel ->
                 coroutineScope.launch {
@@ -237,7 +236,6 @@ private data class PlaylistScreenState(
 
 private data class PlaylistScreenActions(
     val onPinOrUnpinCategory: (String) -> Unit,
-    val onHideCategory: (String) -> Unit,
     val onSort: (Sort) -> Unit,
     val onPlayChannel: (Channel) -> Unit,
     val onScrollUp: () -> Unit,
@@ -350,8 +348,7 @@ private fun PlaylistScreen(
                     ?: Event.Handled()
             },
             pinnedCategories = state.pinnedCategories,
-            onPinOrUnpinCategory = actions.onPinOrUnpinCategory,
-            onHideCategory = actions.onHideCategory
+            onPinOrUnpinCategory = actions.onPinOrUnpinCategory
         )
     }
 

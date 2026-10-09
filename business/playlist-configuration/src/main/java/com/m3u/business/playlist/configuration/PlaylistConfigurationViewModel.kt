@@ -42,8 +42,6 @@ import kotlinx.datetime.toLocalDateTime
 import timber.log.Timber
 import javax.inject.Inject
 
-typealias EpgManifest = Map<Playlist, Boolean>
-
 @HiltViewModel
 class PlaylistConfigurationViewModel @Inject constructor(
     private val playlistRepository: PlaylistRepository,
@@ -129,18 +127,6 @@ class PlaylistConfigurationViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000L),
             )
 
-    val manifest: StateFlow<EpgManifest> = combine(
-        playlistRepository.observeAllEpgs(),
-        playlist
-    ) { epgs, playlist ->
-        val epgUrls = playlist?.epgUrls ?: return@combine emptyMap()
-        epgs.associateWith { it.url in epgUrls }
-    }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyMap()
-        )
     val playlistRefreshWorkInfo: StateFlow<WorkInfo?> = activeSubscriptionWorkInfos
         .combine(playlist) { infos, currentPlaylist ->
             infos.findPlaylistWork(
@@ -218,20 +204,6 @@ class PlaylistConfigurationViewModel @Inject constructor(
         val normalizedUserAgent = normalizePlaylistUserAgent(userAgent)
         viewModelScope.launch {
             playlistRepository.onUpdatePlaylistUserAgent(playlistUrl, normalizedUserAgent)
-        }
-    }
-
-    fun onUpdateEpgPlaylist(usecase: PlaylistRepository.EpgPlaylistUseCase) {
-        val playlistUrl = currentPlaylist()?.url ?: return
-        val resolvedUseCase = when (usecase) {
-            is PlaylistRepository.EpgPlaylistUseCase.Check ->
-                usecase.copy(playlistUrl = playlistUrl)
-
-            is PlaylistRepository.EpgPlaylistUseCase.Upgrade ->
-                usecase.copy(playlistUrl = playlistUrl)
-        }
-        viewModelScope.launch {
-            playlistRepository.onUpdateEpgPlaylist(resolvedUseCase)
         }
     }
 

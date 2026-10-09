@@ -8,7 +8,7 @@ import kotlin.test.assertNull
 class SubscriptionSourceKeyTest {
     @Test
     fun `ordinary source keys round trip without depending on display text`() {
-        listOf(DataSource.M3U, DataSource.EPG).forEach { source ->
+        listOf(DataSource.M3U).forEach { source ->
             assertEquals(
                 source,
                 ordinarySubscriptionSourceOrNull(source.subscriptionSelectionKey()),

@@ -77,7 +77,6 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
-import com.m3u.business.playlist.configuration.EpgManifest
 import com.m3u.business.playlist.configuration.PlaylistConfigurationState
 import com.m3u.business.playlist.configuration.PlaylistConfigurationViewModel
 import com.m3u.business.playlist.configuration.PlaylistRefreshStatus
@@ -90,10 +89,8 @@ import com.m3u.data.database.model.DataSource
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.database.model.epgUrlsOrXtreamXmlUrl
 import com.m3u.data.database.model.refreshable
-import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.ui.business.configuration.components.AutoSyncProgrammesButton
-import com.m3u.smartphone.ui.business.configuration.components.EpgManifestGallery
 import com.m3u.smartphone.ui.business.configuration.components.RefreshPlaylistButton
 import com.m3u.smartphone.ui.business.configuration.components.SyncProgrammesButton
 import com.m3u.smartphone.ui.common.helper.Fob
@@ -130,7 +127,6 @@ internal fun PlaylistConfigurationRoute(
         viewModel.providerAccountSummary.collectAsStateWithLifecycle()
     val discoveredProviders by
         viewModel.discoveredProviders.collectAsStateWithLifecycle()
-    val manifest by viewModel.manifest.collectAsStateWithLifecycle()
     val playlistRefreshStatus by
         viewModel.playlistRefreshStatus.collectAsStateWithLifecycle()
     val programmeRefreshStatus by
@@ -239,7 +235,6 @@ internal fun PlaylistConfigurationRoute(
             PlaylistConfigurationScreen(
                 playlist = currentState.playlist,
                 providerDisplayName = resolvedProviderDisplayName,
-                manifest = manifest,
                 playlistRefreshStatus = playlistRefreshStatus,
                 programmeRefreshStatus = programmeRefreshStatus,
                 removingPlaylist =
@@ -249,7 +244,6 @@ internal fun PlaylistConfigurationRoute(
                 expired = expired,
                 onUpdatePlaylistTitle = viewModel::onUpdatePlaylistTitle,
                 onUpdatePlaylistUserAgent = viewModel::onUpdatePlaylistUserAgent,
-                onUpdateEpgPlaylist = viewModel::onUpdateEpgPlaylist,
                 onUpdatePlaylistAutoRefreshProgrammes =
                     viewModel::onUpdatePlaylistAutoRefreshProgrammes,
                 onRefreshPlaylist = {
@@ -386,7 +380,6 @@ private fun PlaylistConfigurationUnavailable(
 private fun PlaylistConfigurationScreen(
     playlist: Playlist,
     providerDisplayName: String?,
-    manifest: EpgManifest,
     playlistRefreshStatus: PlaylistRefreshStatus,
     programmeRefreshStatus: PlaylistRefreshStatus,
     removingPlaylist: Boolean,
@@ -394,7 +387,6 @@ private fun PlaylistConfigurationScreen(
     expired: LocalDateTime?,
     onUpdatePlaylistTitle: (String) -> Unit,
     onUpdatePlaylistUserAgent: (String?) -> Unit,
-    onUpdateEpgPlaylist: (PlaylistRepository.EpgPlaylistUseCase) -> Unit,
     onUpdatePlaylistAutoRefreshProgrammes: () -> Unit,
     onRefreshPlaylist: () -> Unit,
     onCancelRefreshPlaylist: () -> Unit,
@@ -513,17 +505,6 @@ private fun PlaylistConfigurationScreen(
                             )
                         }
                     }
-                }
-            }
-
-            if (playlist.source == DataSource.M3U) {
-                item(key = "epg-manifest") {
-                    EpgManifestGallery(
-                        playlistUrl = playlist.url,
-                        manifest = manifest,
-                        onUpdateEpgPlaylist = onUpdateEpgPlaylist,
-                        modifier = Modifier.configurationPageWidth(),
-                    )
                 }
             }
 

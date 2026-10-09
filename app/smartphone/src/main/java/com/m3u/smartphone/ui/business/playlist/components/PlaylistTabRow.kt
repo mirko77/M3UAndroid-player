@@ -26,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -82,7 +81,6 @@ internal fun PlaylistTabRow(
     onCategoryChanged: (String) -> Unit,
     pinnedCategories: List<String>,
     onPinOrUnpinCategory: (String) -> Unit,
-    onHideCategory: (String) -> Unit,
     onExpanded: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -91,7 +89,6 @@ internal fun PlaylistTabRow(
     val state = rememberLazyListState()
     val pinDescription = stringResource(string.ui_action_pin)
     val unpinDescription = stringResource(string.ui_action_unpin)
-    val hideDescription = stringResource(string.ui_action_hide)
     val categoryOptionsDescription = stringResource(string.ui_action_category_options)
     val expandDescription = stringResource(string.ui_action_expand_categories)
     val collapseDescription = stringResource(string.ui_action_collapse_categories)
@@ -142,21 +139,6 @@ internal fun PlaylistTabRow(
                                     } else {
                                         pinDescription
                                     }
-                                )
-                            }
-                            IconButton(
-                                modifier = Modifier.sizeIn(
-                                    minWidth = 48.dp,
-                                    minHeight = 48.dp
-                                ),
-                                onClick = {
-                                    name.let(onHideCategory)
-                                    focusCategory = null
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.VisibilityOff,
-                                    contentDescription = hideDescription
                                 )
                             }
                         }

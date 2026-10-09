@@ -17,7 +17,6 @@ class SettingProperties(
     val basicUrlState: MutableState<String> = playlistInputState(PlaylistInputKind.BASE_URL),
     val usernameState: MutableState<String> = playlistInputState(PlaylistInputKind.USERNAME),
     val passwordState: MutableState<String> = playlistInputState(PlaylistInputKind.PASSWORD),
-    val epgState: MutableState<String> = playlistInputState(PlaylistInputKind.EPG_URL),
     val selectedState: MutableState<DataSource> = mutableStateOf(DataSource.M3U),
 )
 

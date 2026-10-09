@@ -40,11 +40,6 @@ enum class PlaylistInputKind(
         maximumUtf8Bytes = 2_048,
         trimOnSubmission = true,
     ),
-    EPG_URL(
-        maximumCharacters = 4_096,
-        maximumUtf8Bytes = 4_096,
-        trimOnSubmission = true,
-    ),
 }
 
 /**

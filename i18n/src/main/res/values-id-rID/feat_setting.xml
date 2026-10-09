@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feat_setting_app_version">versi aplikasi</string>
+    <string name="feat_setting_label_subscribe">Tambahkan</string>
     <string name="feat_setting_success_subscribe">berhasil berlangganan</string>
     <string name="feat_setting_failed_malformed_url">URL tidak valid (%s)</string>
     <string name="feat_setting_error_empty_title">nama playlist kosong</string>
@@ -17,11 +18,12 @@
         <item quantity="other">%1$d saluran</item>
     </plurals>
     <string name="feat_setting_playlist_needs_attention">Perlu ditangani</string>
-    <string name="feat_setting_playlist_content_and_guide">Konten dan panduan acara</string>
+    <string name="feat_setting_playlist_content_and_guide">Konten</string>
+    <string name="feat_setting_playlist_update_all">Perbarui playlist</string>
+    <string name="feat_setting_playlist_update_all_completed">Playlist diperbarui</string>
+    <string name="feat_setting_playlist_update_all_failed">Beberapa playlist tidak dapat diperbarui.</string>
     <string name="feat_setting_playlist_data_and_recovery">Data dan pemulihan</string>
     <string name="feat_setting_playlist_add_description">Tambahkan playlist dari tautan, file, atau server media</string>
-    <string name="feat_setting_playlist_add_epg_source">Tambahkan sumber panduan acara</string>
-    <string name="feat_setting_playlist_add_epg_source_description">Gunakan URL XMLTV</string>
     <string name="feat_setting_playlist_maintenance_in_progress">Pemeliharaan playlist sedang berlangsung. Pengeditan untuk sementara tidak tersedia.</string>
     <string name="feat_setting_playlist_update_in_progress">Sedang menambahkan atau memperbarui playlist…</string>
     <string name="feat_setting_playlist_source_picker_title">Pilih sumber</string>
@@ -29,44 +31,25 @@
     <string name="feat_setting_playlist_built_in_sources">Sumber bawaan</string>
     <string name="feat_setting_playlist_providers">Penyedia</string>
     <string name="feat_setting_playlist_source_m3u_description">Tambahkan playlist dari tautan atau file</string>
-    <string name="feat_setting_playlist_source_epg_description">Tambahkan panduan acara dari URL XMLTV</string>
     <string name="feat_setting_playlist_source_xtream_description">Masuk ke server Xtream Codes</string>
-    <plurals name="feat_setting_playlist_epg_source_count">
-        <item quantity="one">%1$d sumber EPG</item>
-        <item quantity="other">%1$d sumber EPG</item>
-    </plurals>
     <plurals name="feat_setting_playlist_hidden_channel_count">
         <item quantity="one">%1$d saluran tersembunyi</item>
         <item quantity="other">%1$d saluran tersembunyi</item>
     </plurals>
-    <plurals name="feat_setting_playlist_hidden_category_count">
-        <item quantity="one">%1$d kategori tersembunyi</item>
-        <item quantity="other">%1$d kategori tersembunyi</item>
-    </plurals>
-    <string name="feat_setting_playlist_manage_epg_description">Kelola sumber panduan acara</string>
     <string name="feat_setting_playlist_restore_hidden_channels_description">Tampilkan kembali saluran yang Anda sembunyikan</string>
-    <string name="feat_setting_playlist_restore_hidden_categories_description">Tampilkan kembali kategori yang Anda sembunyikan</string>
     <string name="feat_setting_playlist_backup_description">Cadangan menyimpan playlist dan saluran Anda, serta dapat menyertakan alamat server atau parameter akses. Simpan di lokasi yang aman.</string>
     <string name="feat_setting_playlist_restore_description">Pulihkan playlist dan saluran dari cadangan. Informasi login penyedia tidak dipulihkan, jadi Anda harus login kembali ke akun tersebut.</string>
     <string name="feat_setting_playlist_backup_filename">M3UAndroid_cadangan_%1$d.txt</string>
-    <string name="feat_setting_playlist_epg_sources_empty">Tidak ada sumber panduan acara</string>
     <string name="feat_setting_playlist_hidden_channels_empty">Tidak ada saluran tersembunyi</string>
-    <string name="feat_setting_playlist_hidden_categories_empty">Tidak ada kategori tersembunyi</string>
     <string name="feat_setting_playlist_file_access_failed">Aplikasi tidak dapat mempertahankan akses ke file tersebut. Pilih lagi atau gunakan lokasi lain.</string>
-    <string name="feat_setting_playlist_delete_epg_title">Hapus sumber EPG?</string>
-    <string name="feat_setting_playlist_delete_epg_message">Hapus “%1$s”? Playlist yang menggunakannya tidak akan lagi menerima pembaruan panduan acara.</string>
-    <string name="feat_setting_playlist_delete_epg_action_description">Hapus sumber EPG %1$s</string>
     <string name="feat_setting_playlist_show_action">Tampilkan</string>
     <string name="feat_setting_playlist_show_channel_action_description">Tampilkan saluran tersembunyi %1$s</string>
-    <string name="feat_setting_playlist_show_category_action_description">Tampilkan kategori tersembunyi %1$s</string>
     <string name="feat_setting_connect_timeout">waktu habis koneksi</string>
     <string name="feat_setting_god_mode">mode dewa</string>
     <string name="feat_setting_god_mode_description">atur tata letak dengan tombol volume fisik</string>
     <string name="feat_setting_experimental_mode">mode eksperimental</string>
     <string name="feat_setting_experimental_mode_description">fitur tidak stabil dapat menyebabkan galat fatal</string>
-    <string name="feat_setting_label_epg_playlists">Sumber EPG</string>
     <string name="feat_setting_label_hidden_channels">Saluran tersembunyi</string>
-    <string name="feat_setting_label_hidden_playlist_groups">Kategori tersembunyi</string>
     <string name="feat_setting_label_add_playlist">Tambahkan playlist</string>
     <string name="feat_setting_label_parse_from_clipboard">Tempel dari papan klip</string>
     <string name="feat_setting_label_select_from_local_storage">Pilih berkas</string>
@@ -271,10 +254,5 @@
     </string>
     <string name="feat_setting_source_code">Sumber kode</string>
     <string name="feat_setting_compact_dimension">Ukuran kompak</string>
-    <string name="feat_setting_placeholder_epg_title">Nama EPG</string>
-    <string name="feat_setting_error_empty_epg_title">nama EPG kosong</string>
-    <string name="feat_setting_error_empty_epg">Tautan EPG kosong</string>
-    <string name="feat_setting_placeholder_epg">URL EPG</string>
-    <string name="feat_setting_epg_added">Anda bisa menghubungkan playlist dengan EPG</string>
     <string name="feat_setting_randomly_in_favourite">Putar acak hanya dari daftar favorit</string>
 </resources>

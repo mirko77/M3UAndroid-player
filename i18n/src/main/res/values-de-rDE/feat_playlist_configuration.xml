@@ -6,7 +6,6 @@
     <string name="feat_playlist_configuration_refresh_playlist">Sender aktualisieren</string>
     <string name="feat_playlist_configuration_cancel_refresh_playlist">Senderaktualisierung abbrechen</string>
     <string name="feat_playlist_configuration_refresh_playlist_description">Neueste Sender von dieser Quelle herunterladen</string>
-    <string name="feat_playlist_configuration_enabled_epgs">aktiviere EPGs</string>
     <string name="feat_playlist_configuration_sync_programmes">Synchronisiere EPG...</string>
     <string name="feat_playlist_configuration_cancel_sync_programmes">Programmsynchronisierung abbrechen</string>
     <string name="feat_playlist_configuration_programmes_expired_time">Ablaufdatum: %s</string>

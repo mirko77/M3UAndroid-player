@@ -30,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ContentPaste
-import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -152,16 +151,12 @@ internal fun SubscriptionEditorScreen(
         DataSource.M3U -> stringResource(
             string.feat_setting_playlist_source_m3u_description
         )
-        DataSource.EPG -> stringResource(
-            string.feat_setting_playlist_source_epg_description
-        )
         else -> null
     }
     val sourceSupporting = sourceSupportingName
     val sourceSupportingContentDescription = null
     val sourceIcon = when (editorSource) {
         DataSource.M3U -> Icons.Rounded.Link
-        DataSource.EPG -> Icons.Rounded.DateRange
         else -> Icons.Rounded.Link
     }
     val showsLocalStorageOption = editorSource == DataSource.M3U
@@ -175,7 +170,6 @@ internal fun SubscriptionEditorScreen(
         } else {
             properties.urlState.value.isNotBlank()
         }
-        DataSource.EPG -> properties.epgState.value.isNotBlank()
         else -> false
     }
 
@@ -243,10 +237,6 @@ internal fun SubscriptionEditorScreen(
                 SubscriptionEditorSection {
                     when (editorSource) {
                         DataSource.M3U -> M3UInputContent(
-                            enabled = !operationInProgress,
-                            showErrors = submissionAttempted,
-                        )
-                        DataSource.EPG -> EPGInputContent(
                             enabled = !operationInProgress,
                             showErrors = submissionAttempted,
                         )
@@ -773,48 +763,8 @@ private fun PlaylistMaintenanceNotice(
     }
 }
 
-@Composable
-context(properties: SettingProperties)
-private fun EPGInputContent(
-    enabled: Boolean,
-    showErrors: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val spacing = LocalSpacing.current
-    val titleError = stringResource(string.feat_setting_error_empty_epg_title)
-        .takeIf { showErrors && properties.titleState.value.isBlank() }
-    val epgError = stringResource(string.feat_setting_error_empty_epg)
-        .takeIf { showErrors && properties.epgState.value.isBlank() }
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.small)
-    ) {
-        PlaylistOutlinedTextField(
-            value = properties.titleState.value,
-            label = stringResource(string.feat_setting_placeholder_epg_title),
-            onValueChange = { properties.titleState.value = it },
-            enabled = enabled,
-            errorMessage = titleError,
-            imeAction = ImeAction.Next,
-            modifier = Modifier.fillMaxWidth()
-        )
-        PlaylistOutlinedTextField(
-            value = properties.epgState.value,
-            label = stringResource(string.feat_setting_placeholder_epg),
-            onValueChange = { properties.epgState.value = it },
-            enabled = enabled,
-            errorMessage = epgError,
-            keyboardType = KeyboardType.Uri,
-            textDirection = TextDirection.Ltr,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-
 private val REMOTE_TV_SUBSCRIPTION_SOURCES = setOf(
     DataSource.M3U,
-    DataSource.EPG,
 )
 
 internal const val PROVIDER_SOURCE_PREFIX = "provider:"
