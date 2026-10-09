@@ -3,6 +3,7 @@ package com.m3u.smartphone.ui
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Build
+import android.view.Gravity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -150,7 +151,11 @@ fun App(
     LaunchedEffect(viewModel) {
         viewModel.refreshAllResult.collect { succeeded ->
             if (succeeded) {
-                Toast.makeText(context, updateCompletedText, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, updateCompletedText, Toast.LENGTH_SHORT)
+                    .apply {
+                        setGravity(Gravity.CENTER, 0, 0)
+                        show()
+                    }
             }
         }
     }
