@@ -20,6 +20,7 @@ import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
+import timber.log.Timber
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -64,6 +65,7 @@ internal object ApiModule {
                 try {
                     chain.proceed(request)
                 } catch (e: Exception) {
+                    Timber.e(e, "HTTP request failed: ${request.url}")
                     Response.Builder()
                         .request(request)
                         .protocol(Protocol.HTTP_1_1)
