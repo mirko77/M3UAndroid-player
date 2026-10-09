@@ -4,3 +4,4 @@
 [submodule "parser"]
 	path = parser
 	url = https://github.com/oxyroid/parser.git
+	ignore = untracked
