@@ -135,30 +135,34 @@ private fun RecommendItemContent(
                 }
             }
         }
-        val request = remember(cover) {
-            ImageRequest.Builder(context)
-                .data(cover)
-                .crossfade(1600)
-                .build()
-        }
-        AsyncImage(
-            model = request,
-            contentScale = ContentScale.Crop,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth(0.78f)
-                .matchParentSize()
-                .align(Alignment.TopEnd)
-                .drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(brush = RecommendCardContainerBrush(size))
+        if (cover.isNotBlank()) {
+            val request = remember(cover) {
+                ImageRequest.Builder(context)
+                    .data(cover)
+                    .crossfade(1600)
+                    .build()
+            }
+            AsyncImage(
+                model = request,
+                contentScale = ContentScale.Crop,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth(0.78f)
+                    .matchParentSize()
+                    .align(Alignment.TopEnd)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(brush = RecommendCardContainerBrush(size))
+                        }
                     }
-                }
-        )
-        CompositionLocalProvider(
-            LocalContentColor provides Color.White,
-        ) {
+            )
+            CompositionLocalProvider(
+                LocalContentColor provides Color.White,
+            ) {
+                info()
+            }
+        } else {
             info()
         }
     }
