@@ -89,6 +89,9 @@ fun AppNavHost(
                     options.toBundle()
                 )
             },
+            onBack = {
+                navController.popBackStack()
+            },
             contentPadding = contentPadding
         )
         playlistConfigurationScreen(

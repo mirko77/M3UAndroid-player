@@ -25,7 +25,6 @@ import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.media.MediaRepository
-import com.m3u.data.repository.playlist.PlaylistRefreshReason
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.service.PlayerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -128,13 +127,4 @@ class FavoriteViewModel @Inject constructor(
 
     suspend fun getPlaylist(playlistUrl: String): Playlist? =
         playlistRepository.get(playlistUrl)
-
-    fun refreshPlaylistInBackground(playlistUrl: String) {
-        viewModelScope.launch {
-            playlistRepository.refresh(
-                url = playlistUrl,
-                reason = PlaylistRefreshReason.BACKGROUND,
-            )
-        }
-    }
 }

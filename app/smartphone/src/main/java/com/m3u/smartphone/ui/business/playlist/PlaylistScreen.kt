@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.rounded.Refresh
@@ -36,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -64,7 +64,6 @@ import com.m3u.business.playlist.ChannelWithProgramme
 import com.m3u.business.playlist.PlaylistViewModel
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.mutablePreferenceOf
-import com.m3u.core.foundation.architecture.preferences.preferenceOf
 import com.m3u.core.foundation.util.basic.title
 import com.m3u.core.foundation.wrapper.Event
 import com.m3u.core.foundation.wrapper.Sort
@@ -94,7 +93,6 @@ import com.m3u.smartphone.ui.material.model.LocalSpacing
 import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -102,6 +100,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun PlaylistRoute(
     navigateToChannel: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlaylistViewModel = hiltViewModel(),
     contentPadding: PaddingValues = PaddingValues()
@@ -111,7 +110,6 @@ internal fun PlaylistRoute(
     val coroutineScope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
 
-    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
     var rowCount by mutablePreferenceOf(PreferencesKeys.ROW_COUNT)
 
     val zapping by viewModel.zapping.collectAsStateWithLifecycle()
@@ -178,12 +176,10 @@ internal fun PlaylistRoute(
                 coroutineScope.launch {
                     helper.play(MediaCommand.Common(channel.id))
                     navigateToChannel()
-                    if (refreshOnPlay) {
-                        viewModel.refresh(background = true)
-                    }
                 }
             },
             onScrollUp = { viewModel.scrollUp.value = eventOf(Unit) },
+            onBack = onBack,
             onRefresh = {
                 if (postNotificationPermission == null) {
                     viewModel.refresh()
@@ -245,6 +241,7 @@ private data class PlaylistScreenActions(
     val onSort: (Sort) -> Unit,
     val onPlayChannel: (Channel) -> Unit,
     val onScrollUp: () -> Unit,
+    val onBack: () -> Unit,
     val onRefresh: () -> Unit,
     val favourite: (channelId: Int) -> Unit,
     val hide: (channelId: Int) -> Unit,
@@ -263,31 +260,13 @@ private fun PlaylistScreen(
 ) {
     val sortContentDescription = stringResource(string.ui_sort)
     val refreshContentDescription = stringResource(string.ui_action_refresh)
+    val scrollUpContentDescription = stringResource(string.feat_playlist_scroll_up)
     val currentOnScrollUp by rememberUpdatedState(actions.onScrollUp)
+    val currentOnBack by rememberUpdatedState(actions.onBack)
     val currentOnRefresh by rememberUpdatedState(actions.onRefresh)
 
     val isAtTopState = remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { isAtTopState.value }
-            .distinctUntilChanged()
-            .onEach { newValue ->
-                Metadata.fob = if (newValue) null
-                else {
-                    Fob(
-                        icon = Icons.Rounded.KeyboardDoubleArrowUp,
-                        destination = Destination.Foryou,
-                        iconTextId = string.feat_playlist_scroll_up,
-                        onClick = currentOnScrollUp
-                    )
-                }
-            }
-            .launchIn(this)
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { Metadata.fob = null }
-    }
+    val isAtTop by isAtTopState
 
     val configuration = LocalConfiguration.current
 
@@ -296,8 +275,21 @@ private fun PlaylistScreen(
     var mediaSheetValue: MediaSheetValue.PlaylistScreen by remember { mutableStateOf(MediaSheetValue.PlaylistScreen()) }
     var isSortSheetVisible by rememberSaveable { mutableStateOf(false) }
 
-    LifecycleResumeEffect(state.refreshing) {
+    LifecycleResumeEffect(state.refreshing, isAtTop) {
+        Metadata.fob = Fob(
+            destination = Destination.Foryou,
+            icon = Icons.AutoMirrored.Rounded.ArrowBack,
+            iconTextId = string.ui_cd_top_bar_on_back_pressed,
+            onClick = currentOnBack
+        )
         Metadata.actions = buildList {
+            if (!isAtTop) {
+                Action(
+                    icon = Icons.Rounded.KeyboardDoubleArrowUp,
+                    contentDescription = scrollUpContentDescription,
+                    onClick = currentOnScrollUp
+                ).also { add(it) }
+            }
             Action(
                 icon = Icons.AutoMirrored.Rounded.Sort,
                 contentDescription = sortContentDescription,
@@ -311,6 +303,7 @@ private fun PlaylistScreen(
             ).also { add(it) }
         }
         onPauseOrDispose {
+            Metadata.fob = null
             Metadata.actions = emptyList()
         }
     }

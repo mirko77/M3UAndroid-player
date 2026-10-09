@@ -168,15 +168,6 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun refreshPlaylistInBackground(playlistUrl: String) {
-        viewModelScope.launch {
-            playlistRepository.refresh(
-                url = playlistUrl,
-                reason = PlaylistRefreshReason.BACKGROUND,
-            )
-        }
-    }
-
     private val _refreshAllResult = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val refreshAllResult: SharedFlow<Boolean> = _refreshAllResult
     private var refreshAllJob: Job? = null

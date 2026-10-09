@@ -13,6 +13,7 @@ import com.m3u.business.playlist.PlaylistNavigation
 
 fun NavGraphBuilder.playlistScreen(
     navigateToChannel: () -> Unit,
+    onBack: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
     composable(
@@ -29,6 +30,7 @@ fun NavGraphBuilder.playlistScreen(
     ) {
         PlaylistRoute(
             navigateToChannel = navigateToChannel,
+            onBack = onBack,
             contentPadding = contentPadding
         )
     }

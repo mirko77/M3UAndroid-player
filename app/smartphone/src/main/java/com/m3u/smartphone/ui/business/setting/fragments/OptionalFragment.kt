@@ -12,7 +12,6 @@ import androidx.compose.material.icons.rounded.Collections
 import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.PictureInPicture
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.ReplayCircleFilled
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.SettingsEthernet
@@ -201,17 +200,6 @@ internal fun OptionalFragment(
                     }
                 }
             )
-        }
-        item {
-            var refreshOnPlay by mutablePreferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
-            SwitchSharedPreference(
-                title = string.feat_setting_auto_refresh_channels,
-                content = string.feat_setting_auto_refresh_channels_description,
-                icon = Icons.Rounded.Refresh,
-                checked = refreshOnPlay,
-                onChanged = { refreshOnPlay = !refreshOnPlay }
-            )
-
         }
     }
 }

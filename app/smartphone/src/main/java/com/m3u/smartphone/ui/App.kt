@@ -87,6 +87,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import androidx.paging.PagingData
+import com.m3u.business.playlist.PlaylistNavigation
 import com.m3u.business.playlist.configuration.PlaylistConfigurationNavigation
 import com.m3u.business.playlist.ChannelWithProgramme
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
@@ -165,7 +166,6 @@ fun App(
         startDestination = destination,
         channels = viewModel.channels,
         onSearchQuery = { query -> viewModel.searchQuery.value = query },
-        onRefreshPlaylist = viewModel::refreshPlaylistInBackground,
         onUpdateAllPlaylists = viewModel::refreshAllPlaylists,
         isRemoteControlSheetVisible = viewModel.isConnectSheetVisible,
         remoteControlSheetValue = viewModel.remoteControlSheetValue,
@@ -189,7 +189,6 @@ private fun AppImpl(
     startDestination: String,
     channels: Flow<PagingData<ChannelWithProgramme>>,
     onSearchQuery: (String) -> Unit,
-    onRefreshPlaylist: (String) -> Unit,
     onUpdateAllPlaylists: () -> Unit,
     isRemoteControlSheetVisible: Boolean,
     remoteControlSheetValue: RemoteControlSheetValue,
@@ -226,6 +225,8 @@ private fun AppImpl(
     val isRootPlaylistConfiguration =
         entry?.destination?.route ==
             PlaylistConfigurationNavigation.PLAYLIST_CONFIGURATION_ROUTE
+    val isPlaylistRoute =
+        entry?.destination?.route == PlaylistNavigation.PLAYLIST_ROUTE
     val navigationMode = resolveAppNavigationMode(
         with(density) {
             LocalWindowInfo.current.containerSize.width.toDp()
@@ -330,7 +331,6 @@ private fun AppImpl(
                 textFieldState = arguments.textFieldState,
                 navigateToDestination = arguments.navigateToDestination,
                 navigateToChannel = arguments.navigateToChannel,
-                onRefreshPlaylist = arguments.onRefreshPlaylist,
                 onUpdateAllPlaylists = arguments.onUpdateAllPlaylists,
                 contentPadding = arguments.contentPadding,
                 showBottomEdgeBlur = arguments.showBottomEdgeBlur,
@@ -349,14 +349,13 @@ private fun AppImpl(
         textFieldState = textFieldState,
         navigateToDestination = { navController.navigate(it.name) },
         navigateToChannel = navigateToChannel,
-        onRefreshPlaylist = onRefreshPlaylist,
         onUpdateAllPlaylists = onUpdateAllPlaylists,
         contentPadding = contentInsets.contentPadding,
         showBottomEdgeBlur = shouldShowBottomEdgeBlur(navigationMode),
         showContextualTopBar = shouldShowContextualTopBar(
             isRootPlaylistConfiguration = isRootPlaylistConfiguration,
             isNestedDetailVisible = nestedDetailVisible,
-        ),
+        ) || isPlaylistRoute,
         onNestedDetailVisibilityChanged = onNestedDetailVisibilityChanged,
     )
 
@@ -505,7 +504,6 @@ private class AppContentArguments(
     val textFieldState: TextFieldState,
     val navigateToDestination: (Destination) -> Unit,
     val navigateToChannel: () -> Unit,
-    val onRefreshPlaylist: (String) -> Unit,
     val onUpdateAllPlaylists: () -> Unit,
     val contentPadding: PaddingValues,
     val showBottomEdgeBlur: Boolean,
@@ -523,7 +521,6 @@ private fun AppContent(
     textFieldState: TextFieldState,
     navigateToDestination: (Destination) -> Unit,
     navigateToChannel: () -> Unit,
-    onRefreshPlaylist: (String) -> Unit,
     onUpdateAllPlaylists: () -> Unit,
     contentPadding: PaddingValues,
     showBottomEdgeBlur: Boolean,
@@ -533,7 +530,6 @@ private fun AppContent(
 ) {
     val helper = LocalHelper.current
     val coroutineScope = rememberCoroutineScope()
-    val refreshOnPlay by preferenceOf(PreferencesKeys.REFRESH_ON_PLAY)
     val contextualTitleStyle = if (LocalThemeStyle.current == ThemeStyle.WARM_EDITORIAL) {
         MaterialTheme.typography.titleLarge.withEditorialVoice()
     } else {
@@ -661,9 +657,6 @@ private fun AppContent(
                         coroutineScope.launch {
                             helper.play(MediaCommand.Common(channel.id))
                             navigateToChannel()
-                            if (refreshOnPlay) {
-                                onRefreshPlaylist(channel.playlistUrl)
-                            }
                         }
                     },
                     onLongClick = {},
