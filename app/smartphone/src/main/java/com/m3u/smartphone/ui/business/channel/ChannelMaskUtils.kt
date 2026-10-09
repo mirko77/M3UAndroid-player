@@ -50,7 +50,27 @@ internal object ChannelMaskUtils {
         if (e == null) return ""
         val isOnline by IsOnline
         if (!isOnline) return stringResource(string.feat_channel_playback_state_offline)
-        return "[${e.errorCode}] ${e.errorCodeName}"
+        return stringResource(
+            when (e.errorCode) {
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+                PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+                PlaybackException.ERROR_CODE_TIMEOUT,
+                -> string.feat_channel_playback_error_network
+
+                PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,
+                PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
+                PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,
+                PlaybackException.ERROR_CODE_IO_NO_PERMISSION,
+                PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
+                PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
+                -> string.feat_channel_playback_error_unavailable
+
+                in 3000..6999 -> string.feat_channel_playback_error_unsupported
+                in 7000..7999 -> string.feat_channel_playback_error_protected
+                else -> string.feat_channel_playback_error_unknown
+            }
+        )
     }
 
     @Composable

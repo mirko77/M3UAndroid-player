@@ -5,6 +5,11 @@
     <string name="feat_channel_playback_state_ready">ready</string>
     <string name="feat_channel_playback_state_ended">completed</string>
     <string name="feat_channel_playback_state_offline">No internet connection</string>
+    <string name="feat_channel_playback_error_network">Connection failed. Check your network and try again.</string>
+    <string name="feat_channel_playback_error_unavailable">Couldn\'t open the stream.</string>
+    <string name="feat_channel_playback_error_unsupported">This stream format isn\'t supported.</string>
+    <string name="feat_channel_playback_error_protected">Can\'t play protected streams.</string>
+    <string name="feat_channel_playback_error_unknown">Playback failed. Try again.</string>
     <string name="feat_channel_tooltip_on_back_pressed">back</string>
     <string name="feat_channel_tooltip_mute">mute</string>
     <string name="feat_channel_tooltip_unmute">unmute</string>
