@@ -1,0 +1,20 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/App.kt
+  h_2231ff2aa93473 90,228-229,358
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/PlaylistNavigation.kt
+  h_2231ff2aa93473 16,33
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/playlist/PlaylistScreen.kt
+  h_2231ff2aa93473 32,103,182,244,263,265,269,278-284,286-292,306
+app/smartphone/src/main/java/com/m3u/smartphone/ui/common/AppNavHost.kt
+  h_2231ff2aa93473 92-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "110f3c39a019a109cf34245e8b392035cadfa8ca",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
