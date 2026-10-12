@@ -4,6 +4,7 @@ import android.app.PictureInPictureParams
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.provider.Settings
 import android.view.ViewConfiguration
 import androidx.activity.ComponentActivity
@@ -114,6 +115,15 @@ class Helper(private val activity: ComponentActivity) {
         } else {
             activity.enterPictureInPictureMode(params)
         }
+    }
+
+    fun updatePipParams(size: Rect, autoEnter: Boolean) {
+        val builder = PictureInPictureParams.Builder()
+            .setAspectRatio(size.rational)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setAutoEnterEnabled(autoEnter)
+        }
+        activity.setPictureInPictureParams(builder.build())
     }
 
     suspend fun play(mediaCommand: MediaCommand) {

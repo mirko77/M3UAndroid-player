@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +33,8 @@ import com.m3u.smartphone.ui.material.model.LocalHazeState
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,6 +48,8 @@ class PlayerActivity : ComponentActivity() {
         // FIXME: the property is worked only when activity has one instance at most.
         var isInPipMode: Boolean = false
             private set
+
+        private val DEFAULT_PIP_SIZE = Rect(0, 0, 16, 9)
     }
 
     private var autoPiPEnabled: Boolean = false
@@ -64,9 +69,18 @@ class PlayerActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch {
-            settings.flowOf(PreferencesKeys.AUTO_PIP).collect {
-                autoPiPEnabled = it
+            combine(
+                settings.flowOf(PreferencesKeys.AUTO_PIP),
+                viewModel.playerState
+            ) { autoPiP, state ->
+                Triple(autoPiP, state.isPlaying, state.videoSize)
             }
+                .distinctUntilChanged()
+                .collect { (autoPiP, isPlaying, videoSize) ->
+                    autoPiPEnabled = autoPiP
+                    val size = videoSize.takeIf { it.isNotEmpty } ?: DEFAULT_PIP_SIZE
+                    helper.updatePipParams(size, autoPiP && isPlaying)
+                }
         }
         handleIntent(intent)
         setContent {
@@ -145,21 +159,23 @@ class PlayerActivity : ComponentActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+        // API 31+ enters PiP through setAutoEnterEnabled (see updatePipParams).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
         if (isFinishing || isInPictureInPictureMode) return
         if (!autoPiPEnabled) return
         val state = viewModel.playerState.value
         if (!state.isPlaying) return
         val size = state.videoSize
             .takeIf { it.isNotEmpty }
-            ?: Rect(0, 0, 16, 9)
+            ?: DEFAULT_PIP_SIZE
         helper.enterPipMode(size)
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (!isInPictureInPictureMode) {
-            viewModel.pauseOrContinue(false)
-        }
+    override fun onStop() {
+        super.onStop()
+        // Pause on stop rather than on pause: entering PiP only pauses the activity,
+        // and with auto-enter isInPictureInPictureMode is not reliable in onPause.
+        viewModel.pauseOrContinue(false)
     }
 
     override fun onDestroy() {
