@@ -51,6 +51,7 @@ import androidx.media3.transformer.Transformer
 import com.m3u.core.foundation.architecture.Publisher
 import com.m3u.core.foundation.architecture.preferences.PreferencesKeys
 import com.m3u.core.foundation.architecture.preferences.Settings
+import com.m3u.core.foundation.architecture.preferences.flowOf
 import com.m3u.core.foundation.architecture.preferences.get
 import com.m3u.data.SSLs
 import com.m3u.data.api.OkhttpClient
@@ -200,6 +201,11 @@ class PlayerManagerImpl @Inject constructor(
                 delay(1.seconds)
             }
         }
+        mainCoroutineScope.launch {
+            settings.flowOf(PreferencesKeys.MIX_WITH_OTHER_AUDIO).collectLatest { mix ->
+                player.value?.setAudioAttributes(buildAudioAttributes(), !mix)
+            }
+        }
     }
 
     override suspend fun play(
@@ -334,6 +340,7 @@ class PlayerManagerImpl @Inject constructor(
         if (!providerSessionState.isCurrent(generation)) return
         val rtmp: Boolean = Url(url).protocol.name == "rtmp"
         val tunneling = settings[PreferencesKeys.TUNNELING]
+        val mixWithOtherAudio = settings[PreferencesKeys.MIX_WITH_OTHER_AUDIO]
 
         val mimeType = when (val chain = chain) {
             is MimetypeChain.Remembered -> chain.mimeType
@@ -432,6 +439,7 @@ class PlayerManagerImpl @Inject constructor(
             mediaSource = mediaSource,
             mediaExtractor = mediaExtractor,
             tunneling = tunneling,
+            mixWithOtherAudio = mixWithOtherAudio,
         ) ?: return
         mainCoroutineScope.launch {
             if (!providerSessionState.isCurrent(generation)) return@launch
@@ -594,6 +602,7 @@ class PlayerManagerImpl @Inject constructor(
     private fun createPlayer(
         mediaSourceFactory: MediaSource.Factory,
         tunneling: Boolean,
+        mixWithOtherAudio: Boolean,
         listener: Player.Listener,
     ): ExoPlayer = ExoPlayer.Builder(context)
         .setMediaSourceFactory(mediaSourceFactory)
@@ -602,14 +611,15 @@ class PlayerManagerImpl @Inject constructor(
         .setHandleAudioBecomingNoisy(true)
         .build()
         .apply {
-            val attributes = AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-                .build()
-            setAudioAttributes(attributes, true)
+            setAudioAttributes(buildAudioAttributes(), !mixWithOtherAudio)
             playWhenReady = true
             addListener(listener)
         }
+
+    private fun buildAudioAttributes(): AudioAttributes = AudioAttributes.Builder()
+        .setUsage(C.USAGE_MEDIA)
+        .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+        .build()
 
     private fun preparePlayer(
         generation: Long,
@@ -617,6 +627,7 @@ class PlayerManagerImpl @Inject constructor(
         mediaSource: MediaSource,
         mediaExtractor: MediaExtractorCompat,
         tunneling: Boolean,
+        mixWithOtherAudio: Boolean,
     ): ExoPlayer? {
         var result: ExoPlayer? = null
         providerSessionState.runIfCurrent(generation) {
@@ -626,6 +637,7 @@ class PlayerManagerImpl @Inject constructor(
                     createPlayer(
                         mediaSourceFactory = mediaSourceFactory,
                         tunneling = tunneling,
+                        mixWithOtherAudio = mixWithOtherAudio,
                         listener = listener,
                     ).also { createdPlayer ->
                         timber.d("player instance updated")

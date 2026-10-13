@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.Cast
 import androidx.compose.material.icons.rounded.Collections
 import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.PictureInPicture
 import androidx.compose.material.icons.rounded.ReplayCircleFilled
 import androidx.compose.material.icons.rounded.ScreenRotation
@@ -65,6 +66,16 @@ internal fun OptionalFragment(
                 icon = Icons.Rounded.FlashOn,
                 checked = tunneling,
                 onChanged = { tunneling = !tunneling }
+            )
+        }
+        item {
+            var mixWithOtherAudio by mutablePreferenceOf(PreferencesKeys.MIX_WITH_OTHER_AUDIO)
+            SwitchSharedPreference(
+                title = string.feat_setting_mix_audio,
+                content = string.feat_setting_mix_audio_description,
+                icon = Icons.Rounded.GraphicEq,
+                checked = mixWithOtherAudio,
+                onChanged = { mixWithOtherAudio = !mixWithOtherAudio }
             )
         }
         item {

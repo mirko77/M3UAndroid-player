@@ -175,6 +175,7 @@ private val PREFERENCES: Map<Preferences.Key<*>, Any> = buildMap {
     put(PreferencesKeys.THEME_STYLE, ThemePreference.DEFAULT.style)
     put(PreferencesKeys.THEME_PRESET_ID, ThemePreference.DEFAULT.presetId)
     put(PreferencesKeys.TUNNELING, false)
+    put(PreferencesKeys.MIX_WITH_OTHER_AUDIO, false)
     put(PreferencesKeys.REMOTE_CONTROL, false)
     put(PreferencesKeys.SLIDER, true)
     put(PreferencesKeys.ALWAYS_SHOW_REPLAY, false)
@@ -227,6 +228,7 @@ object PreferencesKeys {
     val THEME_STYLE = intPreferencesKey("theme-style")
     val THEME_PRESET_ID = stringPreferencesKey("theme-preset-id")
     val TUNNELING = booleanPreferencesKey("tunneling")
+    val MIX_WITH_OTHER_AUDIO = booleanPreferencesKey("mix-with-other-audio")
     val REMOTE_CONTROL = booleanPreferencesKey("remote-control")
 
     val SLIDER = booleanPreferencesKey("slider")
