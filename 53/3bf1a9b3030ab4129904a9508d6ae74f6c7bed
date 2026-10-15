@@ -1,0 +1,20 @@
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/ChannelMask.kt
+  h_2231ff2aa93473 49-50,126,145-146,531-550
+app/smartphone/src/main/java/com/m3u/smartphone/ui/business/channel/ChannelScreen.kt
+  h_2231ff2aa93473 25,29,34,129-131,316-318,390,401-402,433,436-437,488,503-504
+app/smartphone/src/main/java/com/m3u/smartphone/ui/material/components/Player.kt
+  h_2231ff2aa93473 12-13,20,26-27,37,42-43,48-49,54-80,90,93
+i18n/src/main/res/values/feat_stream.xml
+  h_2231ff2aa93473 16-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "533bf1a9b3030ab4129904a9508d6ae74f6c7bed",
+  "prompts": {},
+  "humans": {
+    "h_2231ff2aa93473": {
+      "author": "Mirko <mirko.menegazzo@gmail.com>"
+    }
+  }
+}
