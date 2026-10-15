@@ -22,13 +22,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -123,6 +126,9 @@ fun ChannelRoute(
     var brightness by remember { mutableFloatStateOf(helper.brightness) }
     val isSupportBrightnessGesture by remember { derivedStateOf { brightness != -1f } }
     var speed by remember { mutableFloatStateOf(1f) }
+    var zoomPercent by rememberSaveable { mutableIntStateOf(100) }
+    val onZoomIn = { zoomPercent = (zoomPercent + 5).coerceAtMost(200) }
+    val onZoomOut = { zoomPercent = (zoomPercent - 5).coerceAtLeast(100) }
     var isPipMode by remember { mutableStateOf(false) }
     var isAutoZappingMode by remember { mutableStateOf(true) }
     var choosing by remember { mutableStateOf(false) }
@@ -307,6 +313,9 @@ fun ChannelRoute(
                 onBrightness = { brightness = it },
                 volume = volume,
                 onVolume = viewModel::onVolume,
+                zoomPercent = zoomPercent,
+                onZoomIn = onZoomIn,
+                onZoomOut = onZoomOut,
                 brightnessGestureEnabled = brightnessGestureEnabled,
                 volumeGestureEnabled = volumeGestureEnabled,
                 speed = speed,
@@ -378,6 +387,7 @@ private fun ChannelPlayer(
     isPanelExpanded: Boolean,
     brightness: Float,
     volume: Float,
+    zoomPercent: Int,
     brightnessGestureEnabled: Boolean,
     volumeGestureEnabled: Boolean,
     speed: Float,
@@ -388,6 +398,8 @@ private fun ChannelPlayer(
     openChooseFormat: () -> Unit,
     openOrClosePanel: () -> Unit,
     onVolume: (Float) -> Unit,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
     onBrightness: (Float) -> Unit,
     onPreviousChannelClick: () -> Unit,
     onNextChannelClick: () -> Unit,
@@ -418,10 +430,11 @@ private fun ChannelPlayer(
             maskState.wake(6.seconds)
         }
     }
-    Box(modifier) {
+    Box(modifier.clipToBounds()) {
         val state = rememberPlayerState(
             player = playerState.player,
-            clipMode = clipMode
+            clipMode = clipMode,
+            zoom = zoomPercent / 100f
         )
         Player(
             state = state,
@@ -472,6 +485,7 @@ private fun ChannelPlayer(
             playerState = playerState,
             volume = volume,
             brightness = brightness,
+            zoomPercent = zoomPercent,
             maskState = maskState,
             favourite = favourite,
             isSeriesPlaylist = isSeriesPlaylist,
@@ -486,6 +500,8 @@ private fun ChannelPlayer(
             openChooseFormat = openChooseFormat,
             openOrClosePanel = openOrClosePanel,
             onVolume = onVolume,
+            onZoomIn = onZoomIn,
+            onZoomOut = onZoomOut,
             onEnterPipMode = onEnterPipMode,
             onPreviousChannelClick = onPreviousChannelClick,
             onNextChannelClick = onNextChannelClick,

@@ -13,6 +13,8 @@
     <string name="feat_channel_tooltip_on_back_pressed">back</string>
     <string name="feat_channel_tooltip_mute">mute</string>
     <string name="feat_channel_tooltip_unmute">unmute</string>
+    <string name="feat_channel_tooltip_zoom_in">zoom in</string>
+    <string name="feat_channel_tooltip_zoom_out">zoom out</string>
     <string name="feat_channel_tooltip_favourite">favourite</string>
     <string name="feat_channel_tooltip_unfavourite">unfavourite</string>
     <string name="feat_channel_tooltip_download">download</string>

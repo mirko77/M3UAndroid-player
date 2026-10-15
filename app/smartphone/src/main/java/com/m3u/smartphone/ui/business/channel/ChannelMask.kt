@@ -46,6 +46,8 @@ import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Unarchive
+import androidx.compose.material.icons.rounded.ZoomIn
+import androidx.compose.material.icons.rounded.ZoomOut
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -121,6 +123,7 @@ fun ChannelMask(
     playerState: PlayerState,
     volume: Float,
     brightness: Float,
+    zoomPercent: Int,
     maskState: MaskState,
     favourite: Boolean,
     isSeriesPlaylist: Boolean,
@@ -139,6 +142,8 @@ fun ChannelMask(
     openOrClosePanel: () -> Unit,
     onEnterPipMode: () -> Unit,
     onVolume: (Float) -> Unit,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
     onNextChannelClick: () -> Unit,
     onPreviousChannelClick: () -> Unit,
     onPaddingsChanged: (Paddings) -> Unit,
@@ -523,6 +528,26 @@ fun ChannelMask(
                         contentDescription = stringResource(string.feat_channel_tooltip_screen_rotating)
                     )
                 }
+                val activeZoomTint =
+                    if (zoomPercent != 100) MaterialTheme.colorScheme.primary
+                    else Color.Unspecified
+                MaskTextButton(
+                    state = maskState,
+                    icon = Icons.Rounded.ZoomOut,
+                    text = zoomPercent.takeIf { it != 100 }?.let { "$it%" },
+                    tint = activeZoomTint,
+                    enabled = zoomPercent > 100,
+                    onClick = onZoomOut,
+                    contentDescription = stringResource(string.feat_channel_tooltip_zoom_out)
+                )
+                MaskButton(
+                    state = maskState,
+                    icon = Icons.Rounded.ZoomIn,
+                    tint = activeZoomTint,
+                    enabled = zoomPercent < 200,
+                    onClick = onZoomIn,
+                    contentDescription = stringResource(string.feat_channel_tooltip_zoom_in)
+                )
             },
             slider = composableOf(slider && isStaticAndSeekable) {
                 SliderImpl(
