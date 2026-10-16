@@ -30,8 +30,8 @@ android {
         applicationId = "com.m3u.smartphone.fork"
         minSdk = 29
         targetSdk = 33
-        versionCode = 205
-        versionName = "2.0.5"
+        versionCode = 206
+        versionName = "2.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["m3uMockServerUrl"] = m3uMockServerUrl.get()
