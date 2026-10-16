@@ -55,15 +55,31 @@ fun PullPanelLayout(
         val maxWidth = constraints.maxWidth
         val maxHeight = constraints.maxHeight
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val contentDistance = if (useVertical) maxHeight - maxWidth / aspectRatio
-        else maxWidth - maxHeight * aspectRatio
+        val safeAspectRatio =
+            if (aspectRatio.isFinite() && aspectRatio > 0f) aspectRatio
+            else PullPanelLayoutDefaults.getAspectRatio(useVertical)
+        val safeFraction =
+            if (fraction.isFinite()) fraction.coerceIn(0f, 1f)
+            else 0f
+        val contentDistance = (
+            if (useVertical) maxHeight - maxWidth / safeAspectRatio
+            else maxWidth - maxHeight * safeAspectRatio
+            ).coerceAtLeast(0f)
         val contentPlaceable = measurables[0].measure(
-            if (useVertical) looseConstraints.copy(maxHeight = maxHeight - (contentDistance * fraction).roundToInt())
-            else looseConstraints.copy(maxWidth = maxWidth - (contentDistance * fraction).roundToInt())
+            if (useVertical) looseConstraints.copy(
+                maxHeight = (maxHeight - (contentDistance * safeFraction).roundToInt()).coerceAtLeast(0)
+            )
+            else looseConstraints.copy(
+                maxWidth = (maxWidth - (contentDistance * safeFraction).roundToInt()).coerceAtLeast(0)
+            )
         )
         val panelPlaceable = measurables[1].measure(
-            if (useVertical) looseConstraints.copy(maxHeight = maxHeight - contentPlaceable.height)
-            else looseConstraints.copy(maxWidth = maxWidth - contentPlaceable.width)
+            if (useVertical) looseConstraints.copy(
+                maxHeight = (maxHeight - contentPlaceable.height).coerceAtLeast(0)
+            )
+            else looseConstraints.copy(
+                maxWidth = (maxWidth - contentPlaceable.width).coerceAtLeast(0)
+            )
         )
         layout(maxWidth, maxHeight) {
             if (useVertical) {
