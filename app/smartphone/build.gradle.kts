@@ -185,7 +185,6 @@ dependencies {
     implementation(libs.haze.materials)
     implementation(libs.backdrop)
     implementation(libs.acra.notification)
-    implementation(libs.acra.mail)
 
     testImplementation(kotlin("test-junit"))
     androidTestImplementation(platform(libs.androidx.compose.bom))
