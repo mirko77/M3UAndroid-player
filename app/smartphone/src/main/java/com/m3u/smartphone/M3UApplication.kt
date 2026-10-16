@@ -13,6 +13,7 @@ import com.m3u.data.worker.initializePersistedUriPermissionLeases
 import com.m3u.i18n.R.string
 import com.m3u.smartphone.startup.ApplicationStartupTask
 import dagger.hilt.android.HiltAndroidApp
+import org.acra.config.mailSender
 import org.acra.config.notification
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
@@ -55,6 +56,12 @@ class M3UApplication : Application(), Configuration.Provider {
                 title = getString(string.crash_notification_title)
                 text = getString(string.crash_notification_text)
                 channelName = getString(string.crash_notification_channel_name)
+            }
+            mailSender {
+                // No pre-filled recipient: the user picks one in the mail client.
+                mailTo = ""
+                reportAsFile = true
+                reportFileName = "Crash.txt"
             }
         }
     }
