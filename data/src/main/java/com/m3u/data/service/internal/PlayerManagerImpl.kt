@@ -3,6 +3,7 @@ package com.m3u.data.service.internal
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.media.AudioManager
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
@@ -103,6 +104,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class PlayerManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val audioManager: AudioManager,
     @OkhttpClient(false) private val okHttpClient: OkHttpClient,
     @param:ProviderOkhttpClient private val providerOkHttpClient: OkHttpClient,
     private val playlistRepository: PlaylistRepository,
@@ -173,6 +175,21 @@ class PlayerManagerImpl @Inject constructor(
     override val isPlaying = MutableStateFlow(false)
     override val volume = MutableStateFlow(1f)
     override val tracksGroups = MutableStateFlow<List<Tracks.Group>>(emptyList())
+
+    /**
+     * The device media volume level, expressed as a fraction of its maximum.
+     *
+     * The platform exposes no listener for stream volume changes, so it is polled
+     * while there is a subscriber.
+     */
+    override val deviceVolume: Flow<Float> = flow {
+        while (true) {
+            val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            emit(if (maxVolume > 0) currentVolume.toFloat() / maxVolume else 1f)
+            delay(500L)
+        }
+    }
 
     private val playbackPosition = MutableStateFlow(-1L)
     private val playbackStateEvent = MutableStateFlow(

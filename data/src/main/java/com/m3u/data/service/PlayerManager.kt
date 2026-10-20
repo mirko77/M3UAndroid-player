@@ -30,6 +30,14 @@ interface PlayerManager {
     val isPlaying: StateFlow<Boolean>
     val volume: StateFlow<Float>
 
+    /**
+     * The device media volume level, expressed as a fraction of its maximum (0f..1f).
+     *
+     * It is the master gain the player volume is applied on top of, so the effective
+     * loudness of a stream is `volume * deviceVolume`.
+     */
+    val deviceVolume: Flow<Float>
+
     val tracksGroups: StateFlow<List<Tracks.Group>>
     val cacheSpace: Flow<Long>
 

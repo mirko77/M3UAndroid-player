@@ -111,6 +111,7 @@ fun ChannelRoute(
     val selectedFormats by viewModel.currentTracks.collectAsStateWithLifecycle(emptyMap())
 
     val volume by viewModel.volume.collectAsStateWithLifecycle()
+    val effectiveVolume by viewModel.effectiveVolume.collectAsStateWithLifecycle()
     val isSeriesPlaylist by viewModel.isSeriesPlaylist.collectAsStateWithLifecycle(false)
     val isProgrammeSupported by viewModel.isProgrammeSupported.collectAsStateWithLifecycle(
         initialValue = false
@@ -312,6 +313,7 @@ fun ChannelRoute(
                 brightness = brightness,
                 onBrightness = { brightness = it },
                 volume = volume,
+                effectiveVolume = effectiveVolume,
                 onVolume = viewModel::onVolume,
                 zoomPercent = zoomPercent,
                 onZoomIn = onZoomIn,
@@ -387,6 +389,7 @@ private fun ChannelPlayer(
     isPanelExpanded: Boolean,
     brightness: Float,
     volume: Float,
+    effectiveVolume: Float,
     zoomPercent: Int,
     brightnessGestureEnabled: Boolean,
     volumeGestureEnabled: Boolean,
@@ -419,6 +422,7 @@ private fun ChannelPlayer(
     var gesture: MaskGesture? by remember { mutableStateOf(null) }
     val currentBrightness by rememberUpdatedState(brightness)
     val currentVolume by rememberUpdatedState(volume)
+    val currentEffectiveVolume by rememberUpdatedState(effectiveVolume)
     val currentSpeed by rememberUpdatedState(speed)
 
     val clipMode by preferenceOf(PreferencesKeys.CLIP_MODE)
@@ -484,6 +488,7 @@ private fun ChannelPlayer(
             playlistTitle = playlistTitle,
             playerState = playerState,
             volume = volume,
+            effectiveVolume = effectiveVolume,
             brightness = brightness,
             zoomPercent = zoomPercent,
             maskState = maskState,
@@ -516,7 +521,7 @@ private fun ChannelPlayer(
             MaskGestureValuePanel(
                 value = when (gesture) {
                     MaskGesture.BRIGHTNESS -> "${currentBrightness.times(100).toInt()}%"
-                    MaskGesture.VOLUME -> "${currentVolume.times(100).toInt()}"
+                    MaskGesture.VOLUME -> "${currentEffectiveVolume.times(100).toInt()}"
                     MaskGesture.SPEED -> "${"%.1f".format(currentSpeed)}x"
                     else -> ""
                 },

@@ -122,6 +122,7 @@ fun ChannelMask(
     playlistTitle: String,
     playerState: PlayerState,
     volume: Float,
+    effectiveVolume: Float,
     brightness: Float,
     zoomPercent: Int,
     maskState: MaskState,
@@ -160,6 +161,7 @@ fun ChannelMask(
     // because they will be updated frequently,
     // they must be wrapped with rememberUpdatedState when using them.
     val currentVolume by rememberUpdatedState(volume)
+    val currentEffectiveVolume by rememberUpdatedState(effectiveVolume)
     val currentBrightness by rememberUpdatedState(brightness)
     val currentUseVertical by rememberUpdatedState(useVertical)
     val currentIsPanelExpanded by rememberUpdatedState(isPanelExpanded)
@@ -182,7 +184,7 @@ fun ChannelMask(
     val brightnessOrVolumeText by remember {
         derivedStateOf {
             when (gesture) {
-                MaskGesture.VOLUME -> "${(currentVolume.coerceIn(0f..1f) * 100).roundToInt()}%"
+                MaskGesture.VOLUME -> "${(currentEffectiveVolume.coerceIn(0f..1f) * 100).roundToInt()}%"
                 MaskGesture.BRIGHTNESS -> "${(currentBrightness.coerceIn(0f..1f) * 100).roundToInt()}%"
                 else -> null
             }

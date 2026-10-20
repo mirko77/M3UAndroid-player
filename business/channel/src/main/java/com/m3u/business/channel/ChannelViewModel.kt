@@ -92,7 +92,36 @@ class ChannelViewModel @Inject constructor(
     }
 
 
+    /**
+     * The player volume, as a fraction of the player own maximum (0f..1f).
+     */
     val volume: StateFlow<Float> = playerManager.volume
+
+    /**
+     * The device media volume level, as a fraction of its maximum (0f..1f).
+     */
+    val deviceVolume: StateFlow<Float> = playerManager.deviceVolume
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 1f
+        )
+
+    /**
+     * The effective loudness of the stream, as a fraction of the device maximum (0f..1f).
+     *
+     * It is the player volume applied on top of the device media volume, so it never
+     * exceeds the device level: the device volume buttons remain the only way to
+     * go louder than the device media volume.
+     */
+    val effectiveVolume: StateFlow<Float> = combine(volume, deviceVolume) { playerVolume, deviceLevel ->
+        playerVolume * deviceLevel
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 1f
+        )
 
     val channel: StateFlow<Channel?> = playerManager.channel
     val playlist: StateFlow<Playlist?> = playerManager.playlist
