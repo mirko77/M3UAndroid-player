@@ -28,6 +28,7 @@ interface PlayerManager {
     val playbackState: StateFlow<@Player.State Int>
     val playbackException: StateFlow<PlaybackException?>
     val isPlaying: StateFlow<Boolean>
+    val volume: StateFlow<Float>
 
     val tracksGroups: StateFlow<List<Tracks.Group>>
     val cacheSpace: Flow<Long>
@@ -43,6 +44,7 @@ interface PlayerManager {
     fun clearCache()
     fun pauseOrContinue(value: Boolean)
     fun updateSpeed(race: Float)
+    fun setVolume(value: Float)
 
     suspend fun recordVideo(uri: Uri)
 

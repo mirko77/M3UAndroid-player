@@ -1,7 +1,6 @@
 package com.m3u.business.channel
 
 import android.annotation.SuppressLint
-import android.media.AudioManager
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -49,11 +48,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mm2d.upnp.Device
 import javax.inject.Inject
-import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
@@ -64,7 +61,6 @@ class ChannelViewModel @Inject constructor(
     private val playlistRepository: PlaylistRepository,
     private val channelRepository: ChannelRepository,
     private val playerManager: PlayerManager,
-    private val audioManager: AudioManager,
     private val programmeRepository: ProgrammeRepository,
     private val workManager: WorkManager,
 ) : ViewModel() {
@@ -96,14 +92,7 @@ class ChannelViewModel @Inject constructor(
     }
 
 
-    private val _volume: MutableStateFlow<Float> by lazy {
-        MutableStateFlow(
-            with(audioManager) {
-                getStreamVolume(AudioManager.STREAM_MUSIC) * 1f / getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-            }
-        )
-    }
-    val volume = _volume.asStateFlow()
+    val volume: StateFlow<Float> = playerManager.volume
 
     val channel: StateFlow<Channel?> = playerManager.channel
     val playlist: StateFlow<Playlist?> = playerManager.playlist
@@ -227,15 +216,8 @@ class ChannelViewModel @Inject constructor(
     }
 
     fun onVolume(target: Float) {
-        _volume.update { target }
-        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            (target * maxVolume).roundToInt(),
-            AudioManager.FLAG_VIBRATE
-        )
-
-//        controlPoint?.setVolume((target * 100).roundToInt(), null)
+        // Adjust the stream volume only: the device's global volume stays untouched.
+        playerManager.setVolume(target)
     }
 
     fun getPreviousChannel() {

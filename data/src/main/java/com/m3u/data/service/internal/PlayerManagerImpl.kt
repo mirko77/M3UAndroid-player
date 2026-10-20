@@ -171,6 +171,7 @@ class PlayerManagerImpl @Inject constructor(
     override val playbackState = MutableStateFlow<@Player.State Int>(Player.STATE_IDLE)
     override val playbackException = MutableStateFlow<PlaybackException?>(null)
     override val isPlaying = MutableStateFlow(false)
+    override val volume = MutableStateFlow(1f)
     override val tracksGroups = MutableStateFlow<List<Tracks.Group>>(emptyList())
 
     private val playbackPosition = MutableStateFlow(-1L)
@@ -533,6 +534,12 @@ class PlayerManagerImpl @Inject constructor(
         }
     }
 
+    override fun setVolume(value: Float) {
+        val clamped = value.coerceIn(0f, 1f)
+        volume.value = clamped
+        player.value?.volume = clamped
+    }
+
     override fun chooseTrack(group: TrackGroup, index: Int) {
         val currentPlayer = player.value ?: return
         val type = group.type
@@ -611,6 +618,7 @@ class PlayerManagerImpl @Inject constructor(
         .setHandleAudioBecomingNoisy(true)
         .build()
         .apply {
+            setVolume(this@PlayerManagerImpl.volume.value)
             setAudioAttributes(buildAudioAttributes(), !mixWithOtherAudio)
             playWhenReady = true
             addListener(listener)
