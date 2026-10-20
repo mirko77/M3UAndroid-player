@@ -184,9 +184,12 @@ class PlayerManagerImpl @Inject constructor(
      */
     override val deviceVolume: Flow<Float> = flow {
         while (true) {
-            val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-            val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-            emit(if (maxVolume > 0) currentVolume.toFloat() / maxVolume else 1f)
+            emit(
+                calculateDeviceVolumeFraction(
+                    currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
+                    maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                )
+            )
             delay(500L)
         }
     }

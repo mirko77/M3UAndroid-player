@@ -184,7 +184,7 @@ fun ChannelMask(
     val brightnessOrVolumeText by remember {
         derivedStateOf {
             when (gesture) {
-                MaskGesture.VOLUME -> "${(currentEffectiveVolume.coerceIn(0f..1f) * 100).roundToInt()}%"
+                MaskGesture.VOLUME -> "${calculateVolumePercent(currentEffectiveVolume)}%"
                 MaskGesture.BRIGHTNESS -> "${(currentBrightness.coerceIn(0f..1f) * 100).roundToInt()}%"
                 else -> null
             }

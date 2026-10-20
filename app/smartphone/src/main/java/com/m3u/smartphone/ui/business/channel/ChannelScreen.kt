@@ -521,7 +521,7 @@ private fun ChannelPlayer(
             MaskGestureValuePanel(
                 value = when (gesture) {
                     MaskGesture.BRIGHTNESS -> "${currentBrightness.times(100).toInt()}%"
-                    MaskGesture.VOLUME -> "${currentEffectiveVolume.times(100).toInt()}"
+                    MaskGesture.VOLUME -> "${calculateVolumePercent(currentEffectiveVolume)}%"
                     MaskGesture.SPEED -> "${"%.1f".format(currentSpeed)}x"
                     else -> ""
                 },

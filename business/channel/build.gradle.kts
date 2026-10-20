@@ -36,4 +36,6 @@ dependencies {
     implementation(libs.androidx.hilt.work)
 
     implementation(libs.net.mm2d.mmupnp.mmupnp)
+
+    testImplementation(kotlin("test-junit"))
 }

@@ -114,9 +114,7 @@ class ChannelViewModel @Inject constructor(
      * exceeds the device level: the device volume buttons remain the only way to
      * go louder than the device media volume.
      */
-    val effectiveVolume: StateFlow<Float> = combine(volume, deviceVolume) { playerVolume, deviceLevel ->
-        playerVolume * deviceLevel
-    }
+    val effectiveVolume: StateFlow<Float> = combine(volume, deviceVolume, ::calculateEffectiveVolume)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

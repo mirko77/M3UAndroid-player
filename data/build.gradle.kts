@@ -173,6 +173,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.squareup.okhttp3.mockwebserver)
+
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks.matching { task ->
