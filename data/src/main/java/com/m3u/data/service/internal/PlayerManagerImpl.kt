@@ -17,6 +17,7 @@ import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.datasource.rtmp.RtmpDataSource
@@ -59,6 +60,9 @@ import com.m3u.data.api.OkhttpClient
 import com.m3u.data.api.ProviderOkhttpClient
 import com.m3u.data.database.model.Channel
 import com.m3u.data.database.model.Playlist
+import com.m3u.data.playback.rai.RaiChannelResolver
+import com.m3u.data.playback.rai.RaiChannels
+import com.m3u.data.playback.rai.RaiTarget
 import com.m3u.data.repository.channel.ChannelRepository
 import com.m3u.data.repository.playlist.PlaylistRepository
 import com.m3u.data.repository.providerAccountIdOrNull
@@ -70,6 +74,7 @@ import com.m3u.data.service.MediaCommand
 import com.m3u.data.service.PlayerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.http.Url
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -112,6 +117,7 @@ class PlayerManagerImpl @Inject constructor(
     private val subscriptionProviderRepository: SubscriptionProviderRepository,
     private val cache: Cache,
     private val settings: Settings,
+    private val raiChannelResolver: RaiChannelResolver,
     publisher: Publisher,
 ) : PlayerManager, MediaSession.Callback {
     private val timber = Timber.tag("PlayerManagerImpl")
@@ -138,6 +144,10 @@ class PlayerManagerImpl @Inject constructor(
     private var activeRequestHeaders: Map<String, String> = emptyMap()
     private var activeProviderPlayback = false
     private var activeProviderPlaybackAllowsCrossOrigin = false
+    private var activeMediaUrl: String = ""
+    private var activeRaiTarget: RaiTarget? = null
+    private var activeRaiChannelUrl: String = ""
+    private var raiRetryCount: Int = 0
 
     override val playlist: StateFlow<Playlist?> = mediaCommand.flatMapLatest { command ->
         when (command) {
@@ -310,12 +320,44 @@ class PlayerManagerImpl @Inject constructor(
 
                 val playlist = playlistRepository.get(channel.playlistUrl)
                 if (!providerSessionState.isCurrent(generation)) return
-                val userAgent = getUserAgent(channelUrl, playlist)
+                val raiTarget = raiChannelResolver.detect(channelUrl, channel.title)
+                val raiResolution = raiTarget?.let { target ->
+                    try {
+                        raiChannelResolver.resolve(target)
+                    } catch (cancellation: CancellationException) {
+                        throw cancellation
+                    } catch (failure: Exception) {
+                        timber.w(failure, "the Rai channel could not be resolved")
+                        null
+                    }
+                }
+                if (!providerSessionState.isCurrent(generation)) return
+                val userAgent = if (raiTarget != null) {
+                    // every Rai request has to use the same user agent, the media tokens
+                    // are bound to the one which fetched the master playlist
+                    RaiChannels.USER_AGENT
+                } else {
+                    getUserAgent(channelUrl, playlist)
+                }
 
                 val chainAccepted = providerSessionState.runIfCurrent(generation) {
-                    this.chain = channelPreference?.mineType
-                        ?.let { MimetypeChain.Remembered(channelUrl, it) }
-                        ?: MimetypeChain.Unspecified(channelUrl)
+                    activeMediaUrl = channelUrl
+                    activeRaiTarget = raiTarget
+                    activeRaiChannelUrl = channelUrl
+                    raiRetryCount = 0
+                    this.chain = when {
+                        raiTarget != null -> MimetypeChain.Remembered(
+                            url = channelUrl,
+                            mimeType = MimeTypes.APPLICATION_M3U8,
+                        )
+
+                        channelPreference?.mineType != null -> MimetypeChain.Remembered(
+                            url = channelUrl,
+                            mimeType = channelPreference.mineType,
+                        )
+
+                        else -> MimetypeChain.Unspecified(channelUrl)
+                    }
                 }
                 if (!chainAccepted) return
 
@@ -324,6 +366,7 @@ class PlayerManagerImpl @Inject constructor(
                 tryPlay(
                     generation = generation,
                     url = channelUrl,
+                    mediaUrl = raiResolution?.mediaPlaylistUrl ?: channelUrl,
                     userAgent = userAgent,
                     requestHeaders = activeRequestHeaders,
                     licenseType = licenseType,
@@ -350,6 +393,7 @@ class PlayerManagerImpl @Inject constructor(
     private suspend fun tryPlay(
         generation: Long,
         url: String = chain.url,
+        mediaUrl: String = url,
         userAgent: String? = getUserAgent(chain.url, playlist.value),
         requestHeaders: Map<String, String> = activeRequestHeaders,
         providerPlayback: Boolean = activeProviderPlayback,
@@ -374,6 +418,7 @@ class PlayerManagerImpl @Inject constructor(
                 return tryPlay(
                     generation = generation,
                     url = url,
+                    mediaUrl = mediaUrl,
                     userAgent = userAgent,
                     requestHeaders = requestHeaders,
                     providerPlayback = providerPlayback,
@@ -452,13 +497,14 @@ class PlayerManagerImpl @Inject constructor(
                 mediaSourceFactory.setDrmSessionManagerProvider { drmSessionManager }
             }
         }
-        val mediaItem = MediaItem.fromUri(url)
+        val mediaItem = MediaItem.fromUri(mediaUrl)
         val mediaSource: MediaSource = mediaSourceFactory.createMediaSource(mediaItem)
         val preparedPlayer = preparePlayer(
             generation = generation,
             mediaSourceFactory = mediaSourceFactory,
             mediaSource = mediaSource,
             mediaExtractor = mediaExtractor,
+            mediaUrl = mediaUrl,
             tunneling = tunneling,
             mixWithOtherAudio = mixWithOtherAudio,
         ) ?: return
@@ -528,6 +574,10 @@ class PlayerManagerImpl @Inject constructor(
             activeRequestHeaders = emptyMap()
             activeProviderPlayback = false
             activeProviderPlaybackAllowsCrossOrigin = false
+            activeMediaUrl = ""
+            activeRaiTarget = null
+            activeRaiChannelUrl = ""
+            raiRetryCount = 0
             mediaCommand.value = null
             size.value = Rect()
             playbackState.value = Player.STATE_IDLE
@@ -606,7 +656,12 @@ class PlayerManagerImpl @Inject constructor(
     }
 
     override suspend fun syncThumbnail(channelUrl: String): Uri? = withContext(Dispatchers.IO) {
-        val thumbnail = Codecs.getThumbnail(context, channelUrl.toUri()) ?: return@withContext null
+        // a probe reads a single rendition: a channel which cannot be resolved is
+        // reported as a failed probe and never as a failed playback
+        val probeUrl = raiChannelResolver.probeUrl(channelUrl) ?: channelUrl
+        val thumbnail = runCatching { Codecs.getThumbnail(context, probeUrl.toUri()) }
+            .getOrNull()
+            ?: return@withContext null
         val filename = UUID.randomUUID().toString() + ".jpeg"
         val file = File(thumbnailDir, filename)
         while (!file.createNewFile()) {
@@ -654,6 +709,7 @@ class PlayerManagerImpl @Inject constructor(
         mediaSourceFactory: MediaSource.Factory,
         mediaSource: MediaSource,
         mediaExtractor: MediaExtractorCompat,
+        mediaUrl: String,
         tunneling: Boolean,
         mixWithOtherAudio: Boolean,
     ): ExoPlayer? {
@@ -676,6 +732,7 @@ class PlayerManagerImpl @Inject constructor(
                 }
                 if (activePlayerGeneration == generation) {
                     extractor = mediaExtractor
+                    activeMediaUrl = mediaUrl
                     preparedPlayer.setMediaSource(mediaSource)
                     preparedPlayer.prepare()
                     result = preparedPlayer
@@ -786,6 +843,10 @@ class PlayerManagerImpl @Inject constructor(
         exception: PlaybackException?,
     ) {
         providerSessionState.runIfCurrent(generation) {
+            val status = exception?.httpStatusCode()
+            if (status != null && status in RETRYABLE_STATUSES && retryRaiPlayback(generation, exception, status)) {
+                return@runIfCurrent
+            }
             when (val errorCode = exception?.errorCode) {
                 PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW -> {
                     timber.w("onPlayerErrorChanged, ERROR_CODE_BEHIND_LIVE_WINDOW, trying to replay")
@@ -802,6 +863,9 @@ class PlayerManagerImpl @Inject constructor(
                     timber.w(
                         "onPlayerErrorChanged, ${PlaybackException.getErrorCodeName(errorCode)}"
                     )
+                    if (retryRaiPlayback(generation, exception, null)) {
+                        return@runIfCurrent
+                    }
                     when (val chain = chain) {
                         is MimetypeChain.Remembered -> {
                             ioCoroutineScope.launch {
@@ -859,6 +923,61 @@ class PlayerManagerImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Resolves the Rai channel again and retries the playback once.
+     *
+     * The Rai media tokens expire, so a 403 or a 404 during the playback is not a
+     * permanent failure: the channel is resolved again and the playback restarts from
+     * the live edge.
+     */
+    private fun retryRaiPlayback(
+        generation: Long,
+        exception: PlaybackException?,
+        status: Int?,
+    ): Boolean {
+        val target = activeRaiTarget ?: return false
+        val channelUrl = activeRaiChannelUrl.takeIf { it.isNotEmpty() } ?: return false
+        if (raiRetryCount >= MAX_RAI_RETRIES) return false
+        raiRetryCount++
+        timber.w(
+            "the Rai channel answered ${status ?: "a broken rendition"}, " +
+                "it is resolved again (attempt $raiRetryCount)"
+        )
+        mainCoroutineScope.launch {
+            if (!providerSessionState.isCurrent(generation)) return@launch
+            val resolution = try {
+                raiChannelResolver.resolve(target)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (failure: Exception) {
+                timber.w(failure, "the Rai channel could not be resolved again")
+                null
+            }
+            if (!providerSessionState.isCurrent(generation)) return@launch
+            if (resolution == null) {
+                playbackException.value = exception
+                closeProviderSessionForGenerationAsync(
+                    generation = generation,
+                    reason = ProviderPlaybackCloseReason.PLAYBACK_FAILED,
+                )
+                return@launch
+            }
+            tryPlay(
+                generation = generation,
+                url = channelUrl,
+                mediaUrl = resolution.mediaPlaylistUrl,
+                userAgent = RaiChannels.USER_AGENT,
+                requestHeaders = activeRequestHeaders,
+                providerPlayback = activeProviderPlayback,
+                providerPlaybackAllowsCrossOrigin = activeProviderPlaybackAllowsCrossOrigin,
+                licenseType = channel.value?.licenseType.orEmpty(),
+                licenseKey = channel.value?.licenseKey.orEmpty(),
+                applyContinueWatching = false,
+            )
+        }
+        return true
     }
 
     private fun handleTracksChanged(
@@ -980,7 +1099,7 @@ class PlayerManagerImpl @Inject constructor(
 
                 withContext(Dispatchers.Main) {
                     transformer.start(
-                        MediaItem.fromUri(chain.url),
+                        MediaItem.fromUri(activeMediaUrl.ifEmpty { chain.url }),
                         uri.path.orEmpty()
                     )
                 }
@@ -1188,6 +1307,26 @@ class PlayerManagerImpl @Inject constructor(
 fun VideoSize.toRect(): Rect {
     return Rect(0, 0, width, height)
 }
+
+/**
+ * The http status of the failed request, null when the failure is not an http one.
+ */
+private fun PlaybackException.httpStatusCode(): Int? {
+    var cause: Throwable? = this
+    while (cause != null) {
+        if (cause is HttpDataSource.InvalidResponseCodeException) return cause.responseCode
+        cause = cause.cause
+    }
+    return null
+}
+
+/**
+ * The http statuses which are worth a new attempt, the media tokens of a live stream
+ * expire while it is played.
+ */
+private val RETRYABLE_STATUSES = setOf(403, 404)
+
+private const val MAX_RAI_RETRIES = 1
 
 private data class PlaybackStateEvent(
     val generation: Long,
