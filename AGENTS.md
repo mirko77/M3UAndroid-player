@@ -167,8 +167,8 @@ Rules:
 
 ## Search Tools
 
+- For file search or grep across git-indexed code, use the fff MCP tools (`mcp__fff__find_files`, `mcp__fff__grep`, `mcp__fff__multi_grep`) when available, or targeted local search tools.
 - For symbol-level questions (call paths, architecture, blast radius, "how does X work"), use CodeGraph first via MCP (`codegraph_explore`) or CLI (`codegraph explore "<symbol>"`).
-- For file search or grep across git-indexed code, inspect targeted files directly or use local search tools.
 
 ## Priority Rules
 

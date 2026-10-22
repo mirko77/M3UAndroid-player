@@ -69,12 +69,18 @@ Canonical skill definitions are located in [`.agents/skills/<name>/SKILL.md`](.a
 - In **Command Code**: run `/<name>` (e.g. `/commit`, `/review`).
 - In **OpenCode**: run `/<name>` via wrappers in [`.opencode/commands/`](.opencode/commands/).
 
-### CodeGraph MCP
+### Local MCP Servers (CodeGraph & FFF)
 
-CodeGraph indexing is initialized locally (`.codegraph/`). The CodeGraph MCP server is registered at **local** scope (machine-local, not committed). Teammates can register it on their machine with:
+CodeGraph and FFF (fast file finder) are registered at **local** scope (machine-local, not committed). Teammates can register them on their machine with:
 
 ```sh
+# agy
+agy mcp add codegraph -- "$(command -v codegraph)" serve --mcp
+agy mcp add fff /opt/homebrew/bin/fff-mcp
+
+# cmd
 cmd mcp add --scope local codegraph -- "$(command -v codegraph)" serve --mcp
+cmd mcp add --scope local fff -- /opt/homebrew/bin/fff-mcp
 ```
 
 ## License

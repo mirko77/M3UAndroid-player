@@ -27,7 +27,10 @@
       "Shell(git commit:*)",
       "Shell(mkdir:*)",
       "Shell(greptile review:*)",
-      "mcp__codegraph__codegraph_explore"
+      "mcp__codegraph__codegraph_explore",
+      "mcp__fff__multi_grep",
+      "mcp__fff__grep",
+      "mcp__fff__find_files"
     ],
     "ask": [
       "Shell(git push:*)",
