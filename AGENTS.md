@@ -6,6 +6,23 @@ This file applies to the entire repository. More specific `AGENTS.md` files in s
 
 M3UAndroid is a Kotlin Android IPTV player for phones and tablets. It supports M3U playlists, Xtream API, DLNA casting, Room persistence, WorkManager background sync, Media3/ExoPlayer playback, extensions, benchmark tooling, and multilingual resources.
 
+## Core Rules
+
+- Do NOT introduce Java (Kotlin only).
+- Do NOT refactor unrelated code.
+- Do NOT introduce new patterns or abstractions unless explicitly requested.
+- Follow existing architecture and conventions from `docs/ARCHITECTURE.md` and `docs/CODE-STYLE.md`.
+- No wildcard or star imports (`import foo.*` is forbidden).
+
+## Refactoring Rules
+
+A behaviour-preserving refactor changes structure while preserving behaviour, contracts, and trust boundaries.
+
+- Trust existing internal contracts. Tests, established calling patterns, and model invariants are evidence of intended data shapes.
+- New guards, validation, fallbacks, catch blocks, or abstractions require a concrete justification — identify the specific boundary or demonstrated failure mode that requires them. The mere possibility that a value could be invalid is not sufficient.
+- Unrelated hardening is outside the scope of a refactor.
+- Prefer minimal diffs.
+
 ## Progressive Guidance Map
 
 - `app/AGENTS.md`: app modules, Compose UI, navigation, Hilt entry points, permissions, and platform presentation.
@@ -24,13 +41,11 @@ Before modifying code, identify the task type and read the relevant instructions
 ### Android Phone UI changes
 
 Read:
-
 - `AGENTS.md`
 - `app/AGENTS.md`
 - The nearest feature-level `AGENTS.md`, if present
 
 Rules:
-
 - Keep UI state in ViewModel or feature state holders.
 - Do not access DAO, database, parser internals, or low-level data sources directly from UI.
 - Prefer small, focused composables.
@@ -44,13 +59,11 @@ Rules:
 ### Data layer changes
 
 Read:
-
 - `AGENTS.md`
 - `data/AGENTS.md`
 - Relevant data playbooks under `docs/ai/playbooks/`
 
 Rules:
-
 - Repositories should expose stable APIs to upper layers.
 - Do not leak Room entities or parser internals into UI.
 - Migration changes must include validation.
@@ -59,12 +72,10 @@ Rules:
 ### Business/domain logic changes
 
 Read:
-
 - `AGENTS.md`
 - `business/AGENTS.md`
 
 Rules:
-
 - Business logic should not depend on Android framework UI APIs.
 - Keep workflow logic testable.
 - Do not move UI-specific assumptions into business modules.
@@ -72,12 +83,10 @@ Rules:
 ### Core module changes
 
 Read:
-
 - `AGENTS.md`
 - `core/AGENTS.md`
 
 Rules:
-
 - Keep core lightweight.
 - Do not add dependencies on app or business modules.
 - Avoid Android framework dependencies unless the module explicitly allows them.
@@ -85,13 +94,11 @@ Rules:
 ### i18n/resource changes
 
 Read:
-
 - `AGENTS.md`
 - `i18n/AGENTS.md`
 - `docs/ai/playbooks/i18n-resources.md`
 
 Rules:
-
 - Do not hardcode user-facing strings.
 - Keep resource names stable and meaningful.
 - Validate affected locales when possible.
@@ -99,7 +106,6 @@ Rules:
 ### Extension system changes
 
 Read:
-
 - `AGENTS.md`
 - `core/AGENTS.md`
 - Relevant app, business, or data instructions for touched modules
@@ -107,7 +113,6 @@ Read:
 - Any extension-related design documents near the changed code
 
 Rules:
-
 - Do not break host/plugin API compatibility casually.
 - Keep API surfaces stable.
 - Be careful with classloader boundaries.
@@ -117,14 +122,12 @@ Rules:
 ### Playback-related changes
 
 Read:
-
 - `AGENTS.md`
 - Relevant app, business, and data instructions
 - `docs/ai/playbooks/playback-pipeline.md`
 - Any playback-related design documents near the changed code
 
 Rules:
-
 - Avoid mixing UI state, playback engine state, and persistence concerns.
 - Be careful with lifecycle handling.
 - Mention behavior changes clearly in the PR.
@@ -132,14 +135,12 @@ Rules:
 ### Build, release, benchmark, or APK size changes
 
 Read:
-
 - `AGENTS.md`
 - Relevant module instructions for touched Gradle files
 - `testing/AGENTS.md` when benchmarks or device tests are affected
 - `docs/ai/playbooks/apk-size.md` for packaging or size work
 
 Rules:
-
 - Keep Gradle changes narrowly scoped and use the version catalog for dependencies.
 - Do not add repositories, inline dependency versions, or generated artifacts without justification.
 - Mention release, size, or benchmark risks in the PR.
@@ -164,11 +165,62 @@ Rules:
 - Core modules should stay lightweight, reusable, and as platform-neutral as practical.
 - UI must not directly access DAOs, databases, parser internals, or low-level data sources.
 
+## Search Tools
+
+- For symbol-level questions (call paths, architecture, blast radius, "how does X work"), use CodeGraph first via MCP (`codegraph_explore`) or CLI (`codegraph explore "<symbol>"`).
+- For file search or grep across git-indexed code, inspect targeted files directly or use local search tools.
+
+## Priority Rules
+
+- `docs/CODE-STYLE.md` overrides generic Android / Kotlin best practices.
+- Always follow existing patterns in the codebase over external examples.
+
+## System Risks Check (MANDATORY for new features)
+
+Applies to: **new features, new data flows, new persistence/state, and new external integrations.**
+Does **not** apply mechanically to behaviour-preserving refactors — see Refactoring Rules above.
+
+For work in scope, do NOT assume correctness. Identify how the new behaviour can break.
+
+You MUST:
+
+* List ways data can become stale or inconsistent
+* Check what happens when underlying data changes or is removed
+* Consider failures: network, partial execution, concurrency
+* Identify anything cached/stored and when it becomes invalid
+* Consider side effects on other parts of the system
+
+List at least three concrete risks specific to the new behaviour.
+If none, justify why for each point.
+
+Assume this runs at scale and causes inconsistencies after months in production.
+
+## Git
+
+Commit messages follow Conventional Commits (see `.github/commit-rules.md`):
+
+- Format: `<type>(<scope>): <description>` — scope is optional for docs, test and chore commits.
+- Allowed types: feat, fix, refactor, perf, docs, test, build, ci, chore, style, revert.
+- Use imperative mood (e.g. "add", "fix", "remove").
+- Do not capitalize the first word of the description.
+- Do not end the description with a period.
+- Maximum 75 characters total, including type and scope.
+- Never add Co-Authored-By, Signed-off-by, or attribution trailers.
+
+## Source of Truth
+
+- Architecture → `docs/ARCHITECTURE.md`
+- Code style → `docs/CODE-STYLE.md`
+- Commit rules → `.github/commit-rules.md`
+- Review guidelines → `.github/review-guidelines.md`
+- Validation matrix → `docs/ai/VALIDATION_MATRIX.md`
+- Custom agent commands → `.agents/skills/*/SKILL.md` (canonical; wrappers in `.opencode/commands/`)
+
 ## Build And Validation
 
 - Use the repository Gradle wrapper for builds and validation.
 - Use `docs/ai/VALIDATION_MATRIX.md` to choose the smallest relevant validation first, then broaden when changes affect user-facing flows, shared contracts, playback, sync, database, permissions, background work, or CI release paths.
-- For documentation-only or small resource-only changes, at least run a diff whitespace check.
+- For documentation-only or small resource-only changes, at least run a diff whitespace check (`git diff --check`).
 - Do not change Room entities, tables, or schemas without updating migrations and schema artifacts together.
 - If validation cannot be run, explicitly state the command not run, why it was not run, and what risk remains.
 

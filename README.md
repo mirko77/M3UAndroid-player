@@ -44,6 +44,39 @@ Requirements: JDK 17 (the `parser` submodule pins `jvmToolchain(17)`),
 Android Studio Otter 2.x or newer (project pins AGP 9.0.0 / compileSdk 36),
 Android SDK platform 36.
 
+## Documentation
+
+- [AGENTS.md](AGENTS.md) — project rules, task routing guide, and source of truth map
+- [Architecture](docs/ARCHITECTURE.md) — architecture reference and subsystem map
+- [Code Style](docs/CODE-STYLE.md) — conventions, formatting, and anti-patterns
+- [Workflows](docs/workflows/) — step-by-step procedures for review, QA, drafts, and Greptile loop
+
+## Agent setup
+
+Canonical skill definitions are located in [`.agents/skills/<name>/SKILL.md`](.agents/skills/):
+
+- `commit` — Create Conventional Commits from changes, splitting by type and scope
+- `release` — Cut an Android release, bump version codes, and assemble release APKs
+- `review` — Review local changes against base branch
+- `issue` — Convert the current AI plan into a GitHub issue draft in `docs/issues/draft/`
+- `publish-issue` — Publish a drafted issue to GitHub via `gh` CLI
+- `false-positive` — Mark a review finding as false positive in `docs/known-review-false-positives.md`
+- `greptile-loop` — Drive a change to a clean Greptile review
+- `qa` — Generate QA documentation and manual checklists
+
+### Invocation
+
+- In **Command Code**: run `/<name>` (e.g. `/commit`, `/review`).
+- In **OpenCode**: run `/<name>` via wrappers in [`.opencode/commands/`](.opencode/commands/).
+
+### CodeGraph MCP
+
+CodeGraph indexing is initialized locally (`.codegraph/`). The CodeGraph MCP server is registered at **local** scope (machine-local, not committed). Teammates can register it on their machine with:
+
+```sh
+cmd mcp add --scope local codegraph -- "$(command -v codegraph)" serve --mcp
+```
+
 ## License
 
 M3U Player is an open-source project licensed under the [GNU General Public License v3.0](LICENSE).

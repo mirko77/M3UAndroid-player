@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(gh auth status:*)",
+      "Shell(gh label list:*)",
+      "Shell(gh release view:*)",
+      "Shell(command -v gh:*)",
+      "Shell(rm docs/issues/draft/*.md)",
+      "Shell(./gradlew test:*)",
+      "Shell(./gradlew testDebugUnitTest:*)",
+      "Shell(./gradlew :*:testDebugUnitTest:*)",
+      "Shell(./gradlew :*:test:*)",
+      "Shell(./gradlew :*:jvmTest:*)",
+      "Shell(./gradlew :*:assembleDebug:*)",
+      "Shell(./gradlew :*:assembleRelease:*)",
+      "Shell(./gradlew :*:compileDebugKotlin:*)",
+      "Shell(./gradlew --version:*)",
+      "Shell(testing/bin/verify-android-16kb.sh:*)",
+      "Shell(git status:*)",
+      "Shell(git diff:*)",
+      "Shell(git log:*)",
+      "Shell(git show:*)",
+      "Shell(git branch:*)",
+      "Shell(git rev-parse:*)",
+      "Shell(git ls-files:*)",
+      "Shell(git add:*)",
+      "Shell(git commit:*)",
+      "Shell(mkdir:*)",
+      "Shell(greptile review:*)",
+      "mcp__codegraph__codegraph_explore"
+    ],
+    "ask": [
+      "Shell(git push:*)",
+      "Shell(git tag:*)",
+      "Shell(git reset:*)",
+      "Shell(gh issue create:*)",
+      "Shell(gh release upload:*)"
+    ],
+    "deny": [
+      "Shell(rm -rf:*)",
+      "Shell(git push --force:*)",
+      "Shell(git reset --hard:*)",
+      "Shell(git clean -:*)"
+    ],
+    "defaultMode": "default"
+  }
+}
